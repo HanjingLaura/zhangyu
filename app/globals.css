@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+:root {
+  --sea: #12343b;
+  --foam: #eef4f1;
+  --ink: #10242b;
+  --coral: #ff6a4d;
+  --gold: #f3c15d;
+  --kelp: #1f6b63;
+}
+
+@theme inline {
+  --color-sea: var(--sea);
+  --color-foam: var(--foam);
+  --color-ink: var(--ink);
+  --color-coral: var(--coral);
+  --color-gold: var(--gold);
+  --color-kelp: var(--kelp);
+  --font-sans: var(--font-noto);
+  --font-display: var(--font-display);
+}
+
+html,
+body {
+  background: var(--sea);
+  color: var(--ink);
+}
+
+body {
+  font-family: var(--font-noto), "PingFang SC", "Noto Sans SC", sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), "Songti SC", serif;
+}
+
+.chat-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(16, 36, 43, 0.2) transparent;
+}
