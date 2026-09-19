@@ -1,89 +1,190 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { idiomIndex } from "@/lib/dictionary";
-import { createGame, hint, pass, submit } from "@/lib/engine";
-import { DEFAULT_NAMES } from "@/lib/scenes";
-import type { Game, GameConfig } from "@/lib/types";
+import { useEffect, useState } from "react";
+import {
+  apiConfigureRoom,
+  apiCreateRoom,
+  apiDanmaku,
+  apiJoinRoom,
+  apiLeaveRoom,
+  apiLogout,
+  apiMe,
+  apiMove,
+  apiRoom,
+  apiStartRoom,
+  apiUploadAvatar,
+} from "@/lib/client";
+import type { RoomSnapshot, UserPublic } from "@/lib/types";
+import { AuthView } from "./auth-view";
 import { HomeView } from "./home-view";
+import { JoinView } from "./join-view";
+import { LobbyView } from "./lobby-view";
 import { PlayView } from "./play-view";
 import { RulesView } from "./rules-view";
 import { ScenesView } from "./scenes-view";
-import { SetupView } from "./setup-view";
 import { GameCabinet } from "./shell";
 
-type View = "home" | "setup" | "play" | "rules" | "scenes";
-
-const INITIAL_CONFIG: GameConfig = {
-  names: DEFAULT_NAMES,
-  mode: "char",
-  tentacles: 3,
-  opening: "yiming",
-};
+type View = "boot" | "auth" | "home" | "join" | "lobby" | "play" | "rules" | "scenes";
 
 export function GameApp() {
-  const [view, setView] = useState<View>("home");
-  const [config, setConfig] = useState<GameConfig>(INITIAL_CONFIG);
-  const [game, setGame] = useState<Game | null>(null);
+  const [view, setView] = useState<View>("boot");
+  const [user, setUser] = useState<UserPublic | null>(null);
+  const [room, setRoom] = useState<RoomSnapshot | null>(null);
   const [draft, setDraft] = useState("");
-  const index = useMemo(() => idiomIndex, []);
+  const [error, setError] = useState("");
 
-  const startGame = () => {
-    const names = config.names.map((name) => name.trim()).filter(Boolean);
-    const next = createGame(index, {
-      ...config,
-      names: names.length >= 2 ? names : DEFAULT_NAMES.slice(0, 2),
-    });
-    setGame(next);
+  useEffect(() => {
+    apiMe()
+      .then((next) => {
+        setUser(next);
+        setView(next ? "home" : "auth");
+      })
+      .catch(() => setView("auth"));
+  }, []);
+
+  const roomCode = room?.code;
+  useEffect(() => {
+    if (!roomCode || (view !== "lobby" && view !== "play")) return;
+    const timer = window.setInterval(() => {
+      apiRoom(roomCode)
+        .then((data) => {
+          setRoom(data.room);
+          if (data.you) setUser(data.you);
+          if (data.room.status === "playing" || data.room.status === "finished") {
+            setView("play");
+          }
+        })
+        .catch(() => undefined);
+    }, 1200);
+    return () => window.clearInterval(timer);
+  }, [roomCode, view]);
+
+  const enterRoom = (next: RoomSnapshot) => {
+    setRoom(next);
+    setError("");
     setDraft("");
-    setView("play");
+    setView(next.status === "lobby" ? "lobby" : "play");
   };
 
   return (
     <GameCabinet>
-      {view === "home" ? (
+      {view === "boot" ? (
+        <div className="tavern-screen items-center justify-center text-gold">入座中…</div>
+      ) : null}
+      {view === "auth" ? <AuthView onReady={(next) => { setUser(next); setView("home"); }} /> : null}
+      {view === "home" && user ? (
         <HomeView
-          onPlay={() => setView("setup")}
+          user={user}
+          onAvatar={async (image) => {
+            setUser(await apiUploadAvatar(image));
+          }}
+          onCreate={async () => {
+            try {
+              enterRoom(await apiCreateRoom());
+            } catch (err) {
+              setError(err instanceof Error ? err.message : "开不了桌");
+            }
+          }}
+          onJoin={() => setView("join")}
           onRules={() => setView("rules")}
           onScenes={() => setView("scenes")}
+          onLogout={async () => {
+            await apiLogout();
+            setUser(null);
+            setRoom(null);
+            setView("auth");
+          }}
         />
       ) : null}
-      {view === "setup" ? (
-        <SetupView
-          config={config}
-          onChange={setConfig}
+      {view === "join" ? (
+        <JoinView
           onBack={() => setView("home")}
-          onStart={startGame}
+          onJoin={async (code) => enterRoom(await apiJoinRoom(code))}
         />
       ) : null}
-      {view === "rules" ? (
-        <RulesView onBack={() => setView("home")} />
-      ) : null}
-      {view === "scenes" ? (
-        <ScenesView
-          onBack={() => setView("home")}
-          onPlay={() => setView("setup")}
+      {view === "lobby" && room && user ? (
+        <LobbyView
+          room={room}
+          you={user}
+          error={error}
+          onBack={async () => {
+            await apiLeaveRoom(room.code);
+            setRoom(null);
+            setView("home");
+          }}
+          onConfigure={async (patch) => {
+            setRoom(await apiConfigureRoom(room.code, patch));
+          }}
+          onDanmaku={async (text) => {
+            setRoom(await apiDanmaku(room.code, text));
+          }}
+          onStart={async () => {
+            try {
+              setError("");
+              enterRoom(await apiStartRoom(room.code));
+            } catch (err) {
+              setError(err instanceof Error ? err.message : "开不了");
+            }
+          }}
         />
       ) : null}
-      {view === "play" && game ? (
+      {view === "play" && room?.game ? (
         <PlayView
-          game={game}
+          room={room}
+          you={user}
           draft={draft}
+          error={error}
           onDraft={setDraft}
-          onSubmit={() => {
-            const result = submit(index, game, draft);
-            setGame(result.game);
-            setDraft("");
+          onSubmit={async () => {
+            try {
+              setError("");
+              setRoom(await apiMove(room.code, "submit", draft));
+              setDraft("");
+            } catch (err) {
+              setError(err instanceof Error ? err.message : "接不上");
+            }
           }}
-          onHint={() => setGame(hint(index, game))}
-          onPass={() => {
-            setGame(pass(index, game).game);
-            setDraft("");
+          onHint={async () => {
+            try {
+              setRoom(await apiMove(room.code, "hint"));
+            } catch (err) {
+              setError(err instanceof Error ? err.message : "查不了");
+            }
           }}
-          onBack={() => setView("home")}
-          onAgain={startGame}
-          onReseat={() => setView("setup")}
+          onPass={async () => {
+            try {
+              setRoom(await apiMove(room.code, "pass"));
+            } catch (err) {
+              setError(err instanceof Error ? err.message : "过不了");
+            }
+          }}
+          onDanmaku={async (text) => {
+            setRoom(await apiDanmaku(room.code, text));
+          }}
+          onBack={() => {
+            setView(room.status === "lobby" ? "lobby" : "home");
+          }}
+          onAgain={async () => {
+            try {
+              setRoom(await apiStartRoom(room.code));
+              setDraft("");
+            } catch (err) {
+              setError(err instanceof Error ? err.message : "再来不了");
+            }
+          }}
+          onReseat={() => setView("lobby")}
+          onFinish={async () => {
+            try {
+              setRoom(await apiMove(room.code, "finish"));
+            } catch (err) {
+              setError(err instanceof Error ? err.message : "散不了");
+            }
+          }}
         />
+      ) : null}
+      {view === "rules" ? <RulesView onBack={() => setView("home")} /> : null}
+      {view === "scenes" ? (
+        <ScenesView onBack={() => setView("home")} onPlay={() => setView("home")} />
       ) : null}
     </GameCabinet>
   );

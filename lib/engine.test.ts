@@ -1,7 +1,17 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { createGame, hint, pass, submit, zhangyuKing } from "./engine";
+import {
+  computeTitles,
+  createGame,
+  finishGame,
+  hint,
+  pass,
+  submit,
+  zhangyuKing,
+} from "./engine";
+import { formatRecord } from "./record";
 import { buildIndex } from "./idioms";
+import type { RoomSnapshot } from "./types";
 
 const index = buildIndex([
   ["一鸣惊人", "yi", "ren"],
@@ -14,12 +24,13 @@ const index = buildIndex([
   ["人才辈出", "ren", "chu"],
 ]);
 
-function start() {
+function start(maxRounds = 100) {
   return createGame(index, {
     names: ["Cora", "Lauraura"],
     mode: "char",
     tentacles: 2,
     opening: "yiming",
+    maxRounds,
   });
 }
 
@@ -29,15 +40,17 @@ describe("createGame", () => {
     assert.equal(game.chain[0], "一鸣惊人");
     assert.match(game.messages.at(-1)?.text ?? "", /接到「人」/);
     assert.equal(game.players[0].name, "Cora");
+    assert.equal(game.maxRounds, 100);
   });
 });
 
 describe("submit", () => {
-  it("accepts a real linked idiom", () => {
+  it("accepts a real linked idiom and moves clockwise", () => {
     const result = submit(index, start(), "人山人海");
     assert.equal(result.ok, true);
     assert.deepEqual(result.game.chain, ["一鸣惊人", "人山人海"]);
     assert.equal(result.game.players[0].culture, 1);
+    assert.equal(result.game.rounds, 1);
     assert.equal(result.game.turn, 1);
     const playerLines = result.game.messages.filter(
       (message) => message.kind === "player" && message.text === "人山人海",
@@ -45,12 +58,14 @@ describe("submit", () => {
     assert.equal(playerLines.length, 1);
   });
 
-  it("roasts fake office classics", () => {
+  it("roasts fake office classics without kicking anyone out", () => {
     const result = submit(index, start(), "龙年大吉");
     assert.equal(result.ok, false);
     assert.equal(result.reason, "egg");
-    assert.equal(result.game.players[0].tentacles, 1);
+    assert.equal(result.game.players[0].out, false);
     assert.equal(result.game.players[0].zhangyu, 1);
+    assert.equal(result.game.players[0].fun, 3);
+    assert.equal(result.game.turn, 1);
     assert.match(result.game.messages.map((m) => m.text).join("\n"), /成语/);
   });
 
@@ -63,13 +78,13 @@ describe("submit", () => {
     assert.equal(used.reason, "used");
   });
 
-  it("eliminates a player and can finish the table", () => {
-    const first = submit(index, start(), "春天来了");
-    const second = submit(index, first.game, "人山人海");
-    const third = submit(index, second.game, "猪年大吉");
-    assert.equal(third.game.players[0].out, true);
-    assert.equal(third.game.status, "finished");
-    assert.equal(third.game.winnerId, "p2");
+  it("finishes after the configured number of rounds", () => {
+    const first = submit(index, start(2), "人山人海");
+    const second = submit(index, first.game, "海阔天空");
+    assert.equal(second.game.rounds, 2);
+    assert.equal(second.game.status, "finished");
+    assert.ok(second.game.titles);
+    assert.equal(second.game.titles?.culture.name, "Cora");
   });
 });
 
@@ -90,21 +105,45 @@ describe("hint and pass", () => {
       mode: "char",
       tentacles: 2,
       opening: "yiming",
+      maxRounds: 100,
     });
     const after = submit(tight, game, "人山人海").game;
     const skipped = pass(tight, after);
     assert.equal(skipped.reason, "dead-end");
-    assert.equal(skipped.game.players[1].tentacles, 2);
+    assert.equal(skipped.game.players[1].fails, 0);
   });
 });
 
 describe("settlement", () => {
-  it("names the 丈育王 by score", () => {
+  it("names titles after the table ends", () => {
     const first = submit(index, start(), "春天来了");
     const second = submit(index, first.game, "人山人海");
-    const king = zhangyuKing(second.game);
-    assert.equal(king.name, "Cora");
-    assert.ok(king.zhangyu > 0);
+    const ended = finishGame(second.game);
+    const titles = computeTitles(ended);
+    assert.equal(zhangyuKing(ended).name, "Cora");
+    assert.equal(titles.uncultured.name, "Cora");
+    assert.equal(titles.culture.name, "Lauraura");
+    assert.equal(ended.status, "finished");
+  });
+
+  it("exports the chain and scores", () => {
+    const first = submit(index, start(1), "人山人海");
+    const room: RoomSnapshot = {
+      code: "TEST",
+      hostId: "p1",
+      members: first.game.players,
+      status: "finished",
+      mode: "char",
+      tentacles: 2,
+      opening: "yiming",
+      maxRounds: 1,
+      game: first.game,
+      danmaku: [{ id: "d1", userId: "p1", name: "Cora", text: "nbb", at: 1 }],
+    };
+    const text = formatRecord(room);
+    assert.match(text, /一鸣惊人 → 人山人海/);
+    assert.match(text, /Cora/);
+    assert.match(text, /nbb/);
   });
 });
 
@@ -115,6 +154,7 @@ describe("pinyin mode", () => {
       mode: "pinyin",
       tentacles: 2,
       opening: "yiming",
+      maxRounds: 100,
     });
     const result = submit(index, game, "人才辈出");
     assert.equal(result.ok, true);

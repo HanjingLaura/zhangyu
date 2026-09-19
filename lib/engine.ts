@@ -11,8 +11,10 @@ import type {
   ChatTone,
   Game,
   GameConfig,
+  GameTitles,
   IdiomIndex,
   Player,
+  SeatPlayer,
   SubmitResult,
 } from "./types";
 
@@ -20,75 +22,57 @@ function uid(prefix: string, seq: number) {
   return `${prefix}-${seq}`;
 }
 
-function living(players: Player[]) {
-  return players.filter((player) => !player.out);
-}
-
-function nextLivingIndex(players: Player[], from: number) {
-  const total = players.length;
-  for (let step = 1; step <= total; step += 1) {
-    const index = (from + step) % total;
-    if (!players[index].out) return index;
-  }
-  return from;
+function nextIndex(players: Player[], from: number) {
+  return (from + 1) % players.length;
 }
 
 function replacePlayer(players: Player[], id: string, next: Player) {
   return players.map((player) => (player.id === id ? next : player));
 }
 
-function hurt(player: Player): Player {
-  const tentacles = Math.max(0, player.tentacles - 1);
+export function computeTitles(game: Game): GameTitles {
+  const ranked = (score: (player: Player) => number) =>
+    [...game.players].sort((a, b) => {
+      const delta = score(b) - score(a);
+      if (delta !== 0) return delta;
+      return a.name.localeCompare(b.name, "zh-CN");
+    })[0];
+
   return {
-    ...player,
-    tentacles,
-    zhangyu: player.zhangyu + 1,
-    out: tentacles <= 0,
+    fun: ranked((player) => player.fun),
+    uncultured: ranked((player) => player.fails * 10 - player.culture),
+    zhangyu: ranked((player) => player.zhangyu),
+    culture: ranked((player) => player.culture),
+  };
+}
+
+function settle(game: Game, note?: string): Game {
+  const titles = computeTitles(game);
+  return {
+    ...game,
+    status: "finished",
+    winnerId: titles.culture.id,
+    titles,
+    lastHint: null,
+    seq: game.seq + 1,
+    messages: [
+      ...game.messages,
+      {
+        id: uid("sys", game.seq + 1),
+        kind: "octopus",
+        text:
+          note ??
+          `接满 ${game.rounds} 轮。${titles.culture.name} 文化最高，${titles.zhangyu.name} 是本桌丈育。`,
+        tone: "win",
+      },
+    ],
   };
 }
 
 function maybeFinish(game: Game): Game {
-  const alive = living(game.players);
-  if (alive.length === 1) {
-    const winner = alive[0];
-    return {
-      ...game,
-      status: "finished",
-      winnerId: winner.id,
-      lastHint: null,
-      seq: game.seq + 1,
-      messages: [
-        ...game.messages,
-        {
-          id: uid("sys", game.seq + 1),
-          kind: "octopus",
-          text: `${winner.name} 活到了最后。${lines.win()}`,
-          tone: "win",
-        },
-      ],
-    };
-  }
-  if (alive.length === 0) {
-    const ranked = [...game.players].sort(
-      (a, b) => b.culture - a.culture || a.zhangyu - b.zhangyu,
-    );
-    const winner = ranked[0];
-    return {
-      ...game,
-      status: "finished",
-      winnerId: winner.id,
-      lastHint: null,
-      seq: game.seq + 1,
-      messages: [
-        ...game.messages,
-        {
-          id: uid("sys", game.seq + 1),
-          kind: "octopus",
-          text: `全员触手掉光。按文化分，${winner.name} 勉强算赢。`,
-          tone: "win",
-        },
-      ],
-    };
+  if (game.status === "finished") return game;
+  if (game.rounds >= game.maxRounds) {
+    return settle(game);
   }
   return game;
 }
@@ -130,9 +114,16 @@ function applyFail(
   roast: string,
   reason: SubmitResult["reason"],
   tone: ChatTone = "fail",
+  extra?: Partial<Player>,
 ): SubmitResult {
   const player = game.players[game.turn];
-  const nextPlayer = hurt(player);
+  const nextPlayer: Player = {
+    ...player,
+    zhangyu: player.zhangyu + 1,
+    fails: player.fails + 1,
+    ...extra,
+    fun: player.fun + (extra?.fun ?? 0),
+  };
   let next = append(
     {
       ...game,
@@ -147,32 +138,33 @@ function applyFail(
     },
   );
 
-  if (nextPlayer.out) {
-    next = append(next, {
-      kind: "octopus",
-      text: `${player.name} 触手掉光，出局。`,
-      tone: "fail",
-    });
-  }
-
   next = maybeFinish(next);
   if (next.status === "playing") {
     next = announceTurn({
       ...next,
-      turn: nextLivingIndex(next.players, game.turn),
+      turn: nextIndex(next.players, game.turn),
     });
   }
   return { game: next, ok: false, reason };
 }
 
 export function createGame(index: IdiomIndex, config: GameConfig): Game {
-  const names = config.names.map((name) => name.trim()).filter(Boolean);
-  const players: Player[] = names.map((name, i) => ({
-    id: `p${i + 1}`,
-    name,
+  const roster: SeatPlayer[] =
+    config.seatPlayers && config.seatPlayers.length >= 2
+      ? config.seatPlayers
+      : config.names
+          .map((name) => name.trim())
+          .filter(Boolean)
+          .map((name, i) => ({ id: `p${i + 1}`, name }));
+  const players: Player[] = roster.map((seat) => ({
+    id: seat.id,
+    name: seat.name,
+    avatarUrl: seat.avatarUrl,
     tentacles: config.tentacles,
     culture: 0,
     zhangyu: 0,
+    fun: 0,
+    fails: 0,
     out: false,
   }));
 
@@ -182,6 +174,8 @@ export function createGame(index: IdiomIndex, config: GameConfig): Game {
     players,
     turn: 0,
     maxTentacles: config.tentacles,
+    maxRounds: config.maxRounds,
+    rounds: 0,
     chain: [opening],
     used: [opening],
     messages: [
@@ -195,6 +189,7 @@ export function createGame(index: IdiomIndex, config: GameConfig): Game {
     status: "playing",
     winnerId: null,
     lastHint: null,
+    titles: null,
     seq: 1,
   };
   return announceTurn(seed);
@@ -264,7 +259,7 @@ export function submit(
   });
 
   if (egg) {
-    return applyFail(spoken, egg.roast, "egg", "egg");
+    return applyFail(spoken, egg.roast, "egg", "egg", { fun: 3 });
   }
   if (!lookup(index, word)) {
     return applyFail(spoken, lines.notIdiom(), "not-idiom");
@@ -287,6 +282,7 @@ export function submit(
       chain: [...spoken.chain, word],
       used: [...spoken.used, word],
       lastHint: null,
+      rounds: spoken.rounds + 1,
     },
     {
       kind: "octopus",
@@ -300,7 +296,7 @@ export function submit(
   if (next.status === "playing") {
     next = announceTurn({
       ...next,
-      turn: nextLivingIndex(next.players, spoken.turn),
+      turn: nextIndex(next.players, spoken.turn),
     });
   }
   return { game: next, ok: true, reason: "ok" };
@@ -328,7 +324,7 @@ export function pass(index: IdiomIndex, game: Game): SubmitResult {
     return {
       game: announceTurn({
         ...skipped,
-        turn: nextLivingIndex(skipped.players, game.turn),
+        turn: nextIndex(skipped.players, game.turn),
       }),
       ok: true,
       reason: "dead-end",
@@ -337,17 +333,31 @@ export function pass(index: IdiomIndex, game: Game): SubmitResult {
   return applyFail(spoken, lines.pass(), "empty");
 }
 
+export function finishGame(game: Game): Game {
+  if (game.status === "finished") return game;
+  return settle(game, `提前散场，这桌接了 ${game.rounds} 轮。`);
+}
+
+export function addFun(game: Game, userId: string, amount = 1): Game {
+  const player = game.players.find((item) => item.id === userId);
+  if (!player) return game;
+  return {
+    ...game,
+    players: replacePlayer(game.players, userId, {
+      ...player,
+      fun: player.fun + amount,
+    }),
+  };
+}
+
 export function rankPlayers(game: Game) {
   return [...game.players].sort((a, b) => {
-    if (a.out !== b.out) return a.out ? 1 : -1;
     if (b.culture !== a.culture) return b.culture - a.culture;
-    return a.zhangyu - b.zhangyu;
+    if (a.zhangyu !== b.zhangyu) return a.zhangyu - b.zhangyu;
+    return b.fun - a.fun;
   });
 }
 
 export function zhangyuKing(game: Game) {
-  return [...game.players].sort((a, b) => {
-    if (b.zhangyu !== a.zhangyu) return b.zhangyu - a.zhangyu;
-    return a.culture - b.culture;
-  })[0];
+  return computeTitles(game).zhangyu;
 }

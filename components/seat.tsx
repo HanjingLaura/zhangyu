@@ -1,94 +1,80 @@
 import type { Player } from "@/lib/types";
-import { TentacleDots } from "./octopus";
+import { Avatar } from "./avatar";
 
-export const SEAT_COLORS = ["#ff6a4d", "#3cb7a4", "#f3c15d", "#c084fc"];
+export type SeatPerson = {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+  empty?: boolean;
+  player?: Player;
+};
 
 export type SeatSide = "south" | "north" | "west" | "east";
 
-export function assignSeats(players: Player[]) {
-  const seats: Partial<Record<SeatSide, Player>> = {};
-  if (players[0]) seats.south = players[0];
-  if (players.length === 2 && players[1]) seats.north = players[1];
-  if (players.length === 3) {
-    seats.west = players[1];
-    seats.east = players[2];
-  }
-  if (players.length >= 4) {
-    seats.west = players[1];
-    seats.north = players[2];
-    seats.east = players[3];
-  }
-  return seats;
+export function rotateSeats<T extends { id: string }>(people: T[], youId?: string) {
+  const index = youId ? people.findIndex((person) => person.id === youId) : 0;
+  if (index <= 0) return people;
+  return [...people.slice(index), ...people.slice(0, index)];
 }
 
-function colorFor(player: Player) {
-  const index = Number(player.id.replace("p", "")) - 1;
-  return SEAT_COLORS[Math.max(0, index) % SEAT_COLORS.length];
+export function seatStyle(index: number, total: number) {
+  const angle = ((90 + (360 / Math.max(total, 1)) * index) * Math.PI) / 180;
+  const radius = 46;
+  return {
+    left: `${50 + radius * Math.cos(angle)}%`,
+    top: `${50 + radius * Math.sin(angle)}%`,
+  };
 }
 
 export function Seat({
-  player,
-  active,
-  compact = false,
+  person,
+  active = false,
   settled = false,
   king = false,
   winner = false,
-  maxTentacles = 3,
 }: {
-  player: Player;
-  active: boolean;
-  compact?: boolean;
+  person: SeatPerson;
+  active?: boolean;
   settled?: boolean;
   king?: boolean;
   winner?: boolean;
-  maxTentacles?: number;
 }) {
+  const empty = Boolean(person.empty);
   return (
-    <div
-      className={`min-w-0 rounded-2xl border px-2.5 py-2 text-center backdrop-blur-sm ${
-        compact ? "w-[5.2rem]" : "w-[7.8rem]"
-      } ${
-        player.out
-          ? "border-white/10 bg-black/25 opacity-45"
-          : active
-            ? "border-gold/80 bg-gold/15 shadow-[0_0_24px_rgba(243,193,93,0.25)]"
-            : "border-white/10 bg-black/30"
-      }`}
-    >
+    <div className="-translate-x-1/2 -translate-y-1/2 text-center">
       <div
-        className="mx-auto flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold text-[#10242b]"
-        style={{ background: colorFor(player) }}
+        className={`rounded-full p-0.5 ${
+          active ? "bg-gold shadow-[0_0_18px_rgba(230,195,122,0.45)]" : "bg-transparent"
+        }`}
       >
-        {player.name.slice(0, 1)}
+        <Avatar
+          name={person.name}
+          src={person.avatarUrl}
+          empty={empty}
+          size={46}
+          ring={active}
+        />
       </div>
       <div
-        className={`mt-1 truncate text-[12px] text-white ${player.out ? "line-through" : ""}`}
+        className={`mx-auto mt-1 max-w-[4.6rem] truncate rounded-full px-2 py-0.5 text-[10px] ${
+          empty ? "bg-black/20 text-white/30" : "bg-[#2a160e]/80 text-[#f6efe2]"
+        }`}
       >
-        {player.name}
+        {empty ? "虚位" : person.name}
       </div>
-      {settled ? (
-        <div className="mt-1 space-y-0.5">
-          <div className="font-display text-lg text-gold">{player.zhangyu}</div>
-          <div className="text-[10px] text-white/45">丈育值</div>
-          {king ? (
-            <div className="text-[10px] text-coral">丈育王</div>
-          ) : null}
-          {winner ? (
-            <div className="text-[10px] text-gold">活到最后</div>
-          ) : null}
-        </div>
-      ) : (
-        <div className="mt-1 flex flex-col items-center gap-1">
-          <TentacleDots
-            current={player.tentacles}
-            max={maxTentacles}
-            light
-          />
-          <div className="text-[10px] text-white/40">
-            丈育 {player.zhangyu}
+      {person.player && !empty ? (
+        settled ? (
+          <div className="mt-0.5 text-[10px] text-gold">
+            {person.player.culture} 分
+            {king ? " · 丈育" : ""}
+            {winner ? " · 最高" : ""}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="mt-0.5 text-[10px] text-white/45">
+            {person.player.culture}/{person.player.zhangyu}
+          </div>
+        )
+      ) : null}
     </div>
   );
 }

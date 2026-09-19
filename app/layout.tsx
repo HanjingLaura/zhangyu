@@ -16,12 +16,12 @@ const display = ZCOOL_XiaoWei({
 
 export const metadata: Metadata = {
   title: "丈育成语接龙",
-  description: "章鱼谐音的上班成语接龙。接错掉触手，查词记丈育值。",
+  description: "章鱼谐音的上班成语接龙。围着酒桌顺时针接，散场算丈育值。",
   applicationName: "丈育成语接龙",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#12343b",
+  themeColor: "#140c08",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,

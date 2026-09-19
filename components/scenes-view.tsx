@@ -9,13 +9,9 @@ export function ScenesView({
   onPlay: () => void;
 }) {
   return (
-    <div className="flex h-full flex-col bg-[radial-gradient(circle_at_top,#3a2216_0%,#120b08_62%)] text-white">
-      <RoomHeader
-        title="群聊的聊天记录"
-        subtitle="2026年9月18日"
-        onBack={onBack}
-      />
-      <div className="flex-1 space-y-3 overflow-y-auto px-3 py-4">
+    <div className="tavern-screen">
+      <RoomHeader title="群聊的聊天记录" subtitle="2026年9月18日" onBack={onBack} />
+      <div className="relative z-10 flex-1 space-y-3 overflow-y-auto px-3 py-4">
         {OFFICE_SCENE.map((line, index) => (
           <article key={`${line.name}-${index}`} className="flex gap-2">
             <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-coral text-xs text-white">
@@ -35,12 +31,8 @@ export function ScenesView({
           </article>
         ))}
       </div>
-      <div className="border-t border-white/10 px-5 py-4">
-        <button
-          type="button"
-          onClick={onPlay}
-          className="w-full rounded-full bg-coral py-3 text-sm font-semibold text-white"
-        >
+      <div className="relative z-10 border-t border-white/10 px-5 py-4">
+        <button type="button" onClick={onPlay} className="wood-btn w-full py-3 text-sm">
           入座开局
         </button>
       </div>

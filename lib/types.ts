@@ -3,9 +3,12 @@ export type LinkMode = "char" | "pinyin";
 export type Player = {
   id: string;
   name: string;
+  avatarUrl?: string;
   tentacles: number;
   culture: number;
   zhangyu: number;
+  fun: number;
+  fails: number;
   out: boolean;
 };
 
@@ -20,11 +23,59 @@ export type ChatMessage = {
   tone?: ChatTone;
 };
 
+export type SeatPlayer = {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+};
+
 export type GameConfig = {
   names: string[];
+  seatPlayers?: SeatPlayer[];
   mode: LinkMode;
   tentacles: number;
   opening: "random" | "yiming" | "longfei";
+  maxRounds: number;
+};
+
+export type UserPublic = {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+};
+
+export type RoomMember = {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+};
+
+export type Danmaku = {
+  id: string;
+  userId: string;
+  name: string;
+  text: string;
+  at: number;
+};
+
+export type GameTitles = {
+  fun: Player;
+  uncultured: Player;
+  zhangyu: Player;
+  culture: Player;
+};
+
+export type RoomSnapshot = {
+  code: string;
+  hostId: string;
+  members: RoomMember[];
+  status: "lobby" | "playing" | "finished";
+  mode: LinkMode;
+  tentacles: number;
+  opening: GameConfig["opening"];
+  maxRounds: number;
+  game: Game | null;
+  danmaku: Danmaku[];
 };
 
 export type Game = {
@@ -32,12 +83,15 @@ export type Game = {
   players: Player[];
   turn: number;
   maxTentacles: number;
+  maxRounds: number;
+  rounds: number;
   chain: string[];
   used: string[];
   messages: ChatMessage[];
   status: "playing" | "finished";
   winnerId: string | null;
   lastHint: string | null;
+  titles: GameTitles | null;
   seq: number;
 };
 

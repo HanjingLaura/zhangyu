@@ -3,32 +3,32 @@ import { OctopusFigure } from "./octopus";
 
 const RULES = [
   {
-    title: "围桌怎么坐",
-    body: "网页版先做成《骗子酒馆》那张桌：人围着坐，成语当扑克牌翻上去。轮到谁，左轮就对着谁；接不上就朝自己开。",
+    title: "注册入座",
+    body: "先注册或登录，头像可以上传一张照片。开房间或加入房间，两到四人围着酒桌坐。",
   },
   {
-    title: "中间那只章鱼",
-    body: "桌上的章鱼是裁判。上一句的尾巴字摊在它面前。接对了它点头，接成拜年短信或广播体操，它会当场点名。",
+    title: "顺时针接",
+    body: "从自己的下一家开始，顺时针一个个接。没有时间限制。上一句最后一个字，等于下一句第一个字。",
   },
   {
-    title: "触手和丈育值",
-    body: "每人三条触手。接错、不是成语、重复、主动过，都掉一条。查词加丈育值。触手掉光出局。",
+    title: "默认一百轮",
+    body: "默认每局接一百轮。开桌的人也可以改成二十或五十轮。接满就散场，中途也能提前散场。",
   },
   {
-    title: "散场怎么算",
-    body: "最后还坐着的人算活到最后。丈育值最高的人是丈育王，今晚回群里负责被笑。",
+    title: "弹幕和结算",
+    body: "谁都可以发弹幕。散场看谁最有意思、最没文化、最丈育、分最高。记录可以导出。",
   },
 ];
 
 export function RulesView({ onBack }: { onBack: () => void }) {
   return (
-    <div className="flex h-full flex-col bg-[radial-gradient(circle_at_top,#3a2216_0%,#120b08_62%)] text-white">
+    <div className="tavern-screen">
       <RoomHeader title="怎么玩" subtitle="围桌手册" onBack={onBack} />
-      <div className="flex-1 overflow-y-auto px-5 py-5">
+      <div className="relative z-10 flex-1 overflow-y-auto px-5 py-5">
         <div className="mb-5 flex items-center gap-3 rounded-3xl bg-white/8 px-4 py-3">
-          <OctopusFigure className="h-16 w-16 object-contain" />
+          <OctopusFigure className="h-16 w-16" />
           <p className="text-sm leading-6 text-white/70">
-            不是刷题，是围着一张桌子轮流接。章鱼坐中间，散场算丈育值。
+            人围着酒桌坐，章鱼坐中间。接错不加手枪，只记账。散场看谁最丈育。
           </p>
         </div>
         <div className="space-y-3">
