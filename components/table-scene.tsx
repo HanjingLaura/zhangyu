@@ -1,23 +1,28 @@
 import type { ReactNode } from "react";
 import type { Danmaku } from "@/lib/types";
+import { SEAT_COLORS } from "./avatar";
 import { rotateSeats, Seat, seatStyle, type SeatPerson } from "./seat";
 
 export function DanmakuLayer({ items }: { items: Danmaku[] }) {
-  const recent = items.slice(-10);
+  const recent = items.slice(-12);
   return (
-    <div className="pointer-events-none absolute inset-[8%] overflow-hidden rounded-full">
-      {recent.map((item, index) => (
-        <div
-          key={item.id}
-          className="danmaku-item absolute text-[12px] text-[#fff4d2] drop-shadow-[0_1px_2px_rgba(0,0,0,0.65)]"
-          style={{
-            top: `${12 + ((index * 13) % 68)}%`,
-            animationDelay: `${(item.at % 400) / 1000}s`,
-          }}
-        >
-          {item.name}：{item.text}
-        </div>
-      ))}
+    <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
+      {recent.map((item, index) => {
+        const color =
+          SEAT_COLORS[[...item.userId].reduce((sum, char) => sum + char.charCodeAt(0), 0) % SEAT_COLORS.length];
+        return (
+          <div
+            key={item.id}
+            className="danmaku-item absolute left-full text-[13px] font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]"
+            style={{
+              top: `${10 + ((index * 12) % 70)}%`,
+              color,
+            }}
+          >
+            {item.name}：{item.text}
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -58,3 +58,9 @@ export function downloadRecord(room: RoomSnapshot) {
   link.click();
   URL.revokeObjectURL(url);
 }
+
+export async function copyRecord(room: RoomSnapshot) {
+  const text = formatRecord(room);
+  await navigator.clipboard.writeText(text);
+  return text;
+}

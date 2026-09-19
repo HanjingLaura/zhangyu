@@ -144,6 +144,27 @@ describe("settlement", () => {
     assert.match(text, /一鸣惊人 → 人山人海/);
     assert.match(text, /Cora/);
     assert.match(text, /nbb/);
+    assert.match(text, /最有意思/);
+    assert.match(text, /最没文化/);
+    assert.match(text, /最丈育/);
+    assert.match(text, /分最高/);
+  });
+});
+
+describe("clockwise turns", () => {
+  it("hands the next seat to the left around the table", () => {
+    const game = createGame(index, {
+      names: ["南", "西", "北", "东"],
+      mode: "char",
+      tentacles: 8,
+      opening: "yiming",
+      maxRounds: 100,
+    });
+    const first = submit(index, game, "人山人海");
+    assert.equal(first.game.turn, 1);
+    assert.equal(first.game.players[first.game.turn].name, "西");
+    const second = submit(index, first.game, "海阔天空");
+    assert.equal(second.game.players[second.game.turn].name, "北");
   });
 });
 

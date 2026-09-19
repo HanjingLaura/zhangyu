@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { currentNeed, rankPlayers, zhangyuKing } from "@/lib/engine";
-import { downloadRecord } from "@/lib/record";
 import type { RoomSnapshot, UserPublic } from "@/lib/types";
 import { OctopusFigure } from "./octopus";
+import { RecordSheet } from "./record-sheet";
 import { RoomHeader } from "./shell";
 import { TableScene } from "./table-scene";
 
@@ -42,6 +42,7 @@ export function PlayView({
   onFinish: () => void;
 }) {
   const [barrage, setBarrage] = useState("");
+  const [showRecord, setShowRecord] = useState(false);
   const game = room.game;
   if (!game) return null;
 
@@ -91,8 +92,11 @@ export function PlayView({
 
       {finished ? (
         <div className="relative z-10 border-t border-[#d7b56a]/15 px-4 py-3">
-          <div className="parchment rounded-3xl px-4 py-3">
+          <div className="parchment max-h-56 overflow-y-auto rounded-3xl px-4 py-3">
             <div className="text-center font-display text-xl">本局结算</div>
+            <p className="mt-1 text-center text-[11px] text-[#8a5a28]">
+              接了 {game.rounds}/{game.maxRounds} 轮 · 顺时针 · 没有时间限制
+            </p>
             {titles ? (
               <div className="mt-2 grid grid-cols-2 gap-2 text-center text-[11px]">
                 <div className="rounded-2xl bg-[#2a160e]/6 px-2 py-2">
@@ -115,19 +119,22 @@ export function PlayView({
             ) : null}
             <ol className="mt-3 space-y-1 text-sm">
               {ranked.map((player, index) => (
-                <li key={player.id} className="flex justify-between">
+                <li key={player.id} className="flex justify-between gap-2">
                   <span>
                     {index + 1}. {player.name}
                   </span>
-                  <span>
-                    {player.culture} 分 · {player.zhangyu} 丈育
+                  <span className="shrink-0 text-[11px] text-[#6b3f24]">
+                    {player.culture} 分 · {player.fun} 有意思 · {player.zhangyu} 丈育 · 失误 {player.fails}
                   </span>
                 </li>
               ))}
             </ol>
+            <p className="mt-3 text-[11px] leading-5 text-[#6b3f24]">
+              {game.chain.join(" → ")}
+            </p>
           </div>
           <div className="mt-3 grid grid-cols-3 gap-2">
-            <button type="button" onClick={() => downloadRecord(room)} className="ghost-btn py-3 text-sm">
+            <button type="button" onClick={() => setShowRecord(true)} className="ghost-btn py-3 text-sm">
               导出
             </button>
             <button type="button" onClick={onReseat} className="ghost-btn py-3 text-sm">
@@ -199,6 +206,7 @@ export function PlayView({
           ) : null}
         </form>
       )}
+      {showRecord ? <RecordSheet room={room} onClose={() => setShowRecord(false)} /> : null}
     </div>
   );
 }

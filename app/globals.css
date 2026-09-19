@@ -103,15 +103,15 @@ body {
 
 @keyframes danmaku-fly {
   from {
-    transform: translateX(8%);
+    transform: translateX(0);
   }
   to {
-    transform: translateX(-118%);
+    transform: translateX(calc(-100% - 110vw));
   }
 }
 
 .danmaku-item {
-  animation: danmaku-fly 10s linear forwards;
+  animation: danmaku-fly 11s linear forwards;
   white-space: nowrap;
   pointer-events: none;
 }
