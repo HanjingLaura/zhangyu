@@ -46,7 +46,7 @@ export function Seat({
   return (
     <div
       className={`min-w-0 rounded-2xl border px-2.5 py-2 text-center backdrop-blur-sm ${
-        compact ? "w-[4.6rem]" : "w-[7.6rem]"
+        compact ? "w-[5.2rem]" : "w-[7.8rem]"
       } ${
         player.out
           ? "border-white/10 bg-black/25 opacity-45"

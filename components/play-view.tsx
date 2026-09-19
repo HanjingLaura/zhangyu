@@ -49,6 +49,7 @@ export function PlayView({
   onPass,
   onBack,
   onAgain,
+  onReseat,
 }: {
   game: Game;
   draft: string;
@@ -58,6 +59,7 @@ export function PlayView({
   onPass: () => void;
   onBack: () => void;
   onAgain: () => void;
+  onReseat: () => void;
 }) {
   const need = currentNeed(game);
   const current = game.players[game.turn];
@@ -97,16 +99,15 @@ export function PlayView({
         />
 
         <div className="relative flex min-h-0 items-center justify-center">
-          <div className="felt-table relative flex aspect-square w-full max-w-[270px] flex-col items-center justify-center rounded-full px-5 text-center">
-            {line ? (
-              <div className="absolute top-4 z-10 mx-3 line-clamp-3 max-w-[80%] rounded-2xl bg-[#fff6e4] px-3 py-1.5 text-[11px] leading-5 text-ink shadow-md">
-                {line}
-              </div>
-            ) : null}
-
+          {line ? (
+            <div className="absolute top-0 z-20 mx-1 line-clamp-2 max-w-[92%] rounded-2xl bg-[#fff6e4] px-3 py-1.5 text-[11px] leading-5 text-ink shadow-md">
+              {line}
+            </div>
+          ) : null}
+          <div className="felt-table relative mt-8 flex aspect-square w-full max-w-[250px] flex-col items-center justify-center rounded-full px-5 text-center">
             <OctopusFigure
               priority
-              className="relative z-[1] mt-6 h-[7.2rem] w-[7.2rem] object-contain drop-shadow-[0_12px_18px_rgba(0,0,0,0.35)]"
+              className="relative z-[1] h-[6.8rem] w-[6.8rem] object-contain drop-shadow-[0_12px_18px_rgba(0,0,0,0.35)]"
             />
 
             <div className="relative z-[1] mt-1 font-display text-5xl leading-none text-[#f8e7b0]">
@@ -167,13 +168,22 @@ export function PlayView({
               </li>
             ))}
           </ol>
-          <button
-            type="button"
-            onClick={onAgain}
-            className="mt-3 w-full rounded-full bg-coral py-3 text-sm font-semibold text-white"
-          >
-            再来一局
-          </button>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={onReseat}
+              className="rounded-full bg-white/10 py-3 text-sm text-white"
+            >
+              换人入座
+            </button>
+            <button
+              type="button"
+              onClick={onAgain}
+              className="rounded-full bg-coral py-3 text-sm font-semibold text-white"
+            >
+              再来一局
+            </button>
+          </div>
         </div>
       ) : (
         <form

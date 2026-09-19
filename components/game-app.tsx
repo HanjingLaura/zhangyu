@@ -82,6 +82,7 @@ export function GameApp() {
           }}
           onBack={() => setView("home")}
           onAgain={startGame}
+          onReseat={() => setView("setup")}
         />
       ) : null}
     </GameCabinet>
