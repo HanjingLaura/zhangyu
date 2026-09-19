@@ -6,12 +6,6 @@ import { OctopusFigure } from "./octopus";
 import { RoomHeader } from "./shell";
 import { TableScene } from "./table-scene";
 
-const EMPTIES = [
-  { id: "e1", name: "虚位", empty: true },
-  { id: "e2", name: "虚位", empty: true },
-  { id: "e3", name: "虚位", empty: true },
-];
-
 export function LobbyView({
   room,
   you,
@@ -30,10 +24,7 @@ export function LobbyView({
   error?: string;
 }) {
   const host = room.hostId === you.id;
-  const people = [
-    ...room.members.map((member) => ({ ...member, empty: false })),
-    ...EMPTIES,
-  ].slice(0, 4);
+  const people = room.members.map((member) => ({ ...member, empty: false }));
   const [draft, setDraft] = useState("");
 
   return (

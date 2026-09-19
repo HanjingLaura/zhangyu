@@ -23,9 +23,15 @@ export function HomeView({
 }) {
   return (
     <div className="tavern-screen px-6 pb-8 pt-7">
-      <div className="relative z-10 flex items-start justify-between">
-        <AvatarPicker name={user.name} src={user.avatarUrl} size={64} onPick={onAvatar} />
-        <button type="button" onClick={onLogout} className="pt-2 text-xs text-white/40">
+      <div className="relative z-10 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <AvatarPicker name={user.name} src={user.avatarUrl} size={64} onPick={onAvatar} />
+          <div>
+            <div className="font-display text-lg leading-none">{user.name}</div>
+            <div className="mt-1 text-[11px] text-white/40">点头像换照片</div>
+          </div>
+        </div>
+        <button type="button" onClick={onLogout} className="text-xs text-white/40">
           离开
         </button>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 export const SEAT_COLORS = ["#e46a3a", "#5aa89a", "#e6c37a", "#c084fc"];
 
@@ -39,6 +39,9 @@ export function Avatar({
   ring?: boolean;
   empty?: boolean;
 }) {
+  const [brokenSrc, setBrokenSrc] = useState<string | null>(null);
+  const showPhoto = Boolean(src) && !empty && brokenSrc !== src;
+
   return (
     <span
       className={`relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full ${
@@ -47,14 +50,19 @@ export function Avatar({
       style={{
         width: size,
         height: size,
-        background: empty ? "#4a321f" : src ? "#2a160e" : colorFor(name || "座"),
+        background: empty ? "#4a321f" : showPhoto ? "#2a160e" : colorFor(name || "座"),
         color: "#2a160e",
       }}
     >
-      {src && !empty ? (
+      {showPhoto ? (
         // User-uploaded seat photo; next/image is not needed for local API blobs.
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt="" className="h-full w-full object-cover" />
+        <img
+          src={src}
+          alt=""
+          className="h-full w-full object-cover"
+          onError={() => setBrokenSrc(src ?? null)}
+        />
       ) : (
         <span className="text-sm font-semibold text-[#2a160e]">
           {empty ? "+" : name.slice(0, 1)}
@@ -87,7 +95,7 @@ export function AvatarPicker({
       aria-label={label}
     >
       <Avatar name={name || "我"} src={src} size={size} ring />
-      <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-[#2a160e] px-2 py-0.5 text-[10px] text-gold shadow">
+      <span className="absolute -bottom-1 left-1/2 w-max -translate-x-1/2 whitespace-nowrap rounded-full bg-[#2a160e] px-2 py-0.5 text-[10px] text-gold shadow">
         {src ? "换一张" : "上传头像"}
       </span>
       <input
