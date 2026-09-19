@@ -24,14 +24,14 @@ export function RecordSheet({
         <div className="mt-3 grid grid-cols-2 gap-2">
           <button
             type="button"
-            className="ghost-btn py-3 text-sm text-[#f6efe2]"
+            className="rounded-full bg-[#2a160e]/10 py-3 text-sm text-[#2a160e]"
             onClick={async () => {
               try {
                 await copyRecord(room);
-                setCopied(true);
               } catch {
                 downloadRecord(room);
               }
+              setCopied(true);
             }}
           >
             {copied ? "已复制" : "复制"}
