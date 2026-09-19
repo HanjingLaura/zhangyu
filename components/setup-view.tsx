@@ -105,6 +105,26 @@ export function SetupView({
         </section>
 
         <section>
+          <div className="mb-2 text-sm text-white/50">每人几条触手</div>
+          <div className="flex gap-2">
+            {[1, 2, 3].map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => onChange({ ...config, tentacles: n })}
+                className={`flex-1 rounded-full py-2 text-sm ${
+                  config.tentacles === n
+                    ? "bg-gold text-[#2a1c08]"
+                    : "bg-white/8 text-white/70"
+                }`}
+              >
+                {n} 条
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section>
           <div className="mb-2 text-sm text-white/50">桌上第一句</div>
           <div className="flex flex-wrap gap-2">
             {OPENINGS.map((item) => (
