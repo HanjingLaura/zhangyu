@@ -1,3 +1,21 @@
+export function CardBack({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
+  const box =
+    size === "lg"
+      ? "h-[7.6rem] w-[5.3rem]"
+      : size === "md"
+        ? "h-[5.2rem] w-[3.6rem]"
+        : "h-[3.8rem] w-[2.6rem]";
+
+  return (
+    <div
+      className={`card-back relative flex items-center justify-center rounded-[10px] ${box}`}
+      aria-hidden="true"
+    >
+      <span className="font-display text-lg text-[#f3c15d]/80">丈</span>
+    </div>
+  );
+}
+
 export function IdiomCard({
   word,
   size = "md",
@@ -9,14 +27,14 @@ export function IdiomCard({
 }) {
   const box =
     size === "lg"
-      ? "h-[7.4rem] w-[5.1rem] text-[1.35rem]"
+      ? "h-[7.6rem] w-[5.3rem] text-[1.35rem]"
       : size === "md"
-        ? "h-[4.6rem] w-[3.2rem] text-[13px]"
-        : "h-[3.6rem] w-[2.5rem] text-[11px]";
+        ? "h-[5.2rem] w-[3.6rem] text-[14px]"
+        : "h-[3.8rem] w-[2.6rem] text-[11px]";
 
   return (
     <div
-      className={`idiom-card relative flex flex-col items-center justify-center rounded-[10px] border px-1 text-center font-display tracking-widest ${box} ${
+      className={`idiom-card relative flex flex-col items-center justify-center rounded-[10px] px-1 text-center font-display tracking-widest ${box} ${
         dim ? "opacity-55" : ""
       }`}
     >
@@ -34,9 +52,37 @@ export function IdiomCard({
 
 export function SuitCard({ char, label }: { char: string; label: string }) {
   return (
-    <div className="idiom-card relative flex h-[6.4rem] w-[4.6rem] flex-col items-center justify-center rounded-[10px] border">
-      <div className="text-[10px] tracking-[0.2em] text-[#8a2a22]">{label}</div>
+    <div className="idiom-card relative flex h-[6.8rem] w-[4.8rem] flex-col items-center justify-center rounded-[10px]">
+      <div className="text-[10px] tracking-[0.28em] text-[#8a2a22]">{label}</div>
       <div className="font-display text-5xl leading-none text-[#2a120c]">{char}</div>
+    </div>
+  );
+}
+
+export function FlippingCard({
+  word,
+  size = "md",
+}: {
+  word: string;
+  size?: "sm" | "md" | "lg";
+}) {
+  const box =
+    size === "lg"
+      ? "h-[7.6rem] w-[5.3rem]"
+      : size === "md"
+        ? "h-[5.2rem] w-[3.6rem]"
+        : "h-[3.8rem] w-[2.6rem]";
+
+  return (
+    <div className={`card-scene ${box}`}>
+      <div key={word} className="card-flipper h-full w-full">
+        <div className="card-face card-face-back">
+          <CardBack size={size} />
+        </div>
+        <div className="card-face card-face-front">
+          <IdiomCard word={word} size={size} />
+        </div>
+      </div>
     </div>
   );
 }

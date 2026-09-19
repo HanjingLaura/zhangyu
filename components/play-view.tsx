@@ -1,6 +1,6 @@
 import { currentNeed, rankPlayers, zhangyuKing } from "@/lib/engine";
-import type { Game, Player } from "@/lib/types";
-import { IdiomCard, SuitCard } from "./idiom-card";
+import type { Game } from "@/lib/types";
+import { CardBack, FlippingCard, SuitCard } from "./idiom-card";
 import { OctopusFigure } from "./octopus";
 import { currentSeatSide, Revolver } from "./revolver";
 import { assignSeats, Seat, type SeatSide } from "./seat";
@@ -17,7 +17,7 @@ function SeatSlot({
   settled,
   kingId,
 }: {
-  player?: Player;
+  player?: Game["players"][number];
   side: SeatSide;
   game: Game;
   settled: boolean;
@@ -68,19 +68,21 @@ export function PlayView({
   const winner = game.players.find((player) => player.id === game.winnerId);
   const ranked = rankPlayers(game);
   const octopus = lastOctopus(game);
-  const pile = game.chain.slice(-3);
+  const previous = game.chain.slice(-3, -1);
+  const latest = game.chain.at(-1) ?? "";
   const gunSide = currentSeatSide(game.turn, game.players.length);
   const firing = octopus?.tone === "fail" || octopus?.tone === "egg";
+  const aimAtYou = gunSide === "south" && !finished;
 
   return (
-    <div className="flex h-full flex-col bg-[radial-gradient(circle_at_top,#3a2216_0%,#120b08_62%)]">
+    <div className="flex h-full flex-col bg-[radial-gradient(circle_at_top,#4a2a18_0%,#120b08_64%)]">
       <RoomHeader
         title="丈育酒馆"
-        subtitle={game.mode === "char" ? "字接字 · 翻牌接龙" : "音接音 · 翻牌接龙"}
+        subtitle={game.mode === "char" ? "翻牌接龙 · 字接字" : "翻牌接龙 · 音接音"}
         onBack={onBack}
       />
 
-      <div className="grid min-h-0 flex-1 grid-cols-[4.7rem_minmax(0,1fr)_4.7rem] grid-rows-[auto_minmax(0,1fr)_auto] gap-1 px-2 pb-2">
+      <div className="grid min-h-0 flex-1 grid-cols-[4.6rem_minmax(0,1fr)_4.6rem] grid-rows-[auto_minmax(0,1fr)_auto] gap-1 px-2">
         <div />
         <SeatSlot player={seats.north} side="north" game={game} settled={finished} kingId={finished ? king?.id : undefined} />
         <div />
@@ -88,30 +90,34 @@ export function PlayView({
 
         <div className="relative flex min-h-0 items-center justify-center">
           {octopus ? (
-            <div className="absolute top-0 z-30 mx-1 line-clamp-2 max-w-[92%] rounded-2xl bg-[#fff6e4] px-3 py-1.5 text-[11px] leading-5 text-ink shadow-md">
+            <div className="absolute top-0 z-30 mx-1 line-clamp-2 max-w-[94%] rounded-2xl bg-[#fff6e4] px-3 py-1.5 text-[11px] leading-5 text-ink shadow-md">
               {octopus.text}
             </div>
           ) : null}
 
-          <div className="wood-table relative mt-9 flex aspect-square w-full max-w-[258px] items-center justify-center rounded-full">
+          <div className="wood-table relative mt-8 flex aspect-[1.15/1] w-full max-w-[300px] items-center justify-center rounded-[46%]">
             <OctopusFigure
               priority
-              className="absolute left-1/2 top-[18%] z-[1] h-16 w-16 -translate-x-1/2 object-contain drop-shadow-[0_10px_14px_rgba(0,0,0,0.45)]"
+              className="absolute left-1/2 top-3 z-[1] h-14 w-14 -translate-x-1/2 object-contain drop-shadow-[0_10px_14px_rgba(0,0,0,0.45)]"
             />
-            {!finished ? <Revolver side={gunSide} firing={firing} /> : null}
 
-            <div className="relative z-[2] mt-10 flex items-end justify-center gap-2">
-              <div className="flex -space-x-3">
-                {pile.slice(0, -1).map((word, index) => (
-                  <div key={`${word}-${index}`} className="rotate-[-8deg]">
-                    <IdiomCard word={word} size="sm" dim />
-                  </div>
-                ))}
-              </div>
+            {!finished && !aimAtYou ? (
+              <Revolver side={gunSide} firing={firing} />
+            ) : null}
+            {firing ? (
+              <div className="muzzle-flash pointer-events-none absolute inset-0 z-20 rounded-[46%] bg-[#ff6a4d]/25" />
+            ) : null}
+
+            <div className="relative z-[2] mt-6 flex items-end justify-center gap-2">
+              {previous.map((word, index) => (
+                <div key={`${word}-${index}`} className="-rotate-6">
+                  <FlippingCard word={word} size="sm" />
+                </div>
+              ))}
               <SuitCard char={need.char} label={finished ? "终局" : "要接"} />
-              {pile.at(-1) ? (
-                <div className="rotate-[7deg]">
-                  <IdiomCard word={pile[pile.length - 1]} size="md" />
+              {latest ? (
+                <div className="rotate-6">
+                  <FlippingCard word={latest} size="md" />
                 </div>
               ) : null}
             </div>
@@ -156,35 +162,61 @@ export function PlayView({
         </div>
       ) : (
         <form
-          className="border-t border-[#c9a44a]/20 bg-black/30 px-3 py-3"
+          className="border-t border-[#c9a44a]/20 bg-black/40 px-3 pb-3 pt-2"
           onSubmit={(event) => {
             event.preventDefault();
             onSubmit();
           }}
         >
-          <div className="mb-2 text-center text-[11px] text-[#e6c98a]/70">
-            枪口对着 {current.name} · 上一张「{need.word}」
+          {aimAtYou ? (
+            <div className="mb-2 flex items-center justify-center gap-3">
+              <Revolver side="south" firing={firing} large />
+              <p className="text-[11px] leading-5 text-[#e6c98a]">
+                左轮对着 {current.name}。
+                <br />
+                接不上就朝自己开。
+              </p>
+            </div>
+          ) : (
+            <p className="mb-2 text-center text-[11px] text-[#e6c98a]/70">
+              枪口对着 {current.name} · 上一张「{need.word}」
+            </p>
+          )}
+
+          <div className="flex items-end gap-3">
+            <div className="relative">
+              {draft.trim() ? (
+                <div className="idiom-card flex h-[6.4rem] w-[4.6rem] flex-col items-center justify-center font-display text-[15px] leading-4">
+                  {draft.replace(/\s+/g, "").slice(0, 4).split("").map((char, index) => (
+                    <span key={`${char}-${index}`}>{char}</span>
+                  ))}
+                </div>
+              ) : (
+                <CardBack size="lg" />
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <label className="sr-only" htmlFor="idiom-input">
+                输入成语
+              </label>
+              <input
+                id="idiom-input"
+                value={draft}
+                onChange={(event) => onDraft(event.target.value)}
+                placeholder={`接「${need.char}」的牌`}
+                className="w-full rounded-2xl bg-[#fff6e4]/10 px-4 py-3 text-base text-[#fff6e4] outline-none ring-gold/40 placeholder:text-white/30 focus:ring-2"
+                autoComplete="off"
+                enterKeyHint="send"
+              />
+              <button
+                type="submit"
+                className="mt-2 w-full rounded-full bg-coral py-3 text-sm font-semibold text-white"
+              >
+                翻牌拍上桌
+              </button>
+            </div>
           </div>
-          <label className="sr-only" htmlFor="idiom-input">
-            输入成语
-          </label>
-          <div className="flex gap-2">
-            <input
-              id="idiom-input"
-              value={draft}
-              onChange={(event) => onDraft(event.target.value)}
-              placeholder={`写出接「${need.char}」的牌……`}
-              className="min-w-0 flex-1 rounded-full bg-[#fff6e4]/10 px-4 py-3 text-base text-[#fff6e4] outline-none ring-gold/40 placeholder:text-white/30 focus:ring-2"
-              autoComplete="off"
-              enterKeyHint="send"
-            />
-            <button
-              type="submit"
-              className="shrink-0 rounded-full bg-coral px-5 py-3 text-sm font-semibold text-white"
-            >
-              拍上桌
-            </button>
-          </div>
+
           {game.lastHint ? (
             <button
               type="button"

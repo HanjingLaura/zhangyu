@@ -10,27 +10,35 @@ const ROTATE: Record<SeatSide, string> = {
 export function Revolver({
   side,
   firing = false,
+  large = false,
 }: {
   side: SeatSide;
   firing?: boolean;
+  large?: boolean;
 }) {
+  const width = large ? 132 : 96;
   return (
     <div
-      className="pointer-events-none absolute left-1/2 top-[46%] z-20 -translate-x-1/2 -translate-y-1/2"
+      className={`pointer-events-none ${
+        large
+          ? "relative"
+          : "absolute left-1/2 top-[42%] z-20 -translate-x-1/2 -translate-y-1/2"
+      }`}
       aria-hidden="true"
     >
       <div className={`${ROTATE[side]} ${firing ? "revolver-kick" : ""}`}>
-        <svg width="72" height="72" viewBox="0 0 78 78" fill="none">
+        <svg width={width} height={width} viewBox="0 0 120 120" fill="none">
           <path
-            d="M39 14c8 0 14 6 14 13 0 5-3 9-7 11v6h-4l-2 12h-2l-2-12h-4v-6c-4-2-7-6-7-11 0-7 6-13 14-13Z"
-            fill="#d7c4a1"
-            stroke="#2a1c12"
-            strokeWidth="2"
+            d="M58 18c12 0 22 9 22 20 0 8-5 14-11 17v8h-6l-3 18h-4l-3-18h-6V55c-6-3-11-9-11-17 0-11 10-20 22-20Z"
+            fill="#d8c4a0"
+            stroke="#1c120c"
+            strokeWidth="3"
           />
-          <circle cx="39" cy="27" r="7" fill="#1a120c" />
-          <circle cx="39" cy="27" r="3.2" fill="#c9a44a" />
-          <rect x="36" y="44" width="6" height="18" rx="1.5" fill="#2a1c12" />
-          <path d="M33 61h12l2 5H31l2-5Z" fill="#3c2a1c" />
+          <circle cx="58" cy="38" r="12" fill="#1a120c" />
+          <circle cx="58" cy="38" r="5" fill="#c9a44a" />
+          <rect x="53" y="63" width="10" height="28" rx="2" fill="#24160f" />
+          <path d="M48 90h20l4 10H44l4-10Z" fill="#3b2618" />
+          <path d="M54 18h8v-8h-8z" fill="#24160f" />
         </svg>
       </div>
     </div>
