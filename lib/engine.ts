@@ -344,3 +344,10 @@ export function rankPlayers(game: Game) {
     return a.zhangyu - b.zhangyu;
   });
 }
+
+export function zhangyuKing(game: Game) {
+  return [...game.players].sort((a, b) => {
+    if (b.zhangyu !== a.zhangyu) return b.zhangyu - a.zhangyu;
+    return a.culture - b.culture;
+  })[0];
+}

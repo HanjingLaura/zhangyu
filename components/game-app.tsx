@@ -10,7 +10,7 @@ import { PlayView } from "./play-view";
 import { RulesView } from "./rules-view";
 import { ScenesView } from "./scenes-view";
 import { SetupView } from "./setup-view";
-import { PhoneShell } from "./shell";
+import { GameCabinet } from "./shell";
 
 type View = "home" | "setup" | "play" | "rules" | "scenes";
 
@@ -40,7 +40,7 @@ export function GameApp() {
   };
 
   return (
-    <PhoneShell>
+    <GameCabinet>
       {view === "home" ? (
         <HomeView
           onPlay={() => setView("setup")}
@@ -84,6 +84,6 @@ export function GameApp() {
           onAgain={startGame}
         />
       ) : null}
-    </PhoneShell>
+    </GameCabinet>
   );
 }

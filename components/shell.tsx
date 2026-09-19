@@ -1,16 +1,16 @@
 import type { ReactNode } from "react";
 
-export function PhoneShell({ children }: { children: ReactNode }) {
+export function GameCabinet({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-sea px-3 py-4 sm:px-6">
-      <div className="relative flex h-[min(100dvh-2rem,860px)] w-full max-w-[390px] flex-col overflow-hidden rounded-[28px] border border-white/10 bg-foam shadow-[0_24px_80px_rgba(8,20,24,0.45)]">
+    <div className="flex min-h-dvh items-center justify-center bg-[#071116] px-2 py-2 sm:px-6 sm:py-4">
+      <div className="relative flex h-[min(100dvh-0.5rem,920px)] w-full max-w-[430px] flex-col overflow-hidden rounded-[32px] border border-white/10 bg-[#0b1f24] shadow-[0_24px_80px_rgba(0,0,0,0.55)]">
         {children}
       </div>
     </div>
   );
 }
 
-export function ChatHeader({
+export function RoomHeader({
   title,
   subtitle,
   onBack,
@@ -20,12 +20,12 @@ export function ChatHeader({
   onBack?: () => void;
 }) {
   return (
-    <header className="shrink-0 border-b border-ink/8 bg-white/90 px-3 pb-2.5 pt-3 backdrop-blur">
+    <header className="shrink-0 px-3 pb-2 pt-3">
       <div className="flex items-center justify-between">
         <button
           type="button"
           onClick={onBack}
-          className="flex h-9 w-9 items-center justify-center rounded-full text-ink/70 hover:bg-ink/5"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-white/70 hover:bg-white/10"
           aria-label="返回"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -39,16 +39,14 @@ export function ChatHeader({
           </svg>
         </button>
         <div className="text-center">
-          <div className="font-display text-[17px] tracking-wide text-ink">
+          <div className="font-display text-[17px] tracking-wide text-gold">
             {title}
           </div>
           {subtitle ? (
-            <div className="text-[11px] text-ink/45">{subtitle}</div>
+            <div className="text-[11px] text-white/40">{subtitle}</div>
           ) : null}
         </div>
-        <div className="flex h-9 w-9 items-center justify-center text-ink/40">
-          ···
-        </div>
+        <div className="h-9 w-9" />
       </div>
     </header>
   );

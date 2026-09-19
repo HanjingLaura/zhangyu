@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { createGame, hint, pass, submit } from "./engine";
+import { createGame, hint, pass, submit, zhangyuKing } from "./engine";
 import { buildIndex } from "./idioms";
 
 const index = buildIndex([
@@ -95,6 +95,16 @@ describe("hint and pass", () => {
     const skipped = pass(tight, after);
     assert.equal(skipped.reason, "dead-end");
     assert.equal(skipped.game.players[1].tentacles, 2);
+  });
+});
+
+describe("settlement", () => {
+  it("names the 丈育王 by score", () => {
+    const first = submit(index, start(), "春天来了");
+    const second = submit(index, first.game, "人山人海");
+    const king = zhangyuKing(second.game);
+    assert.equal(king.name, "Cora");
+    assert.ok(king.zhangyu > 0);
   });
 });
 

@@ -1,72 +1,42 @@
-import { useEffect, useRef } from "react";
-import { currentNeed, rankPlayers } from "@/lib/engine";
-import type { ChatMessage, Game, Player } from "@/lib/types";
-import { OctopusMark, TentacleDots } from "./octopus";
-import { ChatHeader } from "./shell";
+import { currentNeed, rankPlayers, zhangyuKing } from "@/lib/engine";
+import type { Game, Player } from "@/lib/types";
+import { OctopusFigure } from "./octopus";
+import { assignSeats, Seat, type SeatSide } from "./seat";
+import { RoomHeader } from "./shell";
 
-const PLAYER_TINT = ["#ff6a4d", "#1f6b63", "#d39a2a", "#6b4c9a"];
-
-function avatarColor(playerId?: string) {
-  const index = Number((playerId ?? "p1").replace("p", "")) - 1;
-  return PLAYER_TINT[Math.max(0, index) % PLAYER_TINT.length];
+function lastOctopusLine(game: Game) {
+  return [...game.messages]
+    .reverse()
+    .find((message) => message.kind === "octopus")?.text;
 }
 
-function Bubble({
-  message,
-  players,
+function SeatSlot({
+  player,
+  side,
+  game,
+  settled,
+  kingId,
 }: {
-  message: ChatMessage;
-  players: Player[];
+  player?: Player;
+  side: SeatSide;
+  game: Game;
+  settled: boolean;
+  kingId?: string;
 }) {
-  if (message.kind === "system") {
-    return (
-      <div className="py-1 text-center text-[11px] text-ink/35">
-        {message.text}
-      </div>
-    );
-  }
-
-  const player = players.find((item) => item.id === message.playerId);
-  const isOctopus = message.kind === "octopus";
-  const name = isOctopus ? "章鱼裁判" : (player?.name ?? "匿名丈育");
-
+  if (!player) return <div />;
+  const compact = side === "west" || side === "east";
   return (
-    <article className="flex gap-2">
-      {isOctopus ? (
-        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sea">
-          <OctopusMark
-            mood={message.tone === "win" ? "win" : "judge"}
-            className="h-8 w-8"
-          />
-        </div>
-      ) : (
-        <div
-          className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs text-white"
-          style={{ background: avatarColor(message.playerId) }}
-        >
-          {name.slice(0, 1)}
-        </div>
-      )}
-      <div className="min-w-0 flex-1">
-        <div className="mb-1 text-[11px] text-ink/40">{name}</div>
-        <div
-          className={`w-fit max-w-[88%] rounded-2xl px-3 py-2 text-[15px] leading-6 ${
-            message.tone === "egg" || message.tone === "fail"
-              ? "bg-white text-ink"
-              : isOctopus
-                ? "bg-[#fff4ee] text-ink"
-                : "bg-white text-ink"
-          }`}
-        >
-          {message.quote ? (
-            <div className="mb-1 border-l-2 border-coral/50 pl-2 text-xs text-ink/45">
-              {message.quote}
-            </div>
-          ) : null}
-          {message.text}
-        </div>
-      </div>
-    </article>
+    <div className="flex items-center justify-center">
+      <Seat
+        player={player}
+        active={!settled && !player.out && game.players[game.turn]?.id === player.id}
+        compact={compact}
+        settled={settled}
+        king={kingId === player.id}
+        winner={game.winnerId === player.id}
+        maxTentacles={game.maxTentacles}
+      />
+    </div>
   );
 }
 
@@ -91,121 +61,131 @@ export function PlayView({
 }) {
   const need = currentNeed(game);
   const current = game.players[game.turn];
-  const endRef = useRef<HTMLDivElement>(null);
   const finished = game.status === "finished";
+  const seats = assignSeats(game.players);
+  const king = zhangyuKing(game);
   const winner = game.players.find((player) => player.id === game.winnerId);
   const ranked = rankPlayers(game);
-
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [game.messages.length]);
+  const line = lastOctopusLine(game);
+  const recent = game.chain.slice(-3);
 
   return (
-    <div className="flex h-full flex-col bg-foam">
-      <ChatHeader
+    <div className="flex h-full flex-col bg-[radial-gradient(circle_at_top,#16343c_0%,#0b1f24_58%)]">
+      <RoomHeader
         title="丈育成语接龙"
-        subtitle={game.mode === "char" ? "字接字" : "音接音"}
+        subtitle={game.mode === "char" ? "字接字 · 围桌" : "音接音 · 围桌"}
         onBack={onBack}
       />
 
-      <div className="grid grid-cols-2 gap-2 px-3 pt-3">
-        {game.players.map((player, index) => (
-          <div
-            key={player.id}
-            className={`min-w-0 rounded-2xl px-3 py-2 ${
-              !player.out && index === game.turn && !finished
-                ? "bg-sea text-white"
-                : "bg-white text-ink"
-            }`}
-          >
-            <div className="flex items-center justify-between gap-2 text-sm">
-              <span
-                className={`min-w-0 truncate ${player.out ? "line-through opacity-50" : ""}`}
-              >
-                {player.name}
-              </span>
-              <span className="shrink-0">
-                <TentacleDots
-                  current={player.tentacles}
-                  max={game.maxTentacles}
-                  light={!player.out && index === game.turn && !finished}
-                />
-              </span>
-            </div>
-            <div
-              className={`mt-1 text-[10px] ${
-                !player.out && index === game.turn && !finished
-                  ? "text-white/60"
-                  : "text-ink/40"
-              }`}
-            >
-              文化 {player.culture} · 丈育 {player.zhangyu}
-            </div>
-          </div>
-        ))}
-      </div>
+      <div className="grid min-h-0 flex-1 grid-cols-[4.7rem_minmax(0,1fr)_4.7rem] grid-rows-[auto_minmax(0,1fr)_auto] gap-1 px-2 pb-2">
+        <div />
+        <SeatSlot
+          player={seats.north}
+          side="north"
+          game={game}
+          settled={finished}
+          kingId={finished ? king?.id : undefined}
+        />
+        <div />
 
-      <div className="mx-3 mt-3 rounded-2xl bg-sea px-4 py-3 text-white">
-        <div className="text-[11px] tracking-widest text-white/50">接到</div>
-        <div className="mt-1 flex items-end justify-between">
-          <div className="font-display text-4xl">{need.char}</div>
-          <div className="text-right text-xs text-white/60">
-            上一句 {need.word}
-            <div className="mt-1">
-              {finished ? "终局" : `轮到 ${current.name}`}
+        <SeatSlot
+          player={seats.west}
+          side="west"
+          game={game}
+          settled={finished}
+          kingId={finished ? king?.id : undefined}
+        />
+
+        <div className="relative flex min-h-0 items-center justify-center">
+          <div className="felt-table relative flex aspect-square w-full max-w-[270px] flex-col items-center justify-center rounded-full px-5 text-center">
+            {line ? (
+              <div className="absolute top-4 z-10 mx-3 line-clamp-3 max-w-[80%] rounded-2xl bg-[#fff6e4] px-3 py-1.5 text-[11px] leading-5 text-ink shadow-md">
+                {line}
+              </div>
+            ) : null}
+
+            <OctopusFigure
+              priority
+              className="relative z-[1] mt-6 h-[7.2rem] w-[7.2rem] object-contain drop-shadow-[0_12px_18px_rgba(0,0,0,0.35)]"
+            />
+
+            <div className="relative z-[1] mt-1 font-display text-5xl leading-none text-[#f8e7b0]">
+              {need.char}
+            </div>
+            <div className="relative z-[1] mt-1 text-[10px] tracking-[0.2em] text-gold/70">
+              {finished ? "本局结束" : "接到这个字"}
+            </div>
+
+            <div className="relative z-[1] mt-2 flex flex-wrap justify-center gap-1">
+              {recent.map((word) => (
+                <span
+                  key={word}
+                  className="rounded-md border border-[#c9a44a]/40 bg-[#f3e2b3] px-1.5 py-0.5 text-[10px] text-[#4a3012]"
+                >
+                  {word}
+                </span>
+              ))}
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="chat-scroll mt-3 flex-1 space-y-3 overflow-y-auto px-3 pb-3">
-        {game.messages.map((message) => (
-          <Bubble key={message.id} message={message} players={game.players} />
-        ))}
-        <div ref={endRef} />
+        <SeatSlot
+          player={seats.east}
+          side="east"
+          game={game}
+          settled={finished}
+          kingId={finished ? king?.id : undefined}
+        />
+
+        <div />
+        <SeatSlot
+          player={seats.south}
+          side="south"
+          game={game}
+          settled={finished}
+          kingId={finished ? king?.id : undefined}
+        />
+        <div />
       </div>
 
       {finished ? (
-        <div className="border-t border-ink/8 bg-white px-5 py-4">
-          <div className="mb-3 flex items-center gap-3">
-            <OctopusMark mood="win" className="h-14 w-14" />
-            <div>
-              <div className="font-display text-xl">
-                {winner?.name ?? "章鱼"} 赢了
-              </div>
-              <div className="text-xs text-ink/45">
-                文化榜第一可以在群里装一下
-              </div>
-            </div>
+        <div className="border-t border-white/10 bg-black/30 px-4 py-3">
+          <div className="text-center">
+            <div className="font-display text-xl text-gold">本局结算</div>
+            <p className="mt-1 text-xs text-white/60">
+              {winner?.name ?? "章鱼"} 活到最后 · {king?.name ?? "无人"} 是丈育王
+            </p>
           </div>
-          <ol className="mb-4 space-y-1 text-sm">
-            {ranked.map((player, index) => (
-              <li key={player.id} className="flex justify-between">
+          <ol className="mt-3 space-y-1 text-sm text-white/80">
+            {[...ranked].sort((a, b) => b.zhangyu - a.zhangyu).map((player, index) => (
+              <li key={player.id} className="flex items-center justify-between">
                 <span>
                   {index + 1}. {player.name}
+                  {king?.id === player.id ? " · 丈育王" : ""}
                 </span>
-                <span className="text-ink/45">
-                  文化 {player.culture} / 丈育 {player.zhangyu}
-                </span>
+                <span className="text-gold">{player.zhangyu} 丈育</span>
               </li>
             ))}
           </ol>
           <button
             type="button"
             onClick={onAgain}
-            className="w-full rounded-full bg-coral py-3 font-semibold text-white"
+            className="mt-3 w-full rounded-full bg-coral py-3 text-sm font-semibold text-white"
           >
             再来一局
           </button>
         </div>
       ) : (
         <form
-          className="border-t border-ink/8 bg-white px-3 py-3"
+          className="border-t border-white/10 bg-black/25 px-3 py-3"
           onSubmit={(event) => {
             event.preventDefault();
             onSubmit();
           }}
         >
+          <div className="mb-2 text-center text-[11px] text-white/45">
+            轮到 {current.name} · 上一句 {need.word}
+          </div>
           <label className="sr-only" htmlFor="idiom-input">
             输入成语
           </label>
@@ -215,7 +195,7 @@ export function PlayView({
               value={draft}
               onChange={(event) => onDraft(event.target.value)}
               placeholder={`接「${need.char}」……`}
-              className="min-w-0 flex-1 rounded-full bg-foam px-4 py-3 text-base outline-none ring-coral/30 focus:ring-2"
+              className="min-w-0 flex-1 rounded-full bg-white/10 px-4 py-3 text-base text-white outline-none ring-gold/40 placeholder:text-white/35 focus:ring-2"
               autoComplete="off"
               enterKeyHint="send"
             />
@@ -223,14 +203,14 @@ export function PlayView({
               type="submit"
               className="shrink-0 rounded-full bg-coral px-5 py-3 text-sm font-semibold text-white"
             >
-              接
+              接上
             </button>
           </div>
           {game.lastHint ? (
             <button
               type="button"
               onClick={() => onDraft(game.lastHint ?? "")}
-              className="mt-2 w-full rounded-full bg-[#fff4ee] py-2 text-xs text-coral"
+              className="mt-2 w-full rounded-full bg-gold/15 py-2 text-xs text-gold"
             >
               用提示「{game.lastHint}」
             </button>
@@ -239,14 +219,14 @@ export function PlayView({
             <button
               type="button"
               onClick={onHint}
-              className="flex-1 rounded-full bg-foam py-2 text-xs text-ink/60"
+              className="flex-1 rounded-full bg-white/8 py-2 text-xs text-white/60"
             >
               查了吧
             </button>
             <button
               type="button"
               onClick={onPass}
-              className="flex-1 rounded-full bg-foam py-2 text-xs text-ink/60"
+              className="flex-1 rounded-full bg-white/8 py-2 text-xs text-white/60"
             >
               接不上
             </button>

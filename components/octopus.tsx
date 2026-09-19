@@ -1,4 +1,26 @@
+import Image from "next/image";
+
 type Mood = "idle" | "judge" | "laugh" | "win";
+
+export function OctopusFigure({
+  className = "",
+  priority = false,
+}: {
+  className?: string;
+  priority?: boolean;
+}) {
+  return (
+    <Image
+      src="/octopus-table.png"
+      alt="章鱼裁判"
+      width={640}
+      height={640}
+      priority={priority}
+      className={`select-none ${className}`}
+    />
+  );
+}
+
 
 const COLORS: Record<Mood, { skin: string; blush: string }> = {
   idle: { skin: "#ff6a4d", blush: "#ffd0c4" },
