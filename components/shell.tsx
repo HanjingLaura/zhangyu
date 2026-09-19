@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 
 export function GameCabinet({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-[#071116] px-2 py-2 sm:px-6 sm:py-4">
-      <div className="relative flex h-[min(100dvh-0.5rem,920px)] w-full max-w-[430px] flex-col overflow-hidden rounded-[32px] border border-white/10 bg-[#0b1f24] shadow-[0_24px_80px_rgba(0,0,0,0.55)]">
+    <div className="flex min-h-dvh items-center justify-center bg-[#070403] px-2 py-2 sm:px-6 sm:py-4">
+      <div className="relative flex h-[min(100dvh-0.5rem,920px)] w-full max-w-[430px] flex-col overflow-hidden rounded-[32px] border border-[#c9a44a]/20 bg-[#140c08] shadow-[0_24px_80px_rgba(0,0,0,0.55)]">
         {children}
       </div>
     </div>

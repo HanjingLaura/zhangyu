@@ -25,7 +25,7 @@ export function SetupView({
   };
 
   return (
-    <div className="flex h-full flex-col bg-[radial-gradient(circle_at_top,#16343c_0%,#0b1f24_58%)] text-white">
+    <div className="flex h-full flex-col bg-[radial-gradient(circle_at_top,#3a2216_0%,#120b08_62%)] text-white">
       <RoomHeader title="入座" subtitle="几个人就围几边" onBack={onBack} />
       <div className="flex-1 space-y-5 overflow-y-auto px-5 py-4">
         <section>

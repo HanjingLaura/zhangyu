@@ -4,7 +4,7 @@ import { OctopusFigure } from "./octopus";
 const RULES = [
   {
     title: "围桌怎么坐",
-    body: "两到四人共用这张桌子。人少就坐对面，人齐了就东南西北围一圈。轮到谁，谁的座位会亮。",
+    body: "先做网页版，手感参考骗子酒馆：人围木桌，成语当牌拍上去。轮到谁，左轮就对着谁。",
   },
   {
     title: "中间那只章鱼",
@@ -22,7 +22,7 @@ const RULES = [
 
 export function RulesView({ onBack }: { onBack: () => void }) {
   return (
-    <div className="flex h-full flex-col bg-[radial-gradient(circle_at_top,#16343c_0%,#0b1f24_58%)] text-white">
+    <div className="flex h-full flex-col bg-[radial-gradient(circle_at_top,#3a2216_0%,#120b08_62%)] text-white">
       <RoomHeader title="怎么玩" subtitle="围桌手册" onBack={onBack} />
       <div className="flex-1 overflow-y-auto px-5 py-5">
         <div className="mb-5 flex items-center gap-3 rounded-3xl bg-white/8 px-4 py-3">

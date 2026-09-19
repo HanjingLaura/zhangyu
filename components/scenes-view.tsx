@@ -9,7 +9,7 @@ export function ScenesView({
   onPlay: () => void;
 }) {
   return (
-    <div className="flex h-full flex-col bg-[radial-gradient(circle_at_top,#16343c_0%,#0b1f24_58%)] text-white">
+    <div className="flex h-full flex-col bg-[radial-gradient(circle_at_top,#3a2216_0%,#120b08_62%)] text-white">
       <RoomHeader
         title="群聊的聊天记录"
         subtitle="2026年9月18日"

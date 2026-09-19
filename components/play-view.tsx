@@ -1,13 +1,13 @@
 import { currentNeed, rankPlayers, zhangyuKing } from "@/lib/engine";
 import type { Game, Player } from "@/lib/types";
+import { IdiomCard, SuitCard } from "./idiom-card";
 import { OctopusFigure } from "./octopus";
+import { currentSeatSide, Revolver } from "./revolver";
 import { assignSeats, Seat, type SeatSide } from "./seat";
 import { RoomHeader } from "./shell";
 
-function lastOctopusLine(game: Game) {
-  return [...game.messages]
-    .reverse()
-    .find((message) => message.kind === "octopus")?.text;
+function lastOctopus(game: Game) {
+  return [...game.messages].reverse().find((message) => message.kind === "octopus");
 }
 
 function SeatSlot({
@@ -24,13 +24,12 @@ function SeatSlot({
   kingId?: string;
 }) {
   if (!player) return <div />;
-  const compact = side === "west" || side === "east";
   return (
     <div className="flex items-center justify-center">
       <Seat
         player={player}
         active={!settled && !player.out && game.players[game.turn]?.id === player.id}
-        compact={compact}
+        compact={side === "west" || side === "east"}
         settled={settled}
         king={kingId === player.id}
         winner={game.winnerId === player.id}
@@ -68,89 +67,65 @@ export function PlayView({
   const king = zhangyuKing(game);
   const winner = game.players.find((player) => player.id === game.winnerId);
   const ranked = rankPlayers(game);
-  const line = lastOctopusLine(game);
-  const recent = game.chain.slice(-3);
+  const octopus = lastOctopus(game);
+  const pile = game.chain.slice(-3);
+  const gunSide = currentSeatSide(game.turn, game.players.length);
+  const firing = octopus?.tone === "fail" || octopus?.tone === "egg";
 
   return (
-    <div className="flex h-full flex-col bg-[radial-gradient(circle_at_top,#16343c_0%,#0b1f24_58%)]">
+    <div className="flex h-full flex-col bg-[radial-gradient(circle_at_top,#3a2216_0%,#120b08_62%)]">
       <RoomHeader
-        title="丈育成语接龙"
-        subtitle={game.mode === "char" ? "字接字 · 围桌" : "音接音 · 围桌"}
+        title="丈育酒馆"
+        subtitle={game.mode === "char" ? "字接字 · 翻牌接龙" : "音接音 · 翻牌接龙"}
         onBack={onBack}
       />
 
       <div className="grid min-h-0 flex-1 grid-cols-[4.7rem_minmax(0,1fr)_4.7rem] grid-rows-[auto_minmax(0,1fr)_auto] gap-1 px-2 pb-2">
         <div />
-        <SeatSlot
-          player={seats.north}
-          side="north"
-          game={game}
-          settled={finished}
-          kingId={finished ? king?.id : undefined}
-        />
+        <SeatSlot player={seats.north} side="north" game={game} settled={finished} kingId={finished ? king?.id : undefined} />
         <div />
-
-        <SeatSlot
-          player={seats.west}
-          side="west"
-          game={game}
-          settled={finished}
-          kingId={finished ? king?.id : undefined}
-        />
+        <SeatSlot player={seats.west} side="west" game={game} settled={finished} kingId={finished ? king?.id : undefined} />
 
         <div className="relative flex min-h-0 items-center justify-center">
-          {line ? (
-            <div className="absolute top-0 z-20 mx-1 line-clamp-2 max-w-[92%] rounded-2xl bg-[#fff6e4] px-3 py-1.5 text-[11px] leading-5 text-ink shadow-md">
-              {line}
+          {octopus ? (
+            <div className="absolute top-0 z-30 mx-1 line-clamp-2 max-w-[92%] rounded-2xl bg-[#fff6e4] px-3 py-1.5 text-[11px] leading-5 text-ink shadow-md">
+              {octopus.text}
             </div>
           ) : null}
-          <div className="felt-table relative mt-8 flex aspect-square w-full max-w-[250px] flex-col items-center justify-center rounded-full px-5 text-center">
+
+          <div className="wood-table relative mt-9 flex aspect-square w-full max-w-[258px] items-center justify-center rounded-full">
             <OctopusFigure
               priority
-              className="relative z-[1] h-[6.8rem] w-[6.8rem] object-contain drop-shadow-[0_12px_18px_rgba(0,0,0,0.35)]"
+              className="absolute left-1/2 top-[18%] z-[1] h-16 w-16 -translate-x-1/2 object-contain drop-shadow-[0_10px_14px_rgba(0,0,0,0.45)]"
             />
+            {!finished ? <Revolver side={gunSide} firing={firing} /> : null}
 
-            <div className="relative z-[1] mt-1 font-display text-5xl leading-none text-[#f8e7b0]">
-              {need.char}
-            </div>
-            <div className="relative z-[1] mt-1 text-[10px] tracking-[0.2em] text-gold/70">
-              {finished ? "本局结束" : "接到这个字"}
-            </div>
-
-            <div className="relative z-[1] mt-2 flex flex-wrap justify-center gap-1">
-              {recent.map((word) => (
-                <span
-                  key={word}
-                  className="rounded-md border border-[#c9a44a]/40 bg-[#f3e2b3] px-1.5 py-0.5 text-[10px] text-[#4a3012]"
-                >
-                  {word}
-                </span>
-              ))}
+            <div className="relative z-[2] mt-10 flex items-end justify-center gap-2">
+              <div className="flex -space-x-3">
+                {pile.slice(0, -1).map((word, index) => (
+                  <div key={`${word}-${index}`} className="rotate-[-8deg]">
+                    <IdiomCard word={word} size="sm" dim />
+                  </div>
+                ))}
+              </div>
+              <SuitCard char={need.char} label={finished ? "终局" : "要接"} />
+              {pile.at(-1) ? (
+                <div className="rotate-[7deg]">
+                  <IdiomCard word={pile[pile.length - 1]} size="md" />
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
 
-        <SeatSlot
-          player={seats.east}
-          side="east"
-          game={game}
-          settled={finished}
-          kingId={finished ? king?.id : undefined}
-        />
-
+        <SeatSlot player={seats.east} side="east" game={game} settled={finished} kingId={finished ? king?.id : undefined} />
         <div />
-        <SeatSlot
-          player={seats.south}
-          side="south"
-          game={game}
-          settled={finished}
-          kingId={finished ? king?.id : undefined}
-        />
+        <SeatSlot player={seats.south} side="south" game={game} settled={finished} kingId={finished ? king?.id : undefined} />
         <div />
       </div>
 
       {finished ? (
-        <div className="border-t border-white/10 bg-black/30 px-4 py-3">
+        <div className="border-t border-[#c9a44a]/20 bg-black/35 px-4 py-3">
           <div className="text-center">
             <div className="font-display text-xl text-gold">本局结算</div>
             <p className="mt-1 text-xs text-white/60">
@@ -158,43 +133,37 @@ export function PlayView({
             </p>
           </div>
           <ol className="mt-3 space-y-1 text-sm text-white/80">
-            {[...ranked].sort((a, b) => b.zhangyu - a.zhangyu).map((player, index) => (
-              <li key={player.id} className="flex items-center justify-between">
-                <span>
-                  {index + 1}. {player.name}
-                  {king?.id === player.id ? " · 丈育王" : ""}
-                </span>
-                <span className="text-gold">{player.zhangyu} 丈育</span>
-              </li>
-            ))}
+            {[...ranked]
+              .sort((a, b) => b.zhangyu - a.zhangyu)
+              .map((player, index) => (
+                <li key={player.id} className="flex items-center justify-between">
+                  <span>
+                    {index + 1}. {player.name}
+                    {king?.id === player.id ? " · 丈育王" : ""}
+                  </span>
+                  <span className="text-gold">{player.zhangyu} 丈育</span>
+                </li>
+              ))}
           </ol>
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={onReseat}
-              className="rounded-full bg-white/10 py-3 text-sm text-white"
-            >
+            <button type="button" onClick={onReseat} className="rounded-full bg-white/10 py-3 text-sm text-white">
               换人入座
             </button>
-            <button
-              type="button"
-              onClick={onAgain}
-              className="rounded-full bg-coral py-3 text-sm font-semibold text-white"
-            >
+            <button type="button" onClick={onAgain} className="rounded-full bg-coral py-3 text-sm font-semibold text-white">
               再来一局
             </button>
           </div>
         </div>
       ) : (
         <form
-          className="border-t border-white/10 bg-black/25 px-3 py-3"
+          className="border-t border-[#c9a44a]/20 bg-black/30 px-3 py-3"
           onSubmit={(event) => {
             event.preventDefault();
             onSubmit();
           }}
         >
-          <div className="mb-2 text-center text-[11px] text-white/45">
-            轮到 {current.name} · 上一句 {need.word}
+          <div className="mb-2 text-center text-[11px] text-[#e6c98a]/70">
+            枪口对着 {current.name} · 上一张「{need.word}」
           </div>
           <label className="sr-only" htmlFor="idiom-input">
             输入成语
@@ -204,8 +173,8 @@ export function PlayView({
               id="idiom-input"
               value={draft}
               onChange={(event) => onDraft(event.target.value)}
-              placeholder={`接「${need.char}」……`}
-              className="min-w-0 flex-1 rounded-full bg-white/10 px-4 py-3 text-base text-white outline-none ring-gold/40 placeholder:text-white/35 focus:ring-2"
+              placeholder={`写出接「${need.char}」的牌……`}
+              className="min-w-0 flex-1 rounded-full bg-[#fff6e4]/10 px-4 py-3 text-base text-[#fff6e4] outline-none ring-gold/40 placeholder:text-white/30 focus:ring-2"
               autoComplete="off"
               enterKeyHint="send"
             />
@@ -213,7 +182,7 @@ export function PlayView({
               type="submit"
               className="shrink-0 rounded-full bg-coral px-5 py-3 text-sm font-semibold text-white"
             >
-              接上
+              拍上桌
             </button>
           </div>
           {game.lastHint ? (
@@ -222,23 +191,15 @@ export function PlayView({
               onClick={() => onDraft(game.lastHint ?? "")}
               className="mt-2 w-full rounded-full bg-gold/15 py-2 text-xs text-gold"
             >
-              用提示「{game.lastHint}」
+              偷看底牌「{game.lastHint}」
             </button>
           ) : null}
           <div className="mt-2 flex gap-2">
-            <button
-              type="button"
-              onClick={onHint}
-              className="flex-1 rounded-full bg-white/8 py-2 text-xs text-white/60"
-            >
+            <button type="button" onClick={onHint} className="flex-1 rounded-full bg-white/8 py-2 text-xs text-white/60">
               查了吧
             </button>
-            <button
-              type="button"
-              onClick={onPass}
-              className="flex-1 rounded-full bg-white/8 py-2 text-xs text-white/60"
-            >
-              接不上
+            <button type="button" onClick={onPass} className="flex-1 rounded-full bg-white/8 py-2 text-xs text-white/60">
+              对着自己开
             </button>
           </div>
         </form>
