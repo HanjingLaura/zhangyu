@@ -112,21 +112,25 @@ export function PlayView({
         {game.players.map((player, index) => (
           <div
             key={player.id}
-            className={`rounded-2xl px-3 py-2 ${
+            className={`min-w-0 rounded-2xl px-3 py-2 ${
               !player.out && index === game.turn && !finished
                 ? "bg-sea text-white"
                 : "bg-white text-ink"
             }`}
           >
-            <div className="flex items-center justify-between text-sm">
-              <span className={player.out ? "line-through opacity-50" : ""}>
+            <div className="flex items-center justify-between gap-2 text-sm">
+              <span
+                className={`min-w-0 truncate ${player.out ? "line-through opacity-50" : ""}`}
+              >
                 {player.name}
               </span>
-              <TentacleDots
-                current={player.tentacles}
-                max={game.maxTentacles}
-                light={!player.out && index === game.turn && !finished}
-              />
+              <span className="shrink-0">
+                <TentacleDots
+                  current={player.tentacles}
+                  max={game.maxTentacles}
+                  light={!player.out && index === game.turn && !finished}
+                />
+              </span>
             </div>
             <div
               className={`mt-1 text-[10px] ${
@@ -211,17 +215,26 @@ export function PlayView({
               value={draft}
               onChange={(event) => onDraft(event.target.value)}
               placeholder={`接「${need.char}」……`}
-              className="flex-1 rounded-full bg-foam px-4 py-3 text-base outline-none ring-coral/30 focus:ring-2"
+              className="min-w-0 flex-1 rounded-full bg-foam px-4 py-3 text-base outline-none ring-coral/30 focus:ring-2"
               autoComplete="off"
               enterKeyHint="send"
             />
             <button
               type="submit"
-              className="rounded-full bg-coral px-5 text-sm font-semibold text-white"
+              className="shrink-0 rounded-full bg-coral px-5 py-3 text-sm font-semibold text-white"
             >
               接
             </button>
           </div>
+          {game.lastHint ? (
+            <button
+              type="button"
+              onClick={() => onDraft(game.lastHint ?? "")}
+              className="mt-2 w-full rounded-full bg-[#fff4ee] py-2 text-xs text-coral"
+            >
+              用提示「{game.lastHint}」
+            </button>
+          ) : null}
           <div className="mt-2 flex gap-2">
             <button
               type="button"
