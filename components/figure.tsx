@@ -72,6 +72,10 @@ export function Figure({
 
   return (
     <span className="relative inline-block" style={{ width, height }}>
+      {outfit.mask ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={outfit.mask} alt="" className="hidden" />
+      ) : null}
       <span
         className="visor-hole absolute inset-0 bg-[#1a120c]"
         style={
