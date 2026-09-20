@@ -16,10 +16,8 @@ export function formatRecord(room: RoomSnapshot) {
     "结算",
     titles
       ? [
-          `最有意思　${titles.fun.name}（${titles.fun.fun}）`,
-          `最没文化　${titles.uncultured.name}（失误 ${titles.uncultured.fails}）`,
-          `最丈育　　${titles.zhangyu.name}（${titles.zhangyu.zhangyu}）`,
-          `最高分　　${titles.culture.name}（${titles.culture.culture}）`,
+          `最丈育　　${titles.zhangyu.name}（${titles.zhangyu.zhangyu}）${titles.notes?.zhangyu ? `　${titles.notes.zhangyu}` : ""}`,
+          `最有文化　${titles.culture.name}（${titles.culture.culture}）${titles.notes?.culture ? `　${titles.notes.culture}` : ""}`,
         ].join("\n")
       : "未结束",
     "",

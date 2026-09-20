@@ -12,7 +12,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ cod
   try {
     const { code } = await params;
     return NextResponse.json({
-      room: playRoom(code, user.id, body.action ?? "submit", body.word ?? ""),
+      room: await playRoom(code, user.id, body.action ?? "submit", body.word ?? ""),
       you: user,
     });
   } catch (error) {

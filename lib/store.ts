@@ -4,6 +4,7 @@ import { avatarUrl, saveAvatarDataUrl } from "./avatar";
 import { hashPassword, normalizeName, verifyPassword } from "./auth";
 import { addFun, createGame, finishGame, hint, pass, submit } from "./engine";
 import { idiomIndex } from "./dictionary";
+import { narrateGame } from "./octopus-ai";
 import type { Danmaku, Game, GameConfig, RoomSnapshot, UserPublic } from "./types";
 
 type UserRecord = {
@@ -218,7 +219,7 @@ export function startRoom(code: string, userId: string) {
   return snapshot(room);
 }
 
-export function playRoom(
+export async function playRoom(
   code: string,
   userId: string,
   action: "submit" | "hint" | "pass" | "finish",
@@ -230,16 +231,32 @@ export function playRoom(
     if (room.hostId !== userId) throw new Error("只有房主能结束");
     room.game = finishGame(room.game);
     room.status = "finished";
+    room.game = await narrateGame(room.game, "finish", word, "finished");
     return snapshot(room);
   }
   if (room.game.status !== "playing") throw new Error("本局已结束");
   const current = room.game.players[room.game.turn];
   if (current.id !== userId) throw new Error(`轮到 ${current.name}`);
 
-  if (action === "hint") room.game = hint(idiomIndex, room.game);
-  else if (action === "pass") room.game = pass(idiomIndex, room.game).game;
-  else room.game = submit(idiomIndex, room.game, word).game;
+  let reason: "hint" | ReturnType<typeof submit>["reason"] = "hint";
+  if (action === "hint") {
+    room.game = hint(idiomIndex, room.game);
+  } else if (action === "pass") {
+    const result = pass(idiomIndex, room.game);
+    room.game = result.game;
+    reason = result.reason;
+  } else {
+    const result = submit(idiomIndex, room.game, word);
+    room.game = result.game;
+    reason = result.reason;
+  }
   if (room.game.status === "finished") room.status = "finished";
+  room.game = await narrateGame(
+    room.game,
+    action,
+    word,
+    room.game.status === "finished" && action !== "hint" ? "finished" : reason,
+  );
   return snapshot(room);
 }
 

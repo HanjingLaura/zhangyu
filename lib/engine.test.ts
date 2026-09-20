@@ -144,10 +144,8 @@ describe("settlement", () => {
     assert.match(text, /一鸣惊人 → 人山人海/);
     assert.match(text, /Cora/);
     assert.match(text, /nbb/);
-    assert.match(text, /最有意思/);
-    assert.match(text, /最没文化/);
     assert.match(text, /最丈育/);
-    assert.match(text, /分最高/);
+    assert.match(text, /最有文化/);
   });
 });
 

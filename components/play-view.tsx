@@ -91,14 +91,13 @@ export function PlayView({
           {titles ? (
             <div className="mt-3 grid grid-cols-2 gap-2 text-center">
               {[
-                ["最有意思", titles.fun.name],
-                ["最没文化", titles.uncultured.name],
-                ["最丈育", titles.zhangyu.name],
-                ["最高分", titles.culture.name],
-              ].map(([label, name]) => (
-                <div key={label} className="rounded-2xl bg-ink/6 px-2 py-2.5">
+                ["最丈育", titles.zhangyu.name, titles.notes?.zhangyu],
+                ["最有文化", titles.culture.name, titles.notes?.culture],
+              ].map(([label, name, note]) => (
+                <div key={label} className="rounded-2xl bg-ink/6 px-2 py-3">
                   <div className="text-[11px] text-ink/55">{label}</div>
-                  <div className="mt-0.5 truncate font-display text-lg">{name}</div>
+                  <div className="mt-0.5 truncate font-display text-xl">{name}</div>
+                  {note ? <div className="mt-1 text-[11px] text-ink/45">{note}</div> : null}
                 </div>
               ))}
             </div>

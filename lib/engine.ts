@@ -62,7 +62,7 @@ function settle(game: Game, note?: string): Game {
         kind: "octopus",
         text:
           note ??
-          `接满 ${game.rounds} 轮。最高分 ${titles.culture.name}，最丈育 ${titles.zhangyu.name}。`,
+          `接满 ${game.rounds} 轮。最有文化 ${titles.culture.name}，最丈育 ${titles.zhangyu.name}。`,
         tone: "win",
       },
     ],

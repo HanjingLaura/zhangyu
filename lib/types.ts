@@ -63,6 +63,10 @@ export type GameTitles = {
   uncultured: Player;
   zhangyu: Player;
   culture: Player;
+  notes?: {
+    zhangyu?: string;
+    culture?: string;
+  };
 };
 
 export type RoomSnapshot = {
