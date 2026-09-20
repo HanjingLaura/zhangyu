@@ -41,7 +41,7 @@ export function HomeView({
   return (
     <div className="screen screen-home">
       <img
-        src="/house.webp"
+        src="/house.webp?v=3"
         alt=""
         className="pointer-events-none absolute left-1/2 top-[46%] z-0 w-[78%] -translate-x-1/2 -translate-y-1/2 select-none"
       />
