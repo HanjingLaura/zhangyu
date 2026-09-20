@@ -1,90 +1,147 @@
 "use client";
 
 import { useState } from "react";
-import { apiLogin, apiRegister, apiUploadAvatar } from "@/lib/client";
+import { apiLogin, apiRegister, apiResetPassword, apiUploadAvatar } from "@/lib/client";
 import type { UserPublic } from "@/lib/types";
 import { AvatarPicker } from "./avatar";
-import { TableScene } from "./table-scene";
+
+type Mode = "login" | "register" | "forgot";
+
+const TABS: { id: Mode; label: string }[] = [
+  { id: "login", label: "登录" },
+  { id: "register", label: "注册" },
+];
 
 export function AuthView({ onReady }: { onReady: (user: UserPublic) => void }) {
-  const [mode, setMode] = useState<"login" | "register">("register");
+  const [mode, setMode] = useState<Mode>("login");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [avatar, setAvatar] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  return (
-    <div className="screen screen-sea">
-      <div className="h-[calc(14px+env(safe-area-inset-top))]" />
-      <TableScene />
+  const title = mode === "login" ? "登录" : mode === "register" ? "注册" : "忘记密码";
+  const action = mode === "login" ? "登录" : mode === "register" ? "注册" : "重置密码";
 
-      <form
-        className="drawer space-y-3"
-        onSubmit={async (event) => {
-          event.preventDefault();
-          setBusy(true);
-          setError("");
-          try {
-            let user =
-              mode === "register"
-                ? await apiRegister(name, password)
-                : await apiLogin(name, password);
-            if (avatar) {
-              try {
-                user = await apiUploadAvatar(avatar);
-              } catch {
-                // Photo can be added later from the home screen.
-              }
+  return (
+    <div className="screen">
+      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 pb-8">
+        <form
+          className="w-full max-w-sm space-y-3 rounded-3xl bg-black/25 px-4 py-5"
+          onSubmit={async (event) => {
+            event.preventDefault();
+            if ((mode === "register" || mode === "forgot") && password !== confirm) {
+              setError("两次密码不一致");
+              return;
             }
-            onReady(user);
-          } catch (err) {
-            setError(err instanceof Error ? err.message : "失败");
-          } finally {
-            setBusy(false);
-          }
-        }}
-      >
-        <div className="flex items-center gap-4">
-          <AvatarPicker name={name} src={avatar} size={64} onPick={setAvatar} />
-          <div className="flex flex-1 gap-1 rounded-2xl bg-white/5 p-1">
+            setBusy(true);
+            setError("");
+            try {
+              let user =
+                mode === "register"
+                  ? await apiRegister(name, password)
+                  : mode === "forgot"
+                    ? await apiResetPassword(name, password)
+                    : await apiLogin(name, password);
+              if (avatar && mode === "register") {
+                try {
+                  user = await apiUploadAvatar(avatar);
+                } catch {
+                  // Photo can be added later from the home screen.
+                }
+              }
+              onReady(user);
+            } catch (err) {
+              setError(err instanceof Error ? err.message : "失败");
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          {mode !== "forgot" ? (
+            <div className="flex gap-1 rounded-2xl bg-white/5 p-1">
+              {TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => {
+                    setMode(tab.id);
+                    setError("");
+                  }}
+                  className={`flex-1 rounded-xl py-2 text-sm ${mode === tab.id ? "bg-gold text-ink" : "text-foam/60"}`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-[15px]">{title}</div>
+          )}
+
+          {mode === "register" ? (
+            <div className="flex justify-center py-1">
+              <AvatarPicker name={name} src={avatar} size={64} onPick={setAvatar} />
+            </div>
+          ) : null}
+
+          <input
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="昵称"
+            className="field"
+            maxLength={12}
+            autoComplete="username"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder={mode === "forgot" ? "新密码" : "密码"}
+            className="field"
+            autoComplete={mode === "login" ? "current-password" : "new-password"}
+          />
+          {mode !== "login" ? (
+            <input
+              type="password"
+              value={confirm}
+              onChange={(event) => setConfirm(event.target.value)}
+              placeholder="确认密码"
+              className="field"
+              autoComplete="new-password"
+            />
+          ) : null}
+          {error ? <p className="text-center text-sm text-coral">{error}</p> : null}
+          <button type="submit" disabled={busy} className="btn btn-primary w-full">
+            {action}
+          </button>
+          {mode === "login" ? (
             <button
               type="button"
-              onClick={() => setMode("register")}
-              className={`flex-1 rounded-xl py-2 text-sm ${mode === "register" ? "bg-gold text-ink" : "text-foam/60"}`}
+              onClick={() => {
+                setMode("forgot");
+                setError("");
+                setPassword("");
+                setConfirm("");
+              }}
+              className="w-full py-1 text-center text-sm text-foam/50"
             >
-              注册
+              忘记密码
             </button>
+          ) : (
             <button
               type="button"
-              onClick={() => setMode("login")}
-              className={`flex-1 rounded-xl py-2 text-sm ${mode === "login" ? "bg-gold text-ink" : "text-foam/60"}`}
+              onClick={() => {
+                setMode("login");
+                setError("");
+              }}
+              className="w-full py-1 text-center text-sm text-foam/50"
             >
-              登录
+              返回登录
             </button>
-          </div>
-        </div>
-        <input
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          placeholder="昵称"
-          className="field"
-          maxLength={12}
-          autoComplete="username"
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          placeholder="密码"
-          className="field"
-          autoComplete={mode === "register" ? "new-password" : "current-password"}
-        />
-        {error ? <p className="text-center text-sm text-coral">{error}</p> : null}
-        <button type="submit" disabled={busy} className="btn btn-primary w-full">
-          {mode === "register" ? "注册" : "登录"}
-        </button>
-      </form>
+          )}
+        </form>
+      </div>
     </div>
   );
 }

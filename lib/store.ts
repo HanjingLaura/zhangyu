@@ -110,6 +110,15 @@ export function loginUser(name: string, password: string) {
   return publicUser(user);
 }
 
+export function resetPassword(name: string, password: string) {
+  const user = memory().users.get(normalizeName(name).toLowerCase());
+  if (!user) throw new Error("昵称不存在");
+  if (password.length < 4) throw new Error("密码至少 4 位");
+  user.password = hashPassword(password);
+  saveUsers();
+  return publicUser(user);
+}
+
 export function setUserAvatar(userId: string, dataUrl: string) {
   const user = findUserById(userId);
   if (!user) throw new Error("请先登录");

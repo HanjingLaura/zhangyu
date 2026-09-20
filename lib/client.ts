@@ -33,6 +33,17 @@ export async function apiLogin(name: string, password: string) {
   return (data as { user: UserPublic }).user;
 }
 
+export async function apiResetPassword(name: string, password: string) {
+  const data = await read(
+    await fetch("/api/auth/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, password }),
+    }),
+  );
+  return (data as { user: UserPublic }).user;
+}
+
 export async function apiLogout() {
   await fetch("/api/auth/logout", { method: "POST" });
 }
