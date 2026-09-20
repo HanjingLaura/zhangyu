@@ -29,17 +29,15 @@ export function Seat({
   const player = person.player;
   const suited = Boolean(person.outfit && person.outfit !== "plain");
   return (
-    <div className="flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
-      <div className={active && !suited ? "rounded-full seat-glow" : active ? "drop-shadow-[0_0_12px_#6ec8c0]" : ""}>
-        <Figure name={person.name} src={person.avatarUrl} outfitId={person.outfit} size={suited ? 86 : 54} />
+    <div className="flex -translate-x-1/2 -translate-y-[78%] flex-col items-center">
+      <div className={active ? "drop-shadow-[0_0_14px_#6ec8c0]" : "drop-shadow-[0_10px_10px_rgba(0,20,28,0.35)]"}>
+        <Figure name={person.name} src={person.avatarUrl} outfitId={person.outfit} size={suited ? 132 : 72} />
       </div>
-      <div className="mt-1 max-w-[5.4rem] truncate rounded-full bg-black/70 px-2.5 py-0.5 text-[11px] text-foam">
+      <div className="mt-0.5 max-w-[5.6rem] truncate rounded-full bg-black/70 px-2.5 py-0.5 text-[11px] text-foam">
         {you ? "我" : person.name}
       </div>
       {player ? (
-        <div className="mt-0.5 text-[11px] text-gold">
-          {settled ? `${player.culture} 分` : player.culture}
-        </div>
+        <div className="text-[11px] text-gold">{settled ? `${player.culture} 分` : player.culture}</div>
       ) : null}
     </div>
   );

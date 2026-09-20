@@ -334,6 +334,15 @@ export function buyOutfit(userId: string, outfitId: string) {
   return publicUser(user);
 }
 
+export function grantWardrobe(userId: string) {
+  const user = findUserById(userId);
+  if (!user) throw new Error("请先登录");
+  user.shells = Math.max(user.shells ?? 0, 80);
+  user.owned = ["plain", "astronaut", "ranger", "diver"];
+  saveUsers();
+  return publicUser(user);
+}
+
 export function wearOutfit(userId: string, outfitId: string) {
   const user = findUserById(userId);
   if (!user) throw new Error("请先登录");

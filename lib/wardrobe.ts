@@ -7,6 +7,7 @@ export type Outfit = {
   name: string;
   price: number;
   src?: string;
+  aspect?: number;
   hole?: { cx: number; cy: number; rw: number; rh: number };
 };
 
@@ -17,6 +18,7 @@ export const OUTFITS: Outfit[] = [
     name: "宇航员",
     price: 12,
     src: "/suit-astronaut.webp",
+    aspect: 668 / 992,
     hole: { cx: 50.16, cy: 20.87, rw: 18.71, rh: 11.44 },
   },
   {
@@ -24,6 +26,7 @@ export const OUTFITS: Outfit[] = [
     name: "巴斯光年",
     price: 24,
     src: "/suit-ranger.webp",
+    aspect: 860 / 982,
     hole: { cx: 50, cy: 25.05, rw: 20.47, rh: 18.08 },
   },
   {
@@ -31,6 +34,7 @@ export const OUTFITS: Outfit[] = [
     name: "松鼠头盔",
     price: 16,
     src: "/suit-diver.webp",
+    aspect: 647 / 884,
     hole: { cx: 61.46, cy: 33.62, rw: 26.2, rh: 18.95 },
   },
 ];
