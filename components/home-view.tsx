@@ -41,22 +41,24 @@ export function HomeView({
             <div className="text-xs text-foam/55">贝壳 {user.shells}</div>
           </div>
         </div>
-        <button type="button" onClick={onCreate} className="btn btn-primary w-full">
-          创建房间
-        </button>
-        <button type="button" onClick={onJoin} className="btn btn-quiet w-full">
-          加入房间
-        </button>
-        <div className="grid grid-cols-3 gap-3">
-          <button type="button" onClick={onShop} className="btn btn-quiet py-3 text-sm">
-            服装
+        <div className="space-y-3 rounded-3xl bg-black/25 px-3 py-3">
+          <button type="button" onClick={onCreate} className="btn btn-primary w-full">
+            创建房间
           </button>
-          <button type="button" onClick={onRules} className="btn btn-quiet py-3 text-sm">
-            玩法
+          <button type="button" onClick={onJoin} className="btn btn-quiet w-full">
+            加入房间
           </button>
-          <button type="button" onClick={onScenes} className="btn btn-quiet py-3 text-sm">
-            记录
-          </button>
+          <div className="grid grid-cols-3 gap-3">
+            <button type="button" onClick={onShop} className="btn btn-quiet py-3 text-sm">
+              服装
+            </button>
+            <button type="button" onClick={onRules} className="btn btn-quiet py-3 text-sm">
+              玩法
+            </button>
+            <button type="button" onClick={onScenes} className="btn btn-quiet py-3 text-sm">
+              记录
+            </button>
+          </div>
         </div>
       </div>
     </div>
