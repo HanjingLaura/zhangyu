@@ -24,6 +24,7 @@ import { PlayView } from "./play-view";
 import { RulesView } from "./rules-view";
 import { ScenesView } from "./scenes-view";
 import { ShopView } from "./shop-view";
+import { BgmProvider } from "./bgm";
 import { GameCabinet } from "./shell";
 
 type View = "boot" | "auth" | "home" | "join" | "lobby" | "play" | "rules" | "scenes" | "shop";
@@ -69,7 +70,8 @@ export function GameApp() {
   };
 
   return (
-    <GameCabinet>
+    <BgmProvider>
+      <GameCabinet>
       {view === "boot" ? (
         <div className="screen items-center justify-center text-foam/50">加载中</div>
       ) : null}
@@ -223,6 +225,7 @@ export function GameApp() {
       {view === "scenes" ? (
         <ScenesView onBack={() => setView("home")} onPlay={() => setView("home")} />
       ) : null}
-    </GameCabinet>
+      </GameCabinet>
+    </BgmProvider>
   );
 }

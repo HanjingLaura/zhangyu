@@ -2,17 +2,21 @@
 
 import type { UserPublic } from "@/lib/types";
 import { AvatarPicker } from "./avatar";
+import { BgmToggle } from "./bgm";
 
 function ShopHouseIcon() {
   return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
-        d="M4 10.8 12 4l8 6.8V20H4V10.8Z"
+        d="M3.5 11.2 12 3.8l8.5 7.4V20.2H3.5V11.2Z"
+        fill="currentColor"
+        fillOpacity="0.16"
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinejoin="round"
       />
-      <path d="M10 20v-6h4v6" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M10 20.2v-6.2h4v6.2" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M9.2 10.4h5.6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   );
 }
@@ -41,33 +45,44 @@ export function HomeView({
   return (
     <div className="screen screen-home">
       <img
-        src="/house.webp?v=3"
+        src="/house.webp?v=4"
         alt=""
         className="pointer-events-none absolute left-1/2 top-[46%] z-0 w-[78%] -translate-x-1/2 -translate-y-1/2 select-none"
       />
-      <div className="relative z-10 flex items-start justify-between px-4 pt-[calc(10px+env(safe-area-inset-top))]">
-        <div className="flex items-center gap-2.5">
-          <AvatarPicker name={user.name} src={user.avatarUrl} size={48} onPick={onAvatar} />
+      <div className="relative z-10 flex items-center justify-between px-4 pt-[calc(12px+env(safe-area-inset-top))]">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <AvatarPicker
+            name={user.name}
+            src={user.avatarUrl}
+            size={52}
+            onPick={onAvatar}
+            confirmFirst
+          />
           <div className="min-w-0">
-            <div className="text-[15px]">{user.name}</div>
-            <div className="flex items-center gap-2 text-xs text-foam/55">
-              <span>贝壳 {user.shells}</span>
-              <button type="button" onClick={onLogout} className="text-foam/45">
-                退出
-              </button>
-            </div>
+            <div className="truncate text-[15px] font-medium text-black">{user.name}</div>
+            <div className="text-xs text-black">贝壳 {user.shells}</div>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={onShop}
-          className="flex h-10 w-10 items-center justify-center rounded-full text-foam active:bg-white/10"
-          aria-label="服装"
-        >
-          <ShopHouseIcon />
-        </button>
+        <div className="flex items-center">
+          <BgmToggle />
+          <button
+            type="button"
+            onClick={onShop}
+            className="flex h-11 w-11 items-center justify-center rounded-full text-white active:bg-white/10"
+            aria-label="商店"
+          >
+            <ShopHouseIcon />
+          </button>
+        </div>
       </div>
-      <div className="relative z-10 mt-auto flex items-center gap-3 px-5 pb-[calc(18px+env(safe-area-inset-bottom))]">
+      <button
+        type="button"
+        onClick={onLogout}
+        className="relative z-10 self-start px-4 pt-1 text-xs text-black/55"
+      >
+        退出
+      </button>
+      <div className="relative z-10 mt-auto flex items-center gap-3 px-5 pb-[calc(72px+env(safe-area-inset-bottom))]">
         <button type="button" onClick={onCreate} className="btn btn-primary min-w-0 flex-1">
           创建房间
         </button>

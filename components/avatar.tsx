@@ -69,13 +69,54 @@ export function AvatarPicker({
   src,
   size = 88,
   onPick,
+  confirmFirst = false,
 }: {
   name: string;
   src?: string;
   size?: number;
   onPick: (dataUrl: string) => Promise<void> | void;
+  confirmFirst?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [open, setOpen] = useState(false);
+
+  const input = (
+    <input
+      ref={inputRef}
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={async (event) => {
+        const file = event.target.files?.[0];
+        event.target.value = "";
+        setOpen(false);
+        if (!file) return;
+        await onPick(await compressAvatar(file));
+      }}
+    />
+  );
+
+  if (confirmFirst) {
+    return (
+      <div className="relative shrink-0">
+        <button type="button" onClick={() => setOpen((value) => !value)} aria-label="头像">
+          <span className="block rounded-full ring-2 ring-gold/70 ring-offset-2 ring-offset-transparent">
+            <Avatar name={name || "我"} src={src} size={size} />
+          </span>
+        </button>
+        {open ? (
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className="absolute left-0 top-[calc(100%+8px)] z-20 whitespace-nowrap rounded-full bg-white px-3 py-1.5 text-xs text-black shadow"
+          >
+            更换头像
+          </button>
+        ) : null}
+        {input}
+      </div>
+    );
+  }
 
   return (
     <button
@@ -98,18 +139,7 @@ export function AvatarPicker({
           <circle cx="12" cy="13" r="3.2" stroke="currentColor" strokeWidth="2" />
         </svg>
       </span>
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={async (event) => {
-          const file = event.target.files?.[0];
-          event.target.value = "";
-          if (!file) return;
-          await onPick(await compressAvatar(file));
-        }}
-      />
+      {input}
     </button>
   );
 }

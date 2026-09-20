@@ -64,6 +64,13 @@ body {
     #3aa7cc;
 }
 
+.screen-room {
+  background:
+    linear-gradient(180deg, rgba(20, 16, 10, 0.12) 0%, transparent 22%, rgba(20, 12, 8, 0.18) 100%),
+    url("/interior.webp") center 38% / cover no-repeat,
+    #7aa36a;
+}
+
 .iso-table {
   pointer-events: none;
   position: absolute;

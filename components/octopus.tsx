@@ -7,10 +7,10 @@ export function OctopusFigure({
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src="/octopus.webp"
+      src="/octopus-sit.webp"
       alt=""
-      width={609}
-      height={1383}
+      width={580}
+      height={947}
       className={`select-none object-contain ${className}`}
     />
   );

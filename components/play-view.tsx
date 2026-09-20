@@ -55,7 +55,7 @@ export function PlayView({
   const host = you?.id === room.hostId;
 
   return (
-    <div className="screen">
+    <div className="screen screen-room">
       <TopBar
         title={
           finished ? (

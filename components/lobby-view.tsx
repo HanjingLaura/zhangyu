@@ -27,7 +27,7 @@ export function LobbyView({
   const [draft, setDraft] = useState("");
 
   return (
-    <div className="screen">
+    <div className="screen screen-room">
       <TopBar
         title={
           <span>
