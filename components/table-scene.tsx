@@ -4,7 +4,7 @@ import { colorFor } from "./avatar";
 import { OctopusFigure } from "./octopus";
 import { rotateSeats, Seat, type SeatPerson } from "./seat";
 
-const RING = { cx: 50, cy: 62, rx: 44, ry: 24 };
+const RING = { cx: 50, cy: 68, rx: 46, ry: 16 };
 
 function seatAt(index: number, total: number) {
   const angle = ((90 + (360 / Math.max(total, 1)) * index) * Math.PI) / 180;
@@ -66,11 +66,11 @@ export function TableScene({
   return (
     <div className="relative z-[1] flex min-h-0 flex-1 items-end justify-center px-1 pb-1">
       <div className="relative aspect-[4/5] w-full max-w-[420px]">
-        <div className="absolute left-1/2 top-[2%] z-[2] w-[22%] -translate-x-1/2">
+        <div className="absolute left-1/2 top-[1%] z-[2] w-[20%] -translate-x-1/2">
           <OctopusFigure className="w-full drop-shadow-[0_10px_8px_rgba(0,20,28,0.35)]" />
         </div>
         {bubble ? (
-          <div className="bubble bubble-left absolute left-[64%] top-[6%] z-[7] w-max max-w-[38%]">
+          <div className="bubble bubble-left absolute left-[62%] top-[4%] z-[7] w-max max-w-[38%]">
             {bubble}
           </div>
         ) : null}
