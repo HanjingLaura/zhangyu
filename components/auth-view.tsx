@@ -25,7 +25,7 @@ export function AuthView({ onReady }: { onReady: (user: UserPublic) => void }) {
   const action = mode === "login" ? "登录" : mode === "register" ? "注册" : "重置密码";
 
   return (
-    <div className="screen">
+    <div className="screen screen-sea">
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 pb-8">
         <form
           className="w-full max-w-sm space-y-3 rounded-3xl bg-black/25 px-4 py-5"

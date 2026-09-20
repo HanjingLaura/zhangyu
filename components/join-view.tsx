@@ -16,7 +16,7 @@ export function JoinView({
   const [busy, setBusy] = useState(false);
 
   return (
-    <div className="screen screen-sea">
+    <div className="screen">
       <TopBar title="加入房间" onBack={onBack} />
       <TableScene />
       <form
