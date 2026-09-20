@@ -1,20 +1,20 @@
 export const MAX_PLAYERS = 6;
 export const ROUND_OPTIONS = [20, 50, 100] as const;
 
-const SPAN = [0, 0, 72, 108, 132, 150, 168];
+const MARGIN = [0, 50, 22, 16, 13, 12, 12];
+const SCALE = [1, 0.95, 0.92, 0.84, 0.74, 0.64, 0.56];
 
 export function seatLayout(index: number, total: number) {
   const count = Math.min(MAX_PLAYERS, Math.max(total, 1));
-  const span = SPAN[count] ?? 168;
-  const start = 90 - span / 2;
-  const angleDeg = start + (count === 1 ? 0 : (span / (count - 1)) * index);
-  const angle = (angleDeg * Math.PI) / 180;
-  const depth = Math.sin(angle);
+  const margin = MARGIN[count] ?? 10;
+  const usable = 100 - margin * 2;
+  const left = count === 1 ? 50 : margin + (usable / (count - 1)) * index;
+  const bow = count <= 2 ? 0 : Math.sin((index / Math.max(count - 1, 1)) * Math.PI) * 2.4;
   return {
-    left: 50 + 44 * Math.cos(angle),
-    top: 90 + 8 * Math.sin(angle),
-    zIndex: Math.round(20 + depth * 12),
-    scale: Math.max(0.62, 0.96 - 0.06 * Math.max(0, count - 2)),
+    left,
+    top: 88.5 + bow,
+    zIndex: 20 + index,
+    scale: SCALE[count] ?? 0.56,
   };
 }
 
