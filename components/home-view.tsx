@@ -33,15 +33,15 @@ export function HomeView({
           </button>
         }
       />
-      <div className="relative z-10 space-y-3 px-5">
-        <div className="flex items-center gap-3">
-          <AvatarPicker name={user.name} src={user.avatarUrl} size={48} onPick={onAvatar} />
-          <div className="min-w-0 flex-1">
-            <div className="text-[15px]">{user.name}</div>
-            <div className="text-xs text-foam/55">贝壳 {user.shells}</div>
-          </div>
+      <div className="relative z-10 flex items-center gap-3 px-5">
+        <AvatarPicker name={user.name} src={user.avatarUrl} size={48} onPick={onAvatar} />
+        <div className="min-w-0 flex-1">
+          <div className="text-[15px]">{user.name}</div>
+          <div className="text-xs text-foam/55">贝壳 {user.shells}</div>
         </div>
-        <div className="space-y-3 rounded-3xl bg-black/25 px-3 py-3">
+      </div>
+      <div className="relative z-10 flex flex-1 items-center px-5">
+        <div className="w-full space-y-3 rounded-3xl bg-black/25 px-3 py-3">
           <button type="button" onClick={onCreate} className="btn btn-primary w-full">
             创建房间
           </button>
