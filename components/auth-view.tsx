@@ -15,10 +15,8 @@ export function AuthView({ onReady }: { onReady: (user: UserPublic) => void }) {
   const [busy, setBusy] = useState(false);
 
   return (
-    <div className="screen">
-      <div className="relative z-10 pt-[calc(28px+env(safe-area-inset-top))] text-center">
-        <h1 className="font-display text-[34px] leading-none tracking-wide">章鱼哥接龙</h1>
-      </div>
+    <div className="screen screen-sea">
+      <div className="h-[calc(14px+env(safe-area-inset-top))]" />
       <TableScene />
 
       <form

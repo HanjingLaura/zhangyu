@@ -20,16 +20,21 @@ export function Seat({
   active = false,
   settled = false,
   you = false,
+  scale = 1,
 }: {
   person: SeatPerson;
   active?: boolean;
   settled?: boolean;
   you?: boolean;
+  scale?: number;
 }) {
   const player = person.player;
   const suited = Boolean(person.outfit && person.outfit !== "plain");
   return (
-    <div className="flex -translate-x-1/2 -translate-y-[78%] flex-col items-center">
+    <div
+      className="flex flex-col items-center"
+      style={{ transform: `translate(-50%, -78%) scale(${scale})` }}
+    >
       <div className={active ? "drop-shadow-[0_0_14px_#6ec8c0]" : "drop-shadow-[0_10px_10px_rgba(0,20,28,0.35)]"}>
         <Figure name={person.name} src={person.avatarUrl} outfitId={person.outfit} size={suited ? 132 : 72} />
       </div>

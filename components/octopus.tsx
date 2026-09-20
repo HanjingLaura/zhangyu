@@ -9,8 +9,8 @@ export function OctopusFigure({
     <img
       src="/octopus.webp"
       alt=""
-      width={689}
-      height={930}
+      width={609}
+      height={1383}
       className={`select-none object-contain ${className}`}
     />
   );

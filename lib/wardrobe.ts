@@ -26,16 +26,16 @@ export const OUTFITS: Outfit[] = [
     name: "巴斯光年",
     price: 24,
     src: "/suit-ranger.webp",
-    aspect: 860 / 982,
-    hole: { cx: 50, cy: 25.05, rw: 20.47, rh: 18.08 },
+    aspect: 1324 / 1903,
+    hole: { cx: 50.3, cy: 13.03, rw: 12.69, rh: 10.4 },
   },
   {
     id: "diver",
     name: "松鼠头盔",
     price: 16,
     src: "/suit-diver.webp",
-    aspect: 491 / 932,
-    hole: { cx: 39.21, cy: 18.56, rw: 19.96, rh: 10.57 },
+    aspect: 373 / 418,
+    hole: { cx: 49.06, cy: 22.97, rw: 18.77, rh: 17.22 },
   },
 ];
 
