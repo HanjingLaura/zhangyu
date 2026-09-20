@@ -260,3 +260,14 @@ body {
 .seat-glow {
   box-shadow: 0 0 0 3px #6ec8c0, 0 0 22px rgba(110, 200, 192, 0.65);
 }
+
+.visor-hole {
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-mode: alpha;
+  mask-mode: alpha;
+}
