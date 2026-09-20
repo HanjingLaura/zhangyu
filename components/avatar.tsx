@@ -70,12 +70,14 @@ export function AvatarPicker({
   size = 88,
   onPick,
   confirmFirst = false,
+  onLogout,
 }: {
   name: string;
   src?: string;
   size?: number;
   onPick: (dataUrl: string) => Promise<void> | void;
   confirmFirst?: boolean;
+  onLogout?: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -115,13 +117,24 @@ export function AvatarPicker({
           </span>
         </button>
         {open ? (
-          <button
-            type="button"
-            onClick={() => inputRef.current?.click()}
-            className="absolute left-0 top-[calc(100%+10px)] z-20 whitespace-nowrap rounded-full bg-white px-3 py-1.5 text-xs text-black shadow"
-          >
-            更换头像
-          </button>
+          <div className="absolute left-0 top-[calc(100%+10px)] z-20 flex flex-col items-start gap-1.5">
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              className="whitespace-nowrap rounded-full bg-white px-3 py-1.5 text-xs text-black shadow"
+            >
+              更换头像
+            </button>
+            {onLogout ? (
+              <button
+                type="button"
+                onClick={onLogout}
+                className="whitespace-nowrap rounded-full bg-white px-3 py-1.5 text-xs text-black shadow"
+              >
+                退出
+              </button>
+            ) : null}
+          </div>
         ) : null}
         {input}
       </div>
