@@ -61,6 +61,9 @@ export function HomeView({
           <div className="min-w-0">
             <div className="truncate text-[15px] font-medium text-black">{user.name}</div>
             <div className="text-xs text-black">贝壳 {user.shells}</div>
+            <button type="button" onClick={onLogout} className="pt-0.5 text-xs text-black">
+              退出
+            </button>
           </div>
         </div>
         <div className="flex items-center">
@@ -75,14 +78,7 @@ export function HomeView({
           </button>
         </div>
       </div>
-      <button
-        type="button"
-        onClick={onLogout}
-        className="relative z-10 self-start px-4 pt-1 text-xs text-black/55"
-      >
-        退出
-      </button>
-      <div className="relative z-10 mt-auto flex items-center gap-3 px-5 pb-[calc(72px+env(safe-area-inset-bottom))]">
+      <div className="relative z-10 mt-auto flex items-center gap-3 px-5 pb-[calc(118px+env(safe-area-inset-bottom))]">
         <button type="button" onClick={onCreate} className="btn btn-primary min-w-0 flex-1">
           创建房间
         </button>

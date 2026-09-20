@@ -118,7 +118,7 @@ export function AvatarPicker({
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="absolute left-[58px] top-[calc(100%+6px)] z-20 whitespace-nowrap rounded-full bg-white px-3 py-1.5 text-xs text-black shadow"
+            className="absolute left-0 top-[calc(100%+10px)] z-20 whitespace-nowrap rounded-full bg-white px-3 py-1.5 text-xs text-black shadow"
           >
             更换头像
           </button>
