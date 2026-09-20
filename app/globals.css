@@ -46,7 +46,7 @@ body {
   overflow: hidden;
   background:
     linear-gradient(180deg, rgba(6, 48, 68, 0.04) 0%, rgba(6, 48, 68, 0.12) 48%, rgba(6, 40, 54, 0.78) 100%),
-    url("/yard.webp") center 8% / cover no-repeat,
+    url("/sand.webp") center 28% / cover no-repeat,
     #063044;
 }
 
@@ -59,8 +59,9 @@ body {
 
 .screen-home {
   background:
-    radial-gradient(140% 42% at 50% 108%, #e6d08a 0%, #d4b76f 50%, transparent 51%),
-    linear-gradient(180deg, #2486b0 0%, #3aa7cc 58%, #4aafc8 100%);
+    linear-gradient(180deg, rgba(6, 48, 68, 0.12) 0%, transparent 22%),
+    url("/yard.webp") center 86% / cover no-repeat,
+    #3aa7cc;
 }
 
 .iso-table {
