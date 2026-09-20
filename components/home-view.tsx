@@ -28,7 +28,7 @@ export function HomeView({
       <img
         src="/house.webp"
         alt=""
-        className="pointer-events-none absolute bottom-[2%] left-1/2 z-0 w-[50%] -translate-x-1/2 select-none"
+        className="pointer-events-none absolute bottom-[3%] left-1/2 z-0 w-[40%] -translate-x-1/2 select-none"
       />
       <TopBar
         title=""

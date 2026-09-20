@@ -59,7 +59,7 @@ body {
 
 .screen-home {
   background:
-    radial-gradient(130% 34% at 50% 118%, #e6d08a 0%, #d4b76f 46%, transparent 47%),
+    radial-gradient(140% 42% at 50% 108%, #e6d08a 0%, #d4b76f 50%, transparent 51%),
     linear-gradient(180deg, #2486b0 0%, #3aa7cc 58%, #4aafc8 100%);
 }
 
