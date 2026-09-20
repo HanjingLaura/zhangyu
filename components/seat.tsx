@@ -29,14 +29,13 @@ export function Seat({
   scale?: number;
 }) {
   const player = person.player;
-  const suited = Boolean(person.outfit && person.outfit !== "plain");
   return (
     <div
       className="flex flex-col items-center"
-      style={{ transform: `translate(-50%, -62%) scale(${scale})` }}
+      style={{ transform: `translate(-50%, -88%) scale(${scale})` }}
     >
       <div className={active ? "drop-shadow-[0_0_14px_#6ec8c0]" : "drop-shadow-[0_10px_10px_rgba(0,20,28,0.35)]"}>
-        <Figure name={person.name} src={person.avatarUrl} outfitId={person.outfit} size={suited ? 132 : 72} />
+        <Figure name={person.name} src={person.avatarUrl} outfitId={person.outfit} size={148} />
       </div>
       <div className="mt-0.5 max-w-[5.6rem] truncate rounded-full bg-black/70 px-2.5 py-0.5 text-[11px] text-foam">
         {you ? "我" : person.name}

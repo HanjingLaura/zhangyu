@@ -4,16 +4,20 @@ import { colorFor } from "./avatar";
 import { OctopusFigure } from "./octopus";
 import { rotateSeats, Seat, type SeatPerson } from "./seat";
 
-const RING = { cx: 50, cy: 68, rx: 46, ry: 16 };
+const RING = { cx: 50, cy: 82, rx: 40, ry: 13 };
 
 function seatAt(index: number, total: number) {
-  const angle = ((90 + (360 / Math.max(total, 1)) * index) * Math.PI) / 180;
+  const count = Math.max(total, 1);
+  const span = count === 1 ? 0 : Math.min(156, 52 * (count - 1));
+  const start = 90 - span / 2;
+  const angleDeg = start + (count === 1 ? 0 : (span / (count - 1)) * index);
+  const angle = (angleDeg * Math.PI) / 180;
   const depth = Math.sin(angle);
   return {
     left: `${RING.cx + RING.rx * Math.cos(angle)}%`,
     top: `${RING.cy + RING.ry * Math.sin(angle)}%`,
-    zIndex: Math.round(16 + depth * 10),
-    scale: 0.72 + 0.28 * ((depth + 1) / 2),
+    zIndex: Math.round(20 + depth * 12),
+    scale: 0.8 + 0.22 * ((depth + 1) / 2),
   };
 }
 

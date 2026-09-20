@@ -12,7 +12,14 @@ export type Outfit = {
 };
 
 export const OUTFITS: Outfit[] = [
-  { id: "plain", name: "常服", price: 0 },
+  {
+    id: "plain",
+    name: "常服",
+    price: 0,
+    src: "/suit-plain.webp",
+    aspect: 420 / 780,
+    hole: { cx: 50, cy: 16.92, rw: 18.57, rh: 10 },
+  },
   {
     id: "astronaut",
     name: "宇航员",
