@@ -45,9 +45,21 @@ body {
   flex-direction: column;
   overflow: hidden;
   background:
-    linear-gradient(180deg, rgba(6, 48, 68, 0.04) 0%, rgba(6, 48, 68, 0.12) 48%, rgba(6, 40, 54, 0.78) 100%),
-    url("/yard.webp") center 8% / cover no-repeat,
-    #063044;
+    linear-gradient(
+      180deg,
+      rgba(8, 36, 46, 0.58) 0%,
+      rgba(8, 36, 46, 0.14) 16%,
+      rgba(20, 50, 55, 0.03) 38%,
+      rgba(18, 42, 50, 0.18) 72%,
+      rgba(6, 32, 42, 0.48) 100%
+    ),
+    url("/yard.webp") center top / cover no-repeat,
+    #d8b8a8;
+}
+
+.screen header,
+.screen h1 {
+  text-shadow: 0 1px 8px rgba(0, 20, 28, 0.55);
 }
 
 .drawer {

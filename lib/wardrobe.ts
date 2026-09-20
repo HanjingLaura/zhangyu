@@ -34,8 +34,8 @@ export const OUTFITS: Outfit[] = [
     name: "松鼠头盔",
     price: 16,
     src: "/suit-diver.webp",
-    aspect: 647 / 884,
-    hole: { cx: 61.46, cy: 33.62, rw: 26.2, rh: 18.95 },
+    aspect: 491 / 932,
+    hole: { cx: 39.21, cy: 18.56, rw: 19.96, rh: 10.57 },
   },
 ];
 

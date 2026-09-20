@@ -11,8 +11,8 @@ export function OctopusFigure({
     <Image
       src="/octopus.webp"
       alt=""
-      width={849}
-      height={910}
+      width={689}
+      height={930}
       priority={priority}
       className={`select-none object-contain ${className}`}
     />
