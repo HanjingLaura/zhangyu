@@ -128,6 +128,34 @@ export function setUserAvatar(userId: string, dataUrl: string) {
   return publicUser(user);
 }
 
+export function setUserName(userId: string, name: string) {
+  const user = findUserById(userId);
+  if (!user) throw new Error("请先登录");
+  const clean = normalizeName(name);
+  if (clean.length < 2) throw new Error("昵称至少 2 个字");
+  const nextKey = clean.toLowerCase();
+  const oldKey = user.name.toLowerCase();
+  if (nextKey !== oldKey && memory().users.has(nextKey)) {
+    throw new Error("昵称已被使用");
+  }
+  if (nextKey !== oldKey) {
+    memory().users.delete(oldKey);
+    user.name = clean;
+    memory().users.set(nextKey, user);
+  }
+  for (const room of memory().rooms.values()) {
+    for (const member of room.members) {
+      if (member.id === userId) member.name = clean;
+    }
+    if (room.game) {
+      const player = room.game.players.find((item) => item.id === userId);
+      if (player) player.name = clean;
+    }
+  }
+  saveUsers();
+  return publicUser(user);
+}
+
 function makeCode() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   for (let attempt = 0; attempt < 20; attempt += 1) {

@@ -48,6 +48,17 @@ export async function apiLogout() {
   await fetch("/api/auth/logout", { method: "POST" });
 }
 
+export async function apiUpdateName(name: string) {
+  const data = await read(
+    await fetch("/api/auth/profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    }),
+  );
+  return (data as { user: UserPublic }).user;
+}
+
 export async function apiUploadAvatar(image: string) {
   const data = await read(
     await fetch("/api/auth/avatar", {

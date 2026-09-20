@@ -1,8 +1,20 @@
 "use client";
 
-import type { UserPublic } from "@/lib/types";
-import { AvatarPicker } from "./avatar";
 import { BgmToggle } from "./bgm";
+
+function SettingsIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <circle cx="12" cy="12" r="3.1" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M19.4 13.5a7.8 7.8 0 0 0 .1-3l2-1.1-2-3.5-2.2.6a7.7 7.7 0 0 0-2.6-1.5L14.1 2h-4.2L9.3 4.5A7.7 7.7 0 0 0 6.7 6L4.5 5.4l-2 3.5 2 1.1a7.8 7.8 0 0 0-.1 3l-2 1.1 2 3.5 2.2-.6a7.7 7.7 0 0 0 2.6 1.5L9.9 22h4.2l.6-2.5a7.7 7.7 0 0 0 2.6-1.5l2.2.6 2-3.5-2-1.1Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 function ShopHouseIcon() {
   return (
@@ -22,23 +34,19 @@ function ShopHouseIcon() {
 }
 
 export function HomeView({
-  user,
-  onAvatar,
   onCreate,
   onJoin,
   onRules,
   onScenes,
   onShop,
-  onLogout,
+  onSettings,
 }: {
-  user: UserPublic;
-  onAvatar: (image: string) => Promise<void>;
   onCreate: () => void;
   onJoin: () => void;
   onRules: () => void;
   onScenes: () => void;
   onShop: () => void;
-  onLogout: () => void;
+  onSettings: () => void;
 }) {
   void onRules;
 
@@ -50,20 +58,14 @@ export function HomeView({
         className="pointer-events-none absolute left-1/2 top-[46%] z-0 w-[78%] -translate-x-1/2 -translate-y-1/2 select-none"
       />
       <div className="relative z-10 flex items-center justify-between px-4 pt-[calc(12px+env(safe-area-inset-top))]">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <AvatarPicker
-            name={user.name}
-            src={user.avatarUrl}
-            size={52}
-            onPick={onAvatar}
-            confirmFirst
-            onLogout={onLogout}
-          />
-          <div className="min-w-0">
-            <div className="truncate text-[15px] font-medium text-black">{user.name}</div>
-            <div className="text-xs text-black">贝壳 {user.shells}</div>
-          </div>
-        </div>
+        <button
+          type="button"
+          onClick={onSettings}
+          className="flex h-11 w-11 items-center justify-center rounded-full text-white active:bg-white/10"
+          aria-label="设置"
+        >
+          <SettingsIcon />
+        </button>
         <div className="flex items-center">
           <BgmToggle />
           <button

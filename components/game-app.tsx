@@ -13,6 +13,7 @@ import {
   apiRoom,
   apiStartRoom,
   apiShop,
+  apiUpdateName,
   apiUploadAvatar,
 } from "@/lib/client";
 import type { RoomSnapshot, UserPublic } from "@/lib/types";
@@ -23,11 +24,12 @@ import { LobbyView } from "./lobby-view";
 import { PlayView } from "./play-view";
 import { RulesView } from "./rules-view";
 import { ScenesView } from "./scenes-view";
+import { SettingsView } from "./settings-view";
 import { ShopView } from "./shop-view";
 import { BgmProvider } from "./bgm";
 import { GameCabinet } from "./shell";
 
-type View = "boot" | "auth" | "home" | "join" | "lobby" | "play" | "rules" | "scenes" | "shop";
+type View = "boot" | "auth" | "home" | "join" | "lobby" | "play" | "rules" | "scenes" | "shop" | "settings";
 
 export function GameApp() {
   const [view, setView] = useState<View>("boot");
@@ -78,10 +80,6 @@ export function GameApp() {
       {view === "auth" ? <AuthView onReady={(next) => { setUser(next); setView("home"); }} /> : null}
       {view === "home" && user ? (
         <HomeView
-          user={user}
-          onAvatar={async (image) => {
-            setUser(await apiUploadAvatar(image));
-          }}
           onCreate={async () => {
             try {
               enterRoom(await apiCreateRoom());
@@ -93,11 +91,9 @@ export function GameApp() {
           onRules={() => setView("rules")}
           onScenes={() => setView("scenes")}
           onShop={() => setView("shop")}
-          onLogout={async () => {
-            await apiLogout();
-            setUser(null);
-            setRoom(null);
-            setView("auth");
+          onSettings={() => {
+            setError("");
+            setView("settings");
           }}
         />
       ) : null}
@@ -192,6 +188,34 @@ export function GameApp() {
             } catch (err) {
               setError(err instanceof Error ? err.message : "结束失败");
             }
+          }}
+        />
+      ) : null}
+      {view === "settings" && user ? (
+        <SettingsView
+          user={user}
+          error={error}
+          onBack={() => {
+            setError("");
+            setView("home");
+          }}
+          onAvatar={async (image) => {
+            setError("");
+            setUser(await apiUploadAvatar(image));
+          }}
+          onSaveName={async (name) => {
+            try {
+              setError("");
+              setUser(await apiUpdateName(name));
+            } catch (err) {
+              setError(err instanceof Error ? err.message : "保存失败");
+            }
+          }}
+          onLogout={async () => {
+            await apiLogout();
+            setUser(null);
+            setRoom(null);
+            setView("auth");
           }}
         />
       ) : null}

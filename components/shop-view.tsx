@@ -20,7 +20,7 @@ export function ShopView({
 }) {
   return (
     <div className="screen">
-      <TopBar title="服装" right={<span>贝壳 {user.shells}</span>} onBack={onBack} />
+      <TopBar title="服装" right={<span className="text-sm text-foam">贝壳 {user.shells}</span>} onBack={onBack} />
       <div className="relative z-10 flex-1 space-y-3 overflow-y-auto px-4 pb-8 pt-2">
         {OUTFITS.map((outfit) => {
           const owned = outfit.id === "plain" || user.owned.includes(outfit.id);
