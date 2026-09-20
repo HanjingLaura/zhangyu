@@ -59,8 +59,8 @@ body {
 
 .screen-home {
   background:
-    linear-gradient(180deg, rgba(6, 48, 68, 0.16) 0%, transparent 24%),
-    url("/yard.webp") center 78% / 108% auto no-repeat,
+    linear-gradient(180deg, rgba(6, 48, 68, 0.16) 0%, transparent 22%),
+    url("/yard.webp") center bottom / 82% auto no-repeat,
     #3aa7cc;
 }
 
