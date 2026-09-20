@@ -43,7 +43,7 @@ export function HomeView({
       <img
         src="/house.webp"
         alt=""
-        className="pointer-events-none absolute left-1/2 top-[46%] z-0 w-[78%] -translate-x-1/2 -translate-y-1/2 select-none drop-shadow-[0_16px_14px_rgba(40,28,8,0.28)]"
+        className="pointer-events-none absolute left-1/2 top-[46%] z-0 w-[78%] -translate-x-1/2 -translate-y-1/2 select-none"
       />
       <div className="relative z-10 flex items-start justify-between px-4 pt-[calc(10px+env(safe-area-inset-top))]">
         <div className="flex items-center gap-2.5">
