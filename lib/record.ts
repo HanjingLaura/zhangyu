@@ -7,7 +7,7 @@ export function formatRecord(room: RoomSnapshot) {
 
   const titles = game.titles;
   const lines = [
-    `丈育成语接龙 · 房间 ${room.code}`,
+    `章鱼哥接龙 · 房间 ${room.code}`,
     `${game.mode === "char" ? "字接字" : "音接音"} · ${game.maxRounds} 轮 · 共接 ${game.rounds} 轮`,
     "",
     "接龙",

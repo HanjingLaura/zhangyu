@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #0a0705;
-  --panel: #1a110b;
-  --line: rgba(240, 212, 138, 0.14);
-  --foam: #f3eadb;
-  --ink: #2a160e;
+  --bg: #063044;
+  --panel: #0c4a5c;
+  --line: rgba(214, 236, 232, 0.16);
+  --foam: #f4f7f2;
+  --ink: #16343c;
   --coral: #e0603a;
-  --gold: #e6c37a;
-  --muted: rgba(243, 234, 219, 0.55);
+  --gold: #e8d48a;
+  --muted: rgba(244, 247, 242, 0.58);
 }
 
 @theme inline {
@@ -45,9 +45,9 @@ body {
   flex-direction: column;
   overflow: hidden;
   background:
-    radial-gradient(ellipse 80% 45% at 50% 38%, rgba(214, 150, 70, 0.22), transparent 70%),
-    radial-gradient(ellipse 120% 60% at 50% 0%, rgba(90, 51, 24, 0.35), transparent 60%),
-    linear-gradient(180deg, #1f130b 0%, #0d0806 60%, #0a0705 100%);
+    linear-gradient(180deg, rgba(6, 48, 68, 0.12) 0%, rgba(6, 48, 68, 0.28) 52%, rgba(6, 40, 54, 0.88) 100%),
+    url("/yard.webp") center top / cover no-repeat,
+    #063044;
 }
 
 .drawer {
@@ -56,15 +56,15 @@ body {
   flex-shrink: 0;
   border-top: 1px solid var(--line);
   border-radius: 28px 28px 0 0;
-  background: linear-gradient(180deg, #1d130c 0%, #140d08 100%);
-  box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.45);
+  background: linear-gradient(180deg, #0e5366 0%, #0a3d4d 100%);
+  box-shadow: 0 -18px 40px rgba(0, 20, 28, 0.45);
   padding: 14px 16px calc(16px + env(safe-area-inset-bottom));
 }
 
 .field {
   width: 100%;
   border-radius: 16px;
-  background: rgba(243, 234, 219, 0.07);
+  background: rgba(244, 247, 242, 0.08);
   border: 1px solid var(--line);
   padding: 13px 16px;
   font-size: 16px;
@@ -73,7 +73,7 @@ body {
 }
 
 .field:focus {
-  border-color: rgba(230, 195, 122, 0.5);
+  border-color: rgba(110, 200, 192, 0.7);
 }
 
 .field:disabled {
@@ -81,7 +81,7 @@ body {
 }
 
 .field::placeholder {
-  color: rgba(243, 234, 219, 0.35);
+  color: rgba(244, 247, 242, 0.38);
 }
 
 .btn {
@@ -105,13 +105,13 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(180deg, #ee8656 0%, #d4572c 100%);
-  color: #fff8f2;
-  box-shadow: 0 10px 24px rgba(212, 87, 44, 0.3);
+  background: linear-gradient(180deg, #5ec4b8 0%, #2f8f8a 100%);
+  color: #f4fffc;
+  box-shadow: 0 10px 24px rgba(47, 143, 138, 0.35);
 }
 
 .btn-quiet {
-  background: rgba(243, 234, 219, 0.08);
+  background: rgba(244, 247, 242, 0.08);
   color: var(--foam);
   border: 1px solid var(--line);
 }
@@ -121,7 +121,7 @@ body {
   padding: 7px 14px;
   font-size: 12px;
   color: var(--muted);
-  background: rgba(243, 234, 219, 0.06);
+  background: rgba(244, 247, 242, 0.06);
   border: 1px solid transparent;
 }
 
@@ -131,11 +131,11 @@ body {
 }
 
 .plaque {
-  background: linear-gradient(180deg, #3b2214 0%, #24140c 100%);
-  border: 1px solid rgba(230, 195, 122, 0.45);
+  background: linear-gradient(180deg, #6d7d82 0%, #3d4d52 100%);
+  border: 1px solid rgba(214, 236, 232, 0.35);
   box-shadow:
-    inset 0 1px 0 rgba(255, 230, 180, 0.15),
-    0 10px 24px rgba(0, 0, 0, 0.5);
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 10px 24px rgba(0, 20, 28, 0.4);
 }
 
 .bubble {
@@ -145,7 +145,7 @@ body {
   padding: 8px 12px;
   font-size: 12px;
   line-height: 1.5;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 24px rgba(0, 20, 28, 0.28);
 }
 
 .bubble::after {
@@ -167,9 +167,9 @@ body {
 }
 
 .sheet {
-  background: linear-gradient(180deg, #fbf3e4 0%, #efdcbb 100%);
+  background: linear-gradient(180deg, #f7efd8 0%, #ead7a4 100%);
   color: var(--ink);
-  box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 -18px 50px rgba(0, 20, 28, 0.45);
 }
 
 @keyframes danmaku-fly {
@@ -188,10 +188,10 @@ body {
   pointer-events: none;
   font-size: 13px;
   font-weight: 500;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 3px rgba(0, 20, 28, 0.75);
   animation: danmaku-fly 11s linear forwards;
 }
 
 .seat-glow {
-  box-shadow: 0 0 0 3px var(--gold), 0 0 22px rgba(230, 195, 122, 0.6);
+  box-shadow: 0 0 0 3px #6ec8c0, 0 0 22px rgba(110, 200, 192, 0.65);
 }

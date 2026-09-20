@@ -25,7 +25,7 @@ export function HomeView({
   return (
     <div className="screen">
       <TopBar
-        title={<span className="font-display text-[22px] tracking-wide">丈育成语接龙</span>}
+        title={<span className="font-display text-[22px] tracking-wide">章鱼哥接龙</span>}
         right={
           <button type="button" onClick={onLogout} className="px-2 py-1">
             退出

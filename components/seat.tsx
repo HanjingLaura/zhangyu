@@ -28,7 +28,7 @@ export function Seat({
   const player = person.player;
   return (
     <div className="flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
-      <div className={`rounded-full ${active ? "seat-glow" : "ring-2 ring-[#2a160e]"}`}>
+      <div className={`rounded-full ${active ? "seat-glow" : "ring-2 ring-[#16343c]"}`}>
         <Avatar name={person.name} src={person.avatarUrl} size={54} />
       </div>
       <div className="mt-1.5 max-w-[5.4rem] truncate rounded-full bg-black/70 px-2.5 py-0.5 text-[11px] text-foam">

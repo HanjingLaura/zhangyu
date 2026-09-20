@@ -17,7 +17,7 @@ export function AuthView({ onReady }: { onReady: (user: UserPublic) => void }) {
   return (
     <div className="screen">
       <div className="relative z-10 pt-[calc(28px+env(safe-area-inset-top))] text-center">
-        <h1 className="font-display text-[34px] leading-none tracking-wide">丈育成语接龙</h1>
+        <h1 className="font-display text-[34px] leading-none tracking-wide">章鱼哥接龙</h1>
       </div>
       <TableScene />
 

@@ -9,10 +9,10 @@ export function OctopusFigure({
 }) {
   return (
     <Image
-      src="/octopus-cut.png"
+      src="/octopus.webp"
       alt=""
-      width={821}
-      height={750}
+      width={849}
+      height={910}
       priority={priority}
       className={`select-none object-contain ${className}`}
     />

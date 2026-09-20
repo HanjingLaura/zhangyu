@@ -5,8 +5,7 @@ import { colorFor } from "./avatar";
 import { OctopusFigure } from "./octopus";
 import { rotateSeats, Seat, type SeatPerson } from "./seat";
 
-// Ellipse of the tabletop inside public/table.webp, in percent of the image box.
-const TABLE = { cx: 50, cy: 47.7, rx: 47.7, ry: 45.7 };
+const TABLE = { cx: 50, cy: 50, rx: 46, ry: 46 };
 
 function seatAt(index: number, total: number) {
   const angle = ((90 + (360 / Math.max(total, 1)) * index) * Math.PI) / 180;
@@ -54,7 +53,7 @@ export function TableScene({
 
   return (
     <div className="relative z-[1] flex min-h-0 flex-1 items-center justify-center px-3">
-      <div className="relative aspect-[824/765] max-h-full w-full max-w-[440px]">
+      <div className="relative aspect-square max-h-full w-full max-w-[440px]">
         <Image
           src="/table.webp"
           alt=""
@@ -65,17 +64,17 @@ export function TableScene({
         />
         <DanmakuLayer items={danmaku} />
 
-        <div className="absolute left-1/2 top-[14%] z-[6] w-[28%] -translate-x-1/2">
-          <OctopusFigure className="w-full drop-shadow-[0_18px_16px_rgba(0,0,0,0.5)]" />
+        <div className="absolute left-1/2 top-[8%] z-[6] w-[34%] -translate-x-1/2">
+          <OctopusFigure className="w-full drop-shadow-[0_16px_14px_rgba(0,20,28,0.45)]" />
         </div>
         {bubble ? (
-          <div className="bubble bubble-left absolute left-[66%] top-[20%] z-[7] w-max max-w-[31%]">
+          <div className="bubble bubble-left absolute left-[68%] top-[16%] z-[7] w-max max-w-[30%]">
             {bubble}
           </div>
         ) : null}
 
         {children ? (
-          <div className="absolute left-1/2 top-[59%] z-[6] -translate-x-1/2 -translate-y-1/2">
+          <div className="absolute left-1/2 top-[62%] z-[6] -translate-x-1/2 -translate-y-1/2">
             {children}
           </div>
         ) : null}

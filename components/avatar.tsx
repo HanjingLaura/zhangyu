@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 
-export const SEAT_COLORS = ["#e0603a", "#5aa89a", "#e6c37a", "#b98bf5"];
+export const SEAT_COLORS = ["#6ec8c0", "#f4d35e", "#ff7f6a", "#b98bf5"];
 
 export function colorFor(id: string) {
   const n = [...id].reduce((sum, char) => sum + char.charCodeAt(0), 0);

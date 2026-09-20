@@ -15,13 +15,13 @@ const display = ZCOOL_XiaoWei({
 });
 
 export const metadata: Metadata = {
-  title: "丈育成语接龙",
-  description: "章鱼谐音的上班成语接龙。围着酒桌顺时针接，散场算丈育值。",
-  applicationName: "丈育成语接龙",
+  title: "章鱼哥接龙",
+  description: "丈育谐音章鱼。围着石头房子顺时针接成语，散场评最丈育和最有文化。",
+  applicationName: "章鱼哥接龙",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#140c08",
+  themeColor: "#063044",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
