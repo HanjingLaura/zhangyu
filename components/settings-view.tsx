@@ -26,7 +26,7 @@ export function SettingsView({
   return (
     <div className="screen">
       <TopBar title="设置" onBack={onBack} />
-      <div className="relative z-10 flex flex-1 flex-col items-center px-5 pb-8 pt-4">
+      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 pb-8">
         <form
           className="w-full max-w-sm space-y-3 rounded-3xl bg-black/25 px-4 py-5"
           onSubmit={async (event) => {
