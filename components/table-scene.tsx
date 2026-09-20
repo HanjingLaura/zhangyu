@@ -52,8 +52,8 @@ export function TableScene({
   const seated = rotateSeats(people, youId);
 
   return (
-    <div className="relative z-[1] flex min-h-0 flex-1 items-center justify-center px-3">
-      <div className="relative aspect-square max-h-full w-full max-w-[440px]">
+    <div className="relative z-[1] flex min-h-0 flex-1 items-end justify-center px-3 pb-1">
+      <div className="relative aspect-square w-[78%] max-w-[320px]">
         <Image
           src="/table.webp"
           alt=""

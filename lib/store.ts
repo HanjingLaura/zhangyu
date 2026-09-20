@@ -5,6 +5,7 @@ import { hashPassword, normalizeName, verifyPassword } from "./auth";
 import { addFun, createGame, finishGame, hint, pass, submit } from "./engine";
 import { idiomIndex } from "./dictionary";
 import { narrateGame } from "./octopus-ai";
+import { computeShells, getOutfit } from "./wardrobe";
 import type { Danmaku, Game, GameConfig, RoomSnapshot, UserPublic } from "./types";
 
 type UserRecord = {
@@ -12,6 +13,9 @@ type UserRecord = {
   name: string;
   password: string;
   avatarRev: number;
+  shells: number;
+  owned: string[];
+  outfit: string;
 };
 
 type RoomRecord = {
@@ -47,7 +51,13 @@ function loadUsers() {
   if (!existsSync(USERS_PATH)) return map;
   const rows = JSON.parse(readFileSync(USERS_PATH, "utf8")) as UserRecord[];
   for (const row of rows) {
-    map.set(row.name.toLowerCase(), { ...row, avatarRev: row.avatarRev ?? 0 });
+    map.set(row.name.toLowerCase(), {
+      ...row,
+      avatarRev: row.avatarRev ?? 0,
+      shells: row.shells ?? 0,
+      owned: row.owned?.length ? row.owned : ["plain"],
+      outfit: row.outfit ?? "plain",
+    });
   }
   return map;
 }
@@ -62,6 +72,9 @@ export function publicUser(user: UserRecord): UserPublic {
     id: user.id,
     name: user.name,
     avatarUrl: avatarUrl(user.id, user.avatarRev),
+    shells: user.shells ?? 0,
+    owned: user.owned?.length ? user.owned : ["plain"],
+    outfit: user.outfit ?? "plain",
   };
 }
 
@@ -80,6 +93,9 @@ export function registerUser(name: string, password: string) {
     name: clean,
     password: hashPassword(password),
     avatarRev: 0,
+    shells: 0,
+    owned: ["plain"],
+    outfit: "plain",
   };
   memory().users.set(key, user);
   saveUsers();
@@ -133,6 +149,7 @@ function decorateGame(game: Game | null): Game | null {
       return {
         ...player,
         avatarUrl: user ? publicUser(user).avatarUrl : player.avatarUrl,
+        outfit: user ? publicUser(user).outfit : player.outfit,
       };
     }),
   };
@@ -232,6 +249,7 @@ export async function playRoom(
     room.game = finishGame(room.game);
     room.status = "finished";
     room.game = await narrateGame(room.game, "finish", word, "finished");
+    payoutRoom(room);
     return snapshot(room);
   }
   if (room.game.status !== "playing") throw new Error("本局已结束");
@@ -257,6 +275,7 @@ export async function playRoom(
     word,
     room.game.status === "finished" && action !== "hint" ? "finished" : reason,
   );
+  if (room.game.status === "finished") payoutRoom(room);
   return snapshot(room);
 }
 
@@ -280,6 +299,51 @@ export function postDanmaku(code: string, user: UserPublic, text: string) {
     room.game = addFun(room.game, user.id, 1);
   }
   return snapshot(room);
+}
+
+function payoutRoom(room: RoomRecord) {
+  if (!room.game || room.game.status !== "finished" || room.game.payouts) return;
+  const titles = room.game.titles;
+  const payouts: Record<string, number> = {};
+  for (const player of room.game.players) {
+    const user = findUserById(player.id);
+    if (!user) continue;
+    const amount = computeShells(player, titles);
+    user.shells = (user.shells ?? 0) + amount;
+    payouts[player.id] = amount;
+  }
+  if (Object.keys(payouts).length) saveUsers();
+  room.game = { ...room.game, payouts };
+}
+
+export function buyOutfit(userId: string, outfitId: string) {
+  const user = findUserById(userId);
+  if (!user) throw new Error("请先登录");
+  const outfit = getOutfit(outfitId);
+  if (outfit.id === "plain") return publicUser(user);
+  if ((user.owned ?? []).includes(outfit.id)) {
+    user.outfit = outfit.id;
+    saveUsers();
+    return publicUser(user);
+  }
+  if ((user.shells ?? 0) < outfit.price) throw new Error("贝壳不够");
+  user.shells -= outfit.price;
+  user.owned = [...new Set([...(user.owned ?? ["plain"]), outfit.id])];
+  user.outfit = outfit.id;
+  saveUsers();
+  return publicUser(user);
+}
+
+export function wearOutfit(userId: string, outfitId: string) {
+  const user = findUserById(userId);
+  if (!user) throw new Error("请先登录");
+  const outfit = getOutfit(outfitId);
+  if (outfit.id !== "plain" && !(user.owned ?? []).includes(outfit.id)) {
+    throw new Error("还没买");
+  }
+  user.outfit = outfit.id;
+  saveUsers();
+  return publicUser(user);
 }
 
 export function leaveRoom(code: string, userId: string) {

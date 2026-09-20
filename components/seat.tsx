@@ -1,10 +1,11 @@
 import type { Player } from "@/lib/types";
-import { Avatar } from "./avatar";
+import { Figure } from "./figure";
 
 export type SeatPerson = {
   id: string;
   name: string;
   avatarUrl?: string;
+  outfit?: string;
   player?: Player;
 };
 
@@ -26,12 +27,13 @@ export function Seat({
   you?: boolean;
 }) {
   const player = person.player;
+  const suited = Boolean(person.outfit && person.outfit !== "plain");
   return (
     <div className="flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
-      <div className={`rounded-full ${active ? "seat-glow" : "ring-2 ring-[#16343c]"}`}>
-        <Avatar name={person.name} src={person.avatarUrl} size={54} />
+      <div className={active && !suited ? "rounded-full seat-glow" : active ? "drop-shadow-[0_0_12px_#6ec8c0]" : ""}>
+        <Figure name={person.name} src={person.avatarUrl} outfitId={person.outfit} size={suited ? 86 : 54} />
       </div>
-      <div className="mt-1.5 max-w-[5.4rem] truncate rounded-full bg-black/70 px-2.5 py-0.5 text-[11px] text-foam">
+      <div className="mt-1 max-w-[5.4rem] truncate rounded-full bg-black/70 px-2.5 py-0.5 text-[11px] text-foam">
         {you ? "我" : person.name}
       </div>
       {player ? (

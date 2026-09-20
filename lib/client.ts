@@ -105,7 +105,7 @@ export async function apiMove(
       body: JSON.stringify({ action, word }),
     }),
   );
-  return (data as { room: RoomSnapshot }).room;
+  return data as { room: RoomSnapshot; you?: UserPublic };
 }
 
 export async function apiDanmaku(code: string, text: string) {
@@ -117,6 +117,17 @@ export async function apiDanmaku(code: string, text: string) {
     }),
   );
   return (data as { room: RoomSnapshot }).room;
+}
+
+export async function apiShop(action: "buy" | "wear", id: string) {
+  const data = await read(
+    await fetch("/api/shop", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, id }),
+    }),
+  );
+  return (data as { user: UserPublic }).user;
 }
 
 export async function apiLeaveRoom(code: string) {

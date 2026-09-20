@@ -160,6 +160,7 @@ export function createGame(index: IdiomIndex, config: GameConfig): Game {
     id: seat.id,
     name: seat.name,
     avatarUrl: seat.avatarUrl,
+    outfit: seat.outfit,
     tentacles: config.tentacles,
     culture: 0,
     zhangyu: 0,

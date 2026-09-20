@@ -12,6 +12,7 @@ export function HomeView({
   onJoin,
   onRules,
   onScenes,
+  onShop,
   onLogout,
 }: {
   user: UserPublic;
@@ -20,6 +21,7 @@ export function HomeView({
   onJoin: () => void;
   onRules: () => void;
   onScenes: () => void;
+  onShop: () => void;
   onLogout: () => void;
 }) {
   return (
@@ -34,7 +36,10 @@ export function HomeView({
       />
       <div className="relative z-10 flex items-center gap-3 px-5 pt-2">
         <AvatarPicker name={user.name} src={user.avatarUrl} size={48} onPick={onAvatar} />
-        <div className="text-[15px]">{user.name}</div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[15px]">{user.name}</div>
+          <div className="text-xs text-foam/55">贝壳 {user.shells}</div>
+        </div>
       </div>
       <TableScene />
       <div className="drawer space-y-3">
@@ -44,12 +49,15 @@ export function HomeView({
         <button type="button" onClick={onJoin} className="btn btn-quiet w-full">
           加入房间
         </button>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
+          <button type="button" onClick={onShop} className="btn btn-quiet py-3 text-sm">
+            服装
+          </button>
           <button type="button" onClick={onRules} className="btn btn-quiet py-3 text-sm">
             玩法
           </button>
           <button type="button" onClick={onScenes} className="btn btn-quiet py-3 text-sm">
-            聊天记录
+            记录
           </button>
         </div>
       </div>

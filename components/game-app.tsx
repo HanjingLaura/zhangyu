@@ -12,6 +12,7 @@ import {
   apiMove,
   apiRoom,
   apiStartRoom,
+  apiShop,
   apiUploadAvatar,
 } from "@/lib/client";
 import type { RoomSnapshot, UserPublic } from "@/lib/types";
@@ -22,9 +23,10 @@ import { LobbyView } from "./lobby-view";
 import { PlayView } from "./play-view";
 import { RulesView } from "./rules-view";
 import { ScenesView } from "./scenes-view";
+import { ShopView } from "./shop-view";
 import { GameCabinet } from "./shell";
 
-type View = "boot" | "auth" | "home" | "join" | "lobby" | "play" | "rules" | "scenes";
+type View = "boot" | "auth" | "home" | "join" | "lobby" | "play" | "rules" | "scenes" | "shop";
 
 export function GameApp() {
   const [view, setView] = useState<View>("boot");
@@ -88,6 +90,7 @@ export function GameApp() {
           onJoin={() => setView("join")}
           onRules={() => setView("rules")}
           onScenes={() => setView("scenes")}
+          onShop={() => setView("shop")}
           onLogout={async () => {
             await apiLogout();
             setUser(null);
@@ -138,7 +141,9 @@ export function GameApp() {
           onSubmit={async () => {
             try {
               setError("");
-              setRoom(await apiMove(room.code, "submit", draft));
+              const next = await apiMove(room.code, "submit", draft);
+              setRoom(next.room);
+              if (next.you) setUser(next.you);
               setDraft("");
             } catch (err) {
               setError(err instanceof Error ? err.message : "发送失败");
@@ -146,14 +151,18 @@ export function GameApp() {
           }}
           onHint={async () => {
             try {
-              setRoom(await apiMove(room.code, "hint"));
+              const next = await apiMove(room.code, "hint");
+              setRoom(next.room);
+              if (next.you) setUser(next.you);
             } catch (err) {
               setError(err instanceof Error ? err.message : "提示失败");
             }
           }}
           onPass={async () => {
             try {
-              setRoom(await apiMove(room.code, "pass"));
+              const next = await apiMove(room.code, "pass");
+              setRoom(next.room);
+              if (next.you) setUser(next.you);
             } catch (err) {
               setError(err instanceof Error ? err.message : "跳过失败");
             }
@@ -175,9 +184,37 @@ export function GameApp() {
           onReseat={() => setView("lobby")}
           onFinish={async () => {
             try {
-              setRoom(await apiMove(room.code, "finish"));
+              const next = await apiMove(room.code, "finish");
+              setRoom(next.room);
+              if (next.you) setUser(next.you);
             } catch (err) {
               setError(err instanceof Error ? err.message : "结束失败");
+            }
+          }}
+        />
+      ) : null}
+      {view === "shop" && user ? (
+        <ShopView
+          user={user}
+          error={error}
+          onBack={() => {
+            setError("");
+            setView("home");
+          }}
+          onBuy={async (id) => {
+            try {
+              setError("");
+              setUser(await apiShop("buy", id));
+            } catch (err) {
+              setError(err instanceof Error ? err.message : "兑换失败");
+            }
+          }}
+          onWear={async (id) => {
+            try {
+              setError("");
+              setUser(await apiShop("wear", id));
+            } catch (err) {
+              setError(err instanceof Error ? err.message : "换装失败");
             }
           }}
         />

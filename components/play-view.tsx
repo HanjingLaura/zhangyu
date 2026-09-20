@@ -87,7 +87,10 @@ export function PlayView({
       {finished ? (
         <div className="sheet relative z-10 max-h-[52%] shrink-0 overflow-y-auto rounded-t-[28px] px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4">
           <div className="text-center font-display text-2xl">结算</div>
-          <p className="mt-1 text-center text-xs text-ink/50">共 {game.rounds} 轮</p>
+          <p className="mt-1 text-center text-xs text-ink/50">
+            共 {game.rounds} 轮
+            {you && game.payouts?.[you.id] != null ? ` · 贝壳 +${game.payouts[you.id]}` : ""}
+          </p>
           {titles ? (
             <div className="mt-3 grid grid-cols-2 gap-2 text-center">
               {[

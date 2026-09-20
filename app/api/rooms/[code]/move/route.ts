@@ -11,9 +11,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ cod
   };
   try {
     const { code } = await params;
+    const room = await playRoom(code, user.id, body.action ?? "submit", body.word ?? "");
+    const you = await currentUser();
     return NextResponse.json({
-      room: await playRoom(code, user.id, body.action ?? "submit", body.word ?? ""),
-      you: user,
+      room,
+      you,
     });
   } catch (error) {
     return NextResponse.json(

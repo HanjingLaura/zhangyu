@@ -4,6 +4,7 @@ export type Player = {
   id: string;
   name: string;
   avatarUrl?: string;
+  outfit?: string;
   tentacles: number;
   culture: number;
   zhangyu: number;
@@ -27,6 +28,7 @@ export type SeatPlayer = {
   id: string;
   name: string;
   avatarUrl?: string;
+  outfit?: string;
 };
 
 export type GameConfig = {
@@ -42,12 +44,16 @@ export type UserPublic = {
   id: string;
   name: string;
   avatarUrl?: string;
+  shells: number;
+  owned: string[];
+  outfit: string;
 };
 
 export type RoomMember = {
   id: string;
   name: string;
   avatarUrl?: string;
+  outfit?: string;
 };
 
 export type Danmaku = {
@@ -97,6 +103,7 @@ export type Game = {
   lastHint: string | null;
   titles: GameTitles | null;
   seq: number;
+  payouts?: Record<string, number>;
 };
 
 export type SubmitResult = {
