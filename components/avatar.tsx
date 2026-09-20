@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export const SEAT_COLORS = ["#6ec8c0", "#f4d35e", "#ff7f6a", "#b98bf5"];
 
@@ -78,7 +78,17 @@ export function AvatarPicker({
   confirmFirst?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!confirmFirst || !open) return;
+    const onPointer = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointer);
+    return () => document.removeEventListener("pointerdown", onPointer);
+  }, [confirmFirst, open]);
 
   const input = (
     <input
@@ -98,7 +108,7 @@ export function AvatarPicker({
 
   if (confirmFirst) {
     return (
-      <div className="relative shrink-0">
+      <div ref={rootRef} className="relative shrink-0">
         <button type="button" onClick={() => setOpen((value) => !value)} aria-label="头像">
           <span className="block rounded-full ring-2 ring-gold/70 ring-offset-2 ring-offset-transparent">
             <Avatar name={name || "我"} src={src} size={size} />
@@ -108,7 +118,7 @@ export function AvatarPicker({
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="absolute left-0 top-[calc(100%+8px)] z-20 whitespace-nowrap rounded-full bg-white px-3 py-1.5 text-xs text-black shadow"
+            className="absolute left-[58px] top-[calc(100%+6px)] z-20 whitespace-nowrap rounded-full bg-white px-3 py-1.5 text-xs text-black shadow"
           >
             更换头像
           </button>

@@ -66,11 +66,11 @@ export function TableScene({
   return (
     <div className="relative z-[1] flex min-h-0 flex-1 items-end justify-center px-1 pb-1">
       <div className="relative aspect-[4/5] w-full max-w-[420px]">
-        <div className="absolute left-1/2 top-[34%] z-[6] w-[30%] -translate-x-1/2">
+        <div className="absolute left-1/2 top-[18%] z-[8] w-[26%] -translate-x-1/2">
           <OctopusFigure className="w-full drop-shadow-[0_10px_8px_rgba(0,20,28,0.35)]" />
         </div>
         {bubble ? (
-          <div className="bubble bubble-left absolute left-[66%] top-[28%] z-[8] w-max max-w-[32%]">
+          <div className="bubble bubble-left absolute left-[64%] top-[16%] z-[9] w-max max-w-[32%]">
             {bubble}
           </div>
         ) : null}
