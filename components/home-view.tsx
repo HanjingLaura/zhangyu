@@ -25,6 +25,11 @@ export function HomeView({
 }) {
   return (
     <div className="screen screen-home">
+      <img
+        src="/house.webp"
+        alt=""
+        className="pointer-events-none absolute bottom-[5%] left-1/2 z-0 w-[48%] -translate-x-1/2 select-none drop-shadow-[0_12px_10px_rgba(40,28,8,0.28)]"
+      />
       <TopBar
         title=""
         right={
