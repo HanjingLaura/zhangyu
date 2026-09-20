@@ -2,7 +2,6 @@
 
 import type { UserPublic } from "@/lib/types";
 import { AvatarPicker } from "./avatar";
-import { TableScene } from "./table-scene";
 import { TopBar } from "./shell";
 
 export function HomeView({
@@ -25,7 +24,7 @@ export function HomeView({
   onLogout: () => void;
 }) {
   return (
-    <div className="screen">
+    <div className="screen screen-home">
       <TopBar
         title=""
         right={
@@ -34,15 +33,14 @@ export function HomeView({
           </button>
         }
       />
-      <div className="relative z-10 flex items-center gap-3 px-5 pt-2">
-        <AvatarPicker name={user.name} src={user.avatarUrl} size={48} onPick={onAvatar} />
-        <div className="min-w-0 flex-1">
-          <div className="text-[15px]">{user.name}</div>
-          <div className="text-xs text-foam/55">贝壳 {user.shells}</div>
+      <div className="relative z-10 space-y-3 px-5">
+        <div className="flex items-center gap-3">
+          <AvatarPicker name={user.name} src={user.avatarUrl} size={48} onPick={onAvatar} />
+          <div className="min-w-0 flex-1">
+            <div className="text-[15px]">{user.name}</div>
+            <div className="text-xs text-foam/55">贝壳 {user.shells}</div>
+          </div>
         </div>
-      </div>
-      <TableScene />
-      <div className="drawer space-y-3">
         <button type="button" onClick={onCreate} className="btn btn-primary w-full">
           创建房间
         </button>

@@ -57,6 +57,13 @@ body {
     #6aa7d4;
 }
 
+.screen-home {
+  background:
+    linear-gradient(180deg, rgba(6, 48, 68, 0.28) 0%, rgba(6, 48, 68, 0.06) 26%, transparent 48%),
+    url("/yard.webp") center 0% / 155% auto no-repeat,
+    #063044;
+}
+
 .iso-table {
   pointer-events: none;
   position: absolute;
