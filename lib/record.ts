@@ -3,14 +3,15 @@ import type { RoomSnapshot } from "./types";
 
 export function formatRecord(room: RoomSnapshot) {
   const game = room.game;
-  if (!game) return "这桌还没开打。";
+  if (!game) return "还没开始。";
 
   const titles = game.titles;
   const lines = [
-    `丈育成语接龙 · 房号 ${room.code}`,
-    `规则：${game.mode === "char" ? "字接字" : "音接音"} · ${game.maxRounds} 轮`,
-    `接龙：${game.chain.join(" → ")}`,
-    `共 ${game.rounds} 轮`,
+    `丈育成语接龙 · 房间 ${room.code}`,
+    `${game.mode === "char" ? "字接字" : "音接音"} · ${game.maxRounds} 轮 · 共接 ${game.rounds} 轮`,
+    "",
+    "接龙",
+    game.chain.join(" → "),
     "",
     "结算",
     titles
@@ -18,22 +19,22 @@ export function formatRecord(room: RoomSnapshot) {
           `最有意思　${titles.fun.name}（${titles.fun.fun}）`,
           `最没文化　${titles.uncultured.name}（失误 ${titles.uncultured.fails}）`,
           `最丈育　　${titles.zhangyu.name}（${titles.zhangyu.zhangyu}）`,
-          `分最高　　${titles.culture.name}（${titles.culture.culture}）`,
+          `最高分　　${titles.culture.name}（${titles.culture.culture}）`,
         ].join("\n")
-      : "尚未散场",
+      : "未结束",
     "",
     "分数",
     ...rankPlayers(game).map(
       (player, index) =>
-        `${index + 1}. ${player.name}  文化 ${player.culture}  丈育 ${player.zhangyu}  有意思 ${player.fun}  失误 ${player.fails}`,
+        `${index + 1}. ${player.name}  ${player.culture} 分  有意思 ${player.fun}  丈育 ${player.zhangyu}  失误 ${player.fails}`,
     ),
     "",
     "弹幕",
     room.danmaku.length
       ? room.danmaku.map((item) => `${item.name}：${item.text}`).join("\n")
-      : "（没有弹幕）",
+      : "无",
     "",
-    "桌上的话",
+    "对话",
     ...game.messages.map((message) => {
       if (message.kind === "player") {
         const name =

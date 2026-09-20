@@ -9,9 +9,9 @@ export async function GET(_: Request, { params }: Params) {
   if (!user) return NextResponse.json({ error: "请先登录" }, { status: 401 });
   const { code } = await params;
   const room = getRoom(code);
-  if (!room) return NextResponse.json({ error: "没有这张桌子" }, { status: 404 });
+  if (!room) return NextResponse.json({ error: "房间不存在" }, { status: 404 });
   if (!room.members.some((member) => member.id === user.id)) {
-    return NextResponse.json({ error: "你不在这桌上" }, { status: 403 });
+    return NextResponse.json({ error: "你不在这个房间" }, { status: 403 });
   }
   return NextResponse.json({ room: snapshot(room), you: user });
 }

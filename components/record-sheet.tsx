@@ -15,16 +15,21 @@ export function RecordSheet({
   const text = formatRecord(room);
 
   return (
-    <div className="absolute inset-0 z-30 flex flex-col bg-[#0b0705]/88 px-3 py-4">
-      <div className="parchment flex min-h-0 flex-1 flex-col rounded-3xl px-4 py-4">
-        <div className="text-center font-display text-xl">本局记录</div>
-        <pre className="mt-3 min-h-0 flex-1 overflow-auto whitespace-pre-wrap text-[12px] leading-5">
+    <div className="absolute inset-0 z-30 flex flex-col bg-black/80 px-3 pb-[calc(12px+env(safe-area-inset-bottom))] pt-[calc(12px+env(safe-area-inset-top))]">
+      <div className="sheet flex min-h-0 flex-1 flex-col rounded-3xl px-4 py-4">
+        <div className="flex items-center justify-between">
+          <div className="font-display text-xl">记录</div>
+          <button type="button" onClick={onClose} className="px-2 py-1 text-sm text-ink/60">
+            关闭
+          </button>
+        </div>
+        <pre className="mt-3 min-h-0 flex-1 overflow-auto whitespace-pre-wrap font-sans text-[12px] leading-5">
           {text}
         </pre>
         <div className="mt-3 grid grid-cols-2 gap-2">
           <button
             type="button"
-            className="rounded-full bg-[#2a160e]/10 py-3 text-sm text-[#2a160e]"
+            className="btn bg-ink/8 py-3 text-sm text-ink"
             onClick={async () => {
               try {
                 await copyRecord(room);
@@ -36,17 +41,10 @@ export function RecordSheet({
           >
             {copied ? "已复制" : "复制"}
           </button>
-          <button
-            type="button"
-            className="wood-btn py-3 text-sm"
-            onClick={() => downloadRecord(room)}
-          >
+          <button type="button" className="btn btn-primary py-3 text-sm" onClick={() => downloadRecord(room)}>
             下载
           </button>
         </div>
-        <button type="button" onClick={onClose} className="mt-2 py-2 text-sm text-[#8a5a28]">
-          关上
-        </button>
       </div>
     </div>
   );

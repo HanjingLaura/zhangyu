@@ -23,10 +23,10 @@ export function avatarUrl(id: string, rev = 0) {
 
 export function saveAvatarDataUrl(id: string, dataUrl: string) {
   const match = dataUrl.match(/^data:image\/(jpeg|jpg|png|webp);base64,([A-Za-z0-9+/=]+)$/);
-  if (!match) throw new Error("只收 jpg / png / webp 图片");
+  if (!match) throw new Error("仅支持 jpg、png、webp");
   const buffer = Buffer.from(match[2], "base64");
-  if (buffer.length < 32) throw new Error("图片太小了");
-  if (buffer.length > MAX_BYTES) throw new Error("图片太大了，换一张小一点的");
+  if (buffer.length < 32) throw new Error("图片太小");
+  if (buffer.length > MAX_BYTES) throw new Error("图片太大");
   mkdirSync(dirname(avatarFile(id)), { recursive: true });
   writeFileSync(avatarFile(id), buffer);
 }

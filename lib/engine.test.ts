@@ -38,7 +38,7 @@ describe("createGame", () => {
   it("opens with 一鸣惊人 and asks for 人", () => {
     const game = start();
     assert.equal(game.chain[0], "一鸣惊人");
-    assert.match(game.messages.at(-1)?.text ?? "", /接到「人」/);
+    assert.match(game.messages.at(-1)?.text ?? "", /接「人」/);
     assert.equal(game.players[0].name, "Cora");
     assert.equal(game.maxRounds, 100);
   });

@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "头像传不上" },
+      { error: error instanceof Error ? error.message : "上传失败" },
       { status: 400 },
     );
   }

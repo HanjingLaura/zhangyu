@@ -70,10 +70,10 @@ export function findUserById(id: string) {
 
 export function registerUser(name: string, password: string) {
   const clean = normalizeName(name);
-  if (clean.length < 2) throw new Error("名字至少两个字");
-  if (password.length < 4) throw new Error("密码至少四位");
+  if (clean.length < 2) throw new Error("昵称至少 2 个字");
+  if (password.length < 4) throw new Error("密码至少 4 位");
   const key = clean.toLowerCase();
-  if (memory().users.has(key)) throw new Error("这个名字已经被占用");
+  if (memory().users.has(key)) throw new Error("昵称已被使用");
   const user: UserRecord = {
     id: `u${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
     name: clean,
@@ -88,7 +88,7 @@ export function registerUser(name: string, password: string) {
 export function loginUser(name: string, password: string) {
   const user = memory().users.get(normalizeName(name).toLowerCase());
   if (!user || !verifyPassword(password, user.password)) {
-    throw new Error("名字或密码不对");
+    throw new Error("昵称或密码错误");
   }
   return publicUser(user);
 }
@@ -111,7 +111,7 @@ function makeCode() {
     }
     if (!memory().rooms.has(code)) return code;
   }
-  throw new Error("暂时开不出新桌");
+  throw new Error("创建失败，请重试");
 }
 
 function decorateMembers(members: RoomRecord["members"]) {
@@ -176,11 +176,11 @@ export function getRoom(code: string) {
 
 export function joinRoom(code: string, user: UserPublic) {
   const room = getRoom(code);
-  if (!room) throw new Error("没有这张桌子");
+  if (!room) throw new Error("房间不存在");
   const seated = room.members.find((member) => member.id === user.id);
   if (seated) return snapshot(room);
-  if (room.status !== "lobby") throw new Error("这桌已经开打了");
-  if (room.members.length >= 4) throw new Error("这桌坐满了");
+  if (room.status !== "lobby") throw new Error("房间已开始");
+  if (room.members.length >= 4) throw new Error("房间已满");
   room.members.push({ id: user.id, name: user.name });
   return snapshot(room);
 }
@@ -191,9 +191,9 @@ export function configureRoom(
   patch: Partial<Pick<RoomRecord, "mode" | "tentacles" | "opening" | "maxRounds">>,
 ) {
   const room = getRoom(code);
-  if (!room) throw new Error("没有这张桌子");
-  if (room.hostId !== userId) throw new Error("只有开桌的人能改");
-  if (room.status !== "lobby") throw new Error("已经开打了");
+  if (!room) throw new Error("房间不存在");
+  if (room.hostId !== userId) throw new Error("只有房主能修改");
+  if (room.status !== "lobby") throw new Error("房间已开始");
   if (patch.mode) room.mode = patch.mode;
   if (patch.tentacles) room.tentacles = patch.tentacles;
   if (patch.opening) room.opening = patch.opening;
@@ -203,9 +203,9 @@ export function configureRoom(
 
 export function startRoom(code: string, userId: string) {
   const room = getRoom(code);
-  if (!room) throw new Error("没有这张桌子");
-  if (room.hostId !== userId) throw new Error("只有开桌的人能开打");
-  if (room.members.length < 2) throw new Error("至少两个人才能开打");
+  if (!room) throw new Error("房间不存在");
+  if (room.hostId !== userId) throw new Error("只有房主能开始");
+  if (room.members.length < 2) throw new Error("至少 2 人");
   room.game = createGame(idiomIndex, {
     names: room.members.map((member) => member.name),
     seatPlayers: decorateMembers(room.members),
@@ -225,16 +225,16 @@ export function playRoom(
   word = "",
 ) {
   const room = getRoom(code);
-  if (!room?.game) throw new Error("这桌还没开打");
+  if (!room?.game) throw new Error("房间还没开始");
   if (action === "finish") {
-    if (room.hostId !== userId) throw new Error("只有开桌的人能散场");
+    if (room.hostId !== userId) throw new Error("只有房主能结束");
     room.game = finishGame(room.game);
     room.status = "finished";
     return snapshot(room);
   }
-  if (room.game.status !== "playing") throw new Error("这局已经结束了");
+  if (room.game.status !== "playing") throw new Error("本局已结束");
   const current = room.game.players[room.game.turn];
-  if (current.id !== userId) throw new Error(`现在轮到 ${current.name}`);
+  if (current.id !== userId) throw new Error(`轮到 ${current.name}`);
 
   if (action === "hint") room.game = hint(idiomIndex, room.game);
   else if (action === "pass") room.game = pass(idiomIndex, room.game).game;
@@ -245,12 +245,12 @@ export function playRoom(
 
 export function postDanmaku(code: string, user: UserPublic, text: string) {
   const room = getRoom(code);
-  if (!room) throw new Error("没有这张桌子");
+  if (!room) throw new Error("房间不存在");
   if (!room.members.some((member) => member.id === user.id)) {
-    throw new Error("你不在这桌上");
+    throw new Error("你不在这个房间");
   }
   const clean = text.replace(/\s+/g, " ").trim().slice(0, 24);
-  if (!clean) throw new Error("弹幕是空的");
+  if (!clean) throw new Error("弹幕不能为空");
   const item: Danmaku = {
     id: `d${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`,
     userId: user.id,

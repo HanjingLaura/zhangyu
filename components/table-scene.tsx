@@ -1,75 +1,96 @@
+import Image from "next/image";
 import type { ReactNode } from "react";
 import type { Danmaku } from "@/lib/types";
-import { SEAT_COLORS } from "./avatar";
-import { rotateSeats, Seat, seatStyle, type SeatPerson } from "./seat";
+import { colorFor } from "./avatar";
+import { OctopusFigure } from "./octopus";
+import { rotateSeats, Seat, type SeatPerson } from "./seat";
+
+// Ellipse of the tabletop inside public/table.webp, in percent of the image box.
+const TABLE = { cx: 50, cy: 47.7, rx: 47.7, ry: 45.7 };
+
+function seatAt(index: number, total: number) {
+  const angle = ((90 + (360 / Math.max(total, 1)) * index) * Math.PI) / 180;
+  return {
+    left: `${TABLE.cx + TABLE.rx * Math.cos(angle)}%`,
+    top: `${TABLE.cy + TABLE.ry * Math.sin(angle)}%`,
+  };
+}
 
 export function DanmakuLayer({ items }: { items: Danmaku[] }) {
   const recent = items.slice(-12);
   return (
-    <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
-      {recent.map((item, index) => {
-        const color =
-          SEAT_COLORS[[...item.userId].reduce((sum, char) => sum + char.charCodeAt(0), 0) % SEAT_COLORS.length];
-        return (
-          <div
-            key={item.id}
-            className="danmaku-item absolute left-full text-[13px] font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]"
-            style={{
-              top: `${10 + ((index * 12) % 70)}%`,
-              color,
-            }}
-          >
-            {item.name}：{item.text}
-          </div>
-        );
-      })}
+    <div className="pointer-events-none absolute inset-x-0 top-[4%] z-[5] h-[40%] overflow-hidden">
+      {recent.map((item, index) => (
+        <div
+          key={item.id}
+          className="danmaku-item"
+          style={{ top: `${(index * 17) % 85}%`, color: colorFor(item.userId) }}
+        >
+          {item.name}：{item.text}
+        </div>
+      ))}
     </div>
   );
 }
 
 export function TableScene({
-  people,
+  people = [],
   youId,
   currentId,
   finished = false,
-  kingId,
-  winnerId,
+  bubble,
   danmaku = [],
   children,
 }: {
-  people: SeatPerson[];
+  people?: SeatPerson[];
   youId?: string;
   currentId?: string;
   finished?: boolean;
-  kingId?: string;
-  winnerId?: string;
+  bubble?: string;
   danmaku?: Danmaku[];
-  children: ReactNode;
+  children?: ReactNode;
 }) {
   const seated = rotateSeats(people, youId);
 
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-[340px]">
-      <div className="lamp-glow absolute inset-[18%] rounded-full" />
-      <div className="wood-table absolute inset-[14%] flex flex-col items-center justify-center rounded-full px-6">
-        {children}
-      </div>
-      <DanmakuLayer items={danmaku} />
-      {seated.map((person, index) => (
-        <div
-          key={person.id}
-          className="absolute z-10"
-          style={seatStyle(index, seated.length)}
-        >
-          <Seat
-            person={person}
-            active={!finished && currentId === person.id}
-            settled={finished}
-            king={finished && kingId === person.id}
-            winner={finished && winnerId === person.id}
-          />
+    <div className="relative z-[1] flex min-h-0 flex-1 items-center justify-center px-3">
+      <div className="relative aspect-[824/765] max-h-full w-full max-w-[440px]">
+        <Image
+          src="/table.webp"
+          alt=""
+          fill
+          priority
+          sizes="(max-width: 480px) 100vw, 440px"
+          className="select-none object-contain"
+        />
+        <DanmakuLayer items={danmaku} />
+
+        <div className="absolute left-1/2 top-[14%] z-[6] w-[28%] -translate-x-1/2">
+          <OctopusFigure className="w-full drop-shadow-[0_18px_16px_rgba(0,0,0,0.5)]" />
         </div>
-      ))}
+        {bubble ? (
+          <div className="bubble bubble-left absolute left-[66%] top-[20%] z-[7] w-max max-w-[31%]">
+            {bubble}
+          </div>
+        ) : null}
+
+        {children ? (
+          <div className="absolute left-1/2 top-[59%] z-[6] -translate-x-1/2 -translate-y-1/2">
+            {children}
+          </div>
+        ) : null}
+
+        {seated.map((person, index) => (
+          <div key={person.id} className="absolute z-10" style={seatAt(index, seated.length)}>
+            <Seat
+              person={person}
+              active={!finished && currentId === person.id}
+              settled={finished}
+              you={person.id === youId}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

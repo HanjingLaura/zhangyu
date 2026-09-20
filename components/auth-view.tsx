@@ -4,13 +4,9 @@ import { useState } from "react";
 import { apiLogin, apiRegister, apiUploadAvatar } from "@/lib/client";
 import type { UserPublic } from "@/lib/types";
 import { AvatarPicker } from "./avatar";
-import { OctopusFigure } from "./octopus";
+import { TableScene } from "./table-scene";
 
-export function AuthView({
-  onReady,
-}: {
-  onReady: (user: UserPublic) => void;
-}) {
+export function AuthView({ onReady }: { onReady: (user: UserPublic) => void }) {
   const [mode, setMode] = useState<"login" | "register">("register");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
@@ -19,38 +15,14 @@ export function AuthView({
   const [busy, setBusy] = useState(false);
 
   return (
-    <div className="tavern-screen px-6 pb-8 pt-10">
-      <div className="relative z-10 flex flex-1 flex-col items-center justify-center text-center">
-        <div className="wood-table relative flex h-40 w-40 items-end justify-center rounded-full pb-1">
-          <OctopusFigure priority className="h-[7.4rem] w-[7.4rem] drop-shadow-[0_16px_18px_rgba(0,0,0,0.35)]" />
-        </div>
-        <p className="mt-5 text-[11px] tracking-[0.42em] text-gold/80">酒桌 · 章鱼 · 接龙</p>
-        <h1 className="font-display mt-2 text-4xl">丈育成语接龙</h1>
+    <div className="screen">
+      <div className="relative z-10 pt-[calc(28px+env(safe-area-inset-top))] text-center">
+        <h1 className="font-display text-[34px] leading-none tracking-wide">丈育成语接龙</h1>
       </div>
-
-      <div className="relative z-10 mb-4 flex justify-center">
-        <AvatarPicker name={name || "我"} src={avatar} onPick={setAvatar} />
-      </div>
-
-      <div className="relative z-10 mb-3 grid grid-cols-2 gap-2">
-        <button
-          type="button"
-          onClick={() => setMode("register")}
-          className={`rounded-full py-2 text-sm ${mode === "register" ? "bg-gold text-[#2a160e]" : "ghost-btn"}`}
-        >
-          注册
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode("login")}
-          className={`rounded-full py-2 text-sm ${mode === "login" ? "bg-gold text-[#2a160e]" : "ghost-btn"}`}
-        >
-          登录
-        </button>
-      </div>
+      <TableScene />
 
       <form
-        className="relative z-10 space-y-3"
+        className="drawer space-y-3"
         onSubmit={async (event) => {
           event.preventDefault();
           setBusy(true);
@@ -64,7 +36,7 @@ export function AuthView({
               try {
                 user = await apiUploadAvatar(avatar);
               } catch {
-                // Account is already in; the photo can be added on the home table.
+                // Photo can be added later from the home screen.
               }
             }
             onReady(user);
@@ -75,23 +47,44 @@ export function AuthView({
           }
         }}
       >
+        <div className="flex items-center gap-4">
+          <AvatarPicker name={name} src={avatar} size={64} onPick={setAvatar} />
+          <div className="flex flex-1 gap-1 rounded-2xl bg-white/5 p-1">
+            <button
+              type="button"
+              onClick={() => setMode("register")}
+              className={`flex-1 rounded-xl py-2 text-sm ${mode === "register" ? "bg-gold text-ink" : "text-foam/60"}`}
+            >
+              注册
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("login")}
+              className={`flex-1 rounded-xl py-2 text-sm ${mode === "login" ? "bg-gold text-ink" : "text-foam/60"}`}
+            >
+              登录
+            </button>
+          </div>
+        </div>
         <input
           value={name}
           onChange={(event) => setName(event.target.value)}
-          placeholder="桌上怎么称呼你"
-          className="w-full rounded-2xl bg-white/8 px-4 py-3 text-base outline-none ring-gold/40 focus:ring-2"
+          placeholder="昵称"
+          className="field"
           maxLength={12}
+          autoComplete="username"
         />
         <input
           type="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          placeholder={mode === "register" ? "设个密码，至少四位" : "密码"}
-          className="w-full rounded-2xl bg-white/8 px-4 py-3 text-base outline-none ring-gold/40 focus:ring-2"
+          placeholder="密码"
+          className="field"
+          autoComplete={mode === "register" ? "new-password" : "current-password"}
         />
         {error ? <p className="text-center text-sm text-coral">{error}</p> : null}
-        <button type="submit" disabled={busy} className="wood-btn w-full py-3.5">
-          {busy ? "请稍等" : mode === "register" ? "坐下" : "回桌"}
+        <button type="submit" disabled={busy} className="btn btn-primary w-full">
+          {mode === "register" ? "注册" : "登录"}
         </button>
       </form>
     </div>

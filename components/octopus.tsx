@@ -10,7 +10,7 @@ export function OctopusFigure({
   return (
     <Image
       src="/octopus-cut.png"
-      alt="章鱼裁判"
+      alt=""
       width={821}
       height={750}
       priority={priority}

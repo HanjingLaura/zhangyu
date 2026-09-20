@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { RoomHeader } from "./shell";
+import { TopBar } from "./shell";
+import { TableScene } from "./table-scene";
 
 export function JoinView({
   onBack,
@@ -15,10 +16,11 @@ export function JoinView({
   const [busy, setBusy] = useState(false);
 
   return (
-    <div className="tavern-screen">
-      <RoomHeader title="加入房间" subtitle="问开桌的人要四位房号" onBack={onBack} />
+    <div className="screen">
+      <TopBar title="加入房间" onBack={onBack} />
+      <TableScene />
       <form
-        className="relative z-10 flex flex-1 flex-col justify-center px-6"
+        className="drawer space-y-3"
         onSubmit={async (event) => {
           event.preventDefault();
           setBusy(true);
@@ -26,7 +28,7 @@ export function JoinView({
           try {
             await onJoin(code.trim().toUpperCase());
           } catch (err) {
-            setError(err instanceof Error ? err.message : "进不去");
+            setError(err instanceof Error ? err.message : "加入失败");
           } finally {
             setBusy(false);
           }
@@ -35,17 +37,15 @@ export function JoinView({
         <input
           value={code}
           onChange={(event) => setCode(event.target.value.toUpperCase())}
-          placeholder="K8YM"
-          className="w-full rounded-2xl bg-white/8 px-4 py-5 text-center font-display text-4xl tracking-[0.45em] outline-none ring-gold/40 focus:ring-2"
+          placeholder="房号"
+          className="field text-center font-display text-3xl tracking-[0.4em] placeholder:font-sans placeholder:text-base placeholder:tracking-normal"
           maxLength={4}
+          autoCapitalize="characters"
+          autoComplete="off"
         />
-        {error ? <p className="mt-3 text-center text-sm text-coral">{error}</p> : null}
-        <button
-          type="submit"
-          disabled={busy || code.length < 4}
-          className="wood-btn mt-6 py-3.5"
-        >
-          入座
+        {error ? <p className="text-center text-sm text-coral">{error}</p> : null}
+        <button type="submit" disabled={busy || code.length < 4} className="btn btn-primary w-full">
+          加入
         </button>
       </form>
     </div>

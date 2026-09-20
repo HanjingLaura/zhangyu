@@ -69,7 +69,7 @@ export function GameApp() {
   return (
     <GameCabinet>
       {view === "boot" ? (
-        <div className="tavern-screen items-center justify-center text-gold">入座中…</div>
+        <div className="screen items-center justify-center text-foam/50">加载中</div>
       ) : null}
       {view === "auth" ? <AuthView onReady={(next) => { setUser(next); setView("home"); }} /> : null}
       {view === "home" && user ? (
@@ -82,7 +82,7 @@ export function GameApp() {
             try {
               enterRoom(await apiCreateRoom());
             } catch (err) {
-              setError(err instanceof Error ? err.message : "开不了桌");
+              setError(err instanceof Error ? err.message : "创建失败");
             }
           }}
           onJoin={() => setView("join")}
@@ -123,7 +123,7 @@ export function GameApp() {
               setError("");
               enterRoom(await apiStartRoom(room.code));
             } catch (err) {
-              setError(err instanceof Error ? err.message : "开不了");
+              setError(err instanceof Error ? err.message : "开始失败");
             }
           }}
         />
@@ -141,21 +141,21 @@ export function GameApp() {
               setRoom(await apiMove(room.code, "submit", draft));
               setDraft("");
             } catch (err) {
-              setError(err instanceof Error ? err.message : "接不上");
+              setError(err instanceof Error ? err.message : "发送失败");
             }
           }}
           onHint={async () => {
             try {
               setRoom(await apiMove(room.code, "hint"));
             } catch (err) {
-              setError(err instanceof Error ? err.message : "查不了");
+              setError(err instanceof Error ? err.message : "提示失败");
             }
           }}
           onPass={async () => {
             try {
               setRoom(await apiMove(room.code, "pass"));
             } catch (err) {
-              setError(err instanceof Error ? err.message : "过不了");
+              setError(err instanceof Error ? err.message : "跳过失败");
             }
           }}
           onDanmaku={async (text) => {
@@ -169,7 +169,7 @@ export function GameApp() {
               setRoom(await apiStartRoom(room.code));
               setDraft("");
             } catch (err) {
-              setError(err instanceof Error ? err.message : "再来不了");
+              setError(err instanceof Error ? err.message : "开始失败");
             }
           }}
           onReseat={() => setView("lobby")}
@@ -177,7 +177,7 @@ export function GameApp() {
             try {
               setRoom(await apiMove(room.code, "finish"));
             } catch (err) {
-              setError(err instanceof Error ? err.message : "散不了");
+              setError(err instanceof Error ? err.message : "结束失败");
             }
           }}
         />

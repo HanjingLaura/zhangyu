@@ -17,7 +17,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ cod
     });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "这手接不了" },
+      { error: error instanceof Error ? error.message : "操作失败" },
       { status: 400 },
     );
   }

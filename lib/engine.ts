@@ -62,7 +62,7 @@ function settle(game: Game, note?: string): Game {
         kind: "octopus",
         text:
           note ??
-          `接满 ${game.rounds} 轮。${titles.culture.name} 文化最高，${titles.zhangyu.name} 是本桌丈育。`,
+          `接满 ${game.rounds} 轮。最高分 ${titles.culture.name}，最丈育 ${titles.zhangyu.name}。`,
         tone: "win",
       },
     ],
@@ -226,8 +226,8 @@ export function hint(index: IdiomIndex, game: Game): Game {
     },
     {
       kind: "octopus",
-      text: `${lines.hint()} 可以试试「${word}」。`,
-      quote: `${player.name} 偷看词典`,
+      text: `${lines.hint()} 试试「${word}」。`,
+      quote: `${player.name} 看了提示`,
       tone: "hint",
     },
   );
@@ -335,7 +335,7 @@ export function pass(index: IdiomIndex, game: Game): SubmitResult {
 
 export function finishGame(game: Game): Game {
   if (game.status === "finished") return game;
-  return settle(game, `提前散场，这桌接了 ${game.rounds} 轮。`);
+  return settle(game, `提前结束，共 ${game.rounds} 轮。`);
 }
 
 export function addFun(game: Game, userId: string, amount = 1): Game {

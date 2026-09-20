@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { currentNeed, rankPlayers, zhangyuKing } from "@/lib/engine";
+import { currentNeed, rankPlayers } from "@/lib/engine";
 import type { RoomSnapshot, UserPublic } from "@/lib/types";
-import { OctopusFigure } from "./octopus";
 import { RecordSheet } from "./record-sheet";
-import { RoomHeader } from "./shell";
+import { TopBar } from "./shell";
 import { TableScene } from "./table-scene";
 
 function lastOctopus(room: RoomSnapshot) {
@@ -49,114 +48,114 @@ export function PlayView({
   const need = currentNeed(game);
   const current = game.players[game.turn];
   const finished = game.status === "finished";
-  const king = zhangyuKing(game);
   const titles = game.titles;
   const ranked = rankPlayers(game);
-  const line = lastOctopus(room)?.text;
+  const bubble = lastOctopus(room)?.text;
   const mine = !you || current.id === you.id;
   const host = you?.id === room.hostId;
 
   return (
-    <div className="tavern-screen">
-      <RoomHeader
-        title="丈育成语接龙"
-        subtitle={`${game.mode === "char" ? "字接字" : "音接音"} · ${game.rounds}/${game.maxRounds} 轮`}
+    <div className="screen">
+      <TopBar
+        title={
+          finished ? (
+            <span>已结束</span>
+          ) : (
+            <span>
+              第 {game.rounds + 1} 轮<span className="text-foam/40"> / {game.maxRounds}</span>
+            </span>
+          )
+        }
+        right={<span>{finished ? `共 ${game.rounds} 轮` : game.mode === "char" ? "字接字" : "音接音"}</span>}
         onBack={onBack}
       />
 
-      <div className="relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-1">
-        {line ? (
-          <div className="mb-2 line-clamp-2 max-w-[88%] rounded-2xl bg-[#f6efe2] px-3 py-1.5 text-center text-[11px] leading-5 text-[#2a160e] shadow">
-            {line}
-          </div>
-        ) : null}
-        <TableScene
-          people={game.players}
-          youId={you?.id}
-          currentId={current.id}
-          finished={finished}
-          kingId={king.id}
-          winnerId={titles?.culture.id ?? game.winnerId ?? undefined}
-          danmaku={room.danmaku}
-        >
-          <OctopusFigure
-            priority
-            className="h-[6.6rem] w-[6.6rem] drop-shadow-[0_16px_18px_rgba(0,0,0,0.35)]"
-          />
-          <div className="font-display text-5xl leading-none text-[#f6e2b0]">{need.char}</div>
-          <div className="mt-1 text-[10px] tracking-[0.28em] text-gold/70">
-            {finished ? "本局结束" : "顺时针接到这个字"}
-          </div>
-        </TableScene>
-      </div>
+      <TableScene
+        people={game.players.map((player) => ({ ...player, player }))}
+        youId={you?.id}
+        currentId={current.id}
+        finished={finished}
+        bubble={bubble}
+        danmaku={room.danmaku}
+      >
+        <div className="plaque flex min-w-[6rem] flex-col items-center rounded-2xl px-4 py-1.5">
+          <div className="font-display text-[40px] leading-none text-[#f6e2b0]">{need.char}</div>
+          <div className="mt-1 text-[11px] text-foam/50">{need.word}</div>
+        </div>
+      </TableScene>
 
       {finished ? (
-        <div className="relative z-10 border-t border-[#d7b56a]/15 px-4 py-3">
-          <div className="parchment max-h-56 overflow-y-auto rounded-3xl px-4 py-3">
-            <div className="text-center font-display text-xl">本局结算</div>
-            <p className="mt-1 text-center text-[11px] text-[#8a5a28]">
-              接了 {game.rounds}/{game.maxRounds} 轮 · 顺时针 · 没有时间限制
-            </p>
-            {titles ? (
-              <div className="mt-2 grid grid-cols-2 gap-2 text-center text-[11px]">
-                <div className="rounded-2xl bg-[#2a160e]/6 px-2 py-2">
-                  <div className="text-[#8a5a28]">最有意思</div>
-                  <div className="font-display text-base">{titles.fun.name}</div>
+        <div className="sheet relative z-10 max-h-[52%] shrink-0 overflow-y-auto rounded-t-[28px] px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4">
+          <div className="text-center font-display text-2xl">结算</div>
+          <p className="mt-1 text-center text-xs text-ink/50">共 {game.rounds} 轮</p>
+          {titles ? (
+            <div className="mt-3 grid grid-cols-2 gap-2 text-center">
+              {[
+                ["最有意思", titles.fun.name],
+                ["最没文化", titles.uncultured.name],
+                ["最丈育", titles.zhangyu.name],
+                ["最高分", titles.culture.name],
+              ].map(([label, name]) => (
+                <div key={label} className="rounded-2xl bg-ink/6 px-2 py-2.5">
+                  <div className="text-[11px] text-ink/55">{label}</div>
+                  <div className="mt-0.5 truncate font-display text-lg">{name}</div>
                 </div>
-                <div className="rounded-2xl bg-[#2a160e]/6 px-2 py-2">
-                  <div className="text-[#8a5a28]">最没文化</div>
-                  <div className="font-display text-base">{titles.uncultured.name}</div>
-                </div>
-                <div className="rounded-2xl bg-[#2a160e]/6 px-2 py-2">
-                  <div className="text-[#8a5a28]">最丈育</div>
-                  <div className="font-display text-base">{titles.zhangyu.name}</div>
-                </div>
-                <div className="rounded-2xl bg-[#2a160e]/6 px-2 py-2">
-                  <div className="text-[#8a5a28]">分最高</div>
-                  <div className="font-display text-base">{titles.culture.name}</div>
-                </div>
-              </div>
-            ) : null}
-            <ol className="mt-3 space-y-1 text-sm">
-              {ranked.map((player, index) => (
-                <li key={player.id} className="flex justify-between gap-2">
-                  <span>
-                    {index + 1}. {player.name}
-                  </span>
-                  <span className="shrink-0 text-[11px] text-[#6b3f24]">
-                    {player.culture} 分 · {player.fun} 有意思 · {player.zhangyu} 丈育 · 失误 {player.fails}
-                  </span>
-                </li>
               ))}
-            </ol>
-            <p className="mt-3 text-[11px] leading-5 text-[#6b3f24]">
-              {game.chain.join(" → ")}
-            </p>
-          </div>
-          <div className="mt-3 grid grid-cols-3 gap-2">
-            <button type="button" onClick={() => setShowRecord(true)} className="ghost-btn py-3 text-sm">
+            </div>
+          ) : null}
+          <ol className="mt-3 divide-y divide-ink/8 text-sm">
+            {ranked.map((player, index) => (
+              <li key={player.id} className="flex items-center justify-between gap-3 py-2">
+                <span className="truncate">
+                  <span className="mr-2 text-ink/40">{index + 1}</span>
+                  {player.name}
+                </span>
+                <span className="shrink-0 text-xs text-ink/60">
+                  {player.culture} 分 · 有意思 {player.fun} · 丈育 {player.zhangyu} · 失误 {player.fails}
+                </span>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              onClick={() => setShowRecord(true)}
+              className="btn bg-ink/8 py-3 text-sm text-ink"
+            >
               导出
             </button>
-            <button type="button" onClick={onReseat} className="ghost-btn py-3 text-sm">
+            <button type="button" onClick={onReseat} className="btn bg-ink/8 py-3 text-sm text-ink">
               回房间
             </button>
-            <button type="button" onClick={onAgain} className="wood-btn py-3 text-sm">
-              再来
+            <button type="button" onClick={onAgain} className="btn btn-primary py-3 text-sm">
+              再来一局
             </button>
           </div>
         </div>
       ) : (
         <form
-          className="relative z-10 border-t border-[#d7b56a]/15 px-3 py-3"
+          className="drawer space-y-2.5"
           onSubmit={(event) => {
             event.preventDefault();
             onSubmit();
           }}
         >
-          <p className="mb-2 text-center text-[11px] text-gold/70">
-            {mine ? `轮到你，接「${need.char}」` : `等 ${current.name} 接「${need.char}」`}
-            ，没有时间限制
-          </p>
+          <div className="flex items-center justify-between px-1 text-xs text-foam/55">
+            <span>{mine ? "轮到你" : `等 ${current.name}`}</span>
+            <span className="flex gap-4">
+              <button type="button" disabled={!mine} onClick={onHint} className="disabled:opacity-30">
+                提示
+              </button>
+              <button type="button" disabled={!mine} onClick={onPass} className="disabled:opacity-30">
+                跳过
+              </button>
+              {host ? (
+                <button type="button" onClick={onFinish} className="text-foam/40">
+                  结束本局
+                </button>
+              ) : null}
+            </span>
+          </div>
           <div className="flex gap-2">
             <input
               id="idiom-input"
@@ -164,21 +163,21 @@ export function PlayView({
               onChange={(event) => onDraft(event.target.value)}
               placeholder={`接「${need.char}」`}
               disabled={!mine}
-              className="min-w-0 flex-1 rounded-full bg-white/8 px-4 py-3 text-base outline-none ring-gold/40 focus:ring-2 disabled:opacity-40"
+              className="field"
               autoComplete="off"
             />
-            <button type="submit" disabled={!mine} className="wood-btn shrink-0 px-5 py-3 text-sm">
-              接上
+            <button type="submit" disabled={!mine} className="btn btn-primary shrink-0 whitespace-nowrap px-5">
+              发送
             </button>
           </div>
-          {error ? <p className="mt-2 text-center text-xs text-coral">{error}</p> : null}
-          <div className="mt-2 flex gap-2">
+          {error ? <p className="px-1 text-xs text-coral">{error}</p> : null}
+          <div className="flex gap-2">
             <input
               value={barrage}
               onChange={(event) => setBarrage(event.target.value)}
               placeholder="弹幕"
               maxLength={24}
-              className="min-w-0 flex-1 rounded-full bg-white/8 px-3 py-2 text-xs outline-none ring-gold/40 focus:ring-2"
+              className="field py-2.5 text-sm"
             />
             <button
               type="button"
@@ -188,22 +187,11 @@ export function PlayView({
                 setBarrage("");
                 await onDanmaku(text);
               }}
-              className="ghost-btn px-3 py-2 text-xs"
+              className="btn btn-quiet shrink-0 whitespace-nowrap px-5 py-2.5 text-sm"
             >
-              弹
-            </button>
-            <button type="button" disabled={!mine} onClick={onHint} className="ghost-btn px-3 py-2 text-xs disabled:opacity-40">
-              查了吧
-            </button>
-            <button type="button" disabled={!mine} onClick={onPass} className="ghost-btn px-3 py-2 text-xs disabled:opacity-40">
-              过
+              发送
             </button>
           </div>
-          {host ? (
-            <button type="button" onClick={onFinish} className="mt-2 w-full text-center text-[11px] text-white/35">
-              提前散场
-            </button>
-          ) : null}
         </form>
       )}
       {showRecord ? <RecordSheet room={room} onClose={() => setShowRecord(false)} /> : null}

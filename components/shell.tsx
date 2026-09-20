@@ -2,34 +2,33 @@ import type { ReactNode } from "react";
 
 export function GameCabinet({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-[#0b0705] px-2 py-2 sm:px-6 sm:py-5">
-      <div className="relative flex h-[min(100dvh-0.5rem,920px)] w-full max-w-[430px] flex-col overflow-hidden rounded-[34px] border border-[#f0d48a]/25 bg-[#1b120c] shadow-[0_28px_80px_rgba(0,0,0,0.62)]">
-        <div className="pointer-events-none absolute inset-x-16 top-0 h-10 bg-gradient-to-b from-[#f0d48a]/15 to-transparent" />
+    <div className="flex h-dvh justify-center bg-[#050302]">
+      <div className="relative h-full w-full max-w-[480px] overflow-hidden bg-bg sm:border-x sm:border-[#f0d48a]/10">
         {children}
       </div>
     </div>
   );
 }
 
-export function RoomHeader({
+export function TopBar({
   title,
-  subtitle,
+  right,
   onBack,
 }: {
-  title: string;
-  subtitle?: string;
+  title: ReactNode;
+  right?: ReactNode;
   onBack?: () => void;
 }) {
   return (
-    <header className="relative z-10 shrink-0 px-3 pb-1 pt-3">
-      <div className="flex items-center justify-between">
+    <header className="relative z-10 flex shrink-0 items-center justify-between px-3 pb-1 pt-[calc(10px+env(safe-area-inset-top))]">
+      {onBack ? (
         <button
           type="button"
           onClick={onBack}
-          className="flex h-9 w-9 items-center justify-center rounded-full text-[#f6efe2]/70 hover:bg-white/10"
+          className="flex h-10 w-10 items-center justify-center rounded-full text-foam/70 active:bg-white/10"
           aria-label="返回"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path
               d="M15 5 8 12l7 7"
               stroke="currentColor"
@@ -39,12 +38,11 @@ export function RoomHeader({
             />
           </svg>
         </button>
-        <div className="text-center">
-          <div className="font-display text-[18px] tracking-wide text-gold">{title}</div>
-          {subtitle ? <div className="text-[11px] text-white/40">{subtitle}</div> : null}
-        </div>
-        <div className="h-9 w-9" />
-      </div>
+      ) : (
+        <div className="h-10 w-10" />
+      )}
+      <div className="text-center text-[15px] text-foam/85">{title}</div>
+      <div className="flex h-10 min-w-10 items-center justify-end text-xs text-foam/50">{right}</div>
     </header>
   );
 }
