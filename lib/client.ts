@@ -70,8 +70,14 @@ export async function apiUploadAvatar(image: string) {
   return (data as { user: UserPublic }).user;
 }
 
-export async function apiCreateRoom() {
-  const data = await read(await fetch("/api/rooms", { method: "POST" }));
+export async function apiCreateRoom(options?: { mode?: "char" | "pinyin"; maxRounds?: number }) {
+  const data = await read(
+    await fetch("/api/rooms", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(options ?? {}),
+    }),
+  );
   return (data as { room: RoomSnapshot }).room;
 }
 

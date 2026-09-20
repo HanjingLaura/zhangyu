@@ -4,8 +4,8 @@ import { useState } from "react";
 import { currentNeed, rankPlayers } from "@/lib/engine";
 import type { RoomSnapshot, UserPublic } from "@/lib/types";
 import { RecordSheet } from "./record-sheet";
+import { RoomScene } from "./room-scene";
 import { TopBar } from "./shell";
-import { TableScene } from "./table-scene";
 
 function lastOctopus(room: RoomSnapshot) {
   return [...(room.game?.messages ?? [])].reverse().find((message) => message.kind === "octopus");
@@ -70,19 +70,78 @@ export function PlayView({
         onBack={onBack}
       />
 
-      <TableScene
+      <RoomScene
         people={game.players.map((player) => ({ ...player, player }))}
         youId={you?.id}
         currentId={current.id}
         finished={finished}
         bubble={bubble}
         danmaku={room.danmaku}
-      >
-        <div className="plaque flex min-w-[6rem] flex-col items-center rounded-2xl px-4 py-1.5">
-          <div className="font-display text-[40px] leading-none text-[#f6e2b0]">{need.char}</div>
-          <div className="mt-1 text-[11px] text-foam/50">{need.word}</div>
-        </div>
-      </TableScene>
+        overlay={
+          finished ? undefined : (
+            <form
+              className="space-y-2 rounded-3xl bg-black/35 px-3 py-3"
+              onSubmit={(event) => {
+                event.preventDefault();
+                onSubmit();
+              }}
+            >
+              <div className="flex items-center justify-between px-0.5 text-[11px] text-foam/55">
+                <span>{mine ? "轮到你" : `等 ${current.name}`}</span>
+                <span className="flex gap-3">
+                  <button type="button" disabled={!mine} onClick={onHint} className="disabled:opacity-30">
+                    提示
+                  </button>
+                  <button type="button" disabled={!mine} onClick={onPass} className="disabled:opacity-30">
+                    跳过
+                  </button>
+                  {host ? (
+                    <button type="button" onClick={onFinish} className="text-foam/40">
+                      结束
+                    </button>
+                  ) : null}
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  id="idiom-input"
+                  value={draft}
+                  onChange={(event) => onDraft(event.target.value)}
+                  placeholder={`接「${need.char}」`}
+                  disabled={!mine}
+                  className="field py-2.5 text-sm"
+                  autoComplete="off"
+                />
+                <button type="submit" disabled={!mine} className="btn btn-primary shrink-0 px-4 py-2.5 text-sm">
+                  发送
+                </button>
+              </div>
+              {error ? <p className="text-xs text-coral">{error}</p> : null}
+              <div className="flex gap-2">
+                <input
+                  value={barrage}
+                  onChange={(event) => setBarrage(event.target.value)}
+                  placeholder="弹幕"
+                  maxLength={24}
+                  className="field py-2.5 text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const text = barrage.trim();
+                    if (!text) return;
+                    setBarrage("");
+                    await onDanmaku(text);
+                  }}
+                  className="btn btn-quiet shrink-0 px-4 py-2.5 text-sm"
+                >
+                  发送
+                </button>
+              </div>
+            </form>
+          )
+        }
+      />
 
       {finished ? (
         <div className="sheet relative z-10 max-h-[52%] shrink-0 overflow-y-auto rounded-t-[28px] px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4">
@@ -134,68 +193,7 @@ export function PlayView({
             </button>
           </div>
         </div>
-      ) : (
-        <form
-          className="drawer space-y-2.5"
-          onSubmit={(event) => {
-            event.preventDefault();
-            onSubmit();
-          }}
-        >
-          <div className="flex items-center justify-between px-1 text-xs text-foam/55">
-            <span>{mine ? "轮到你" : `等 ${current.name}`}</span>
-            <span className="flex gap-4">
-              <button type="button" disabled={!mine} onClick={onHint} className="disabled:opacity-30">
-                提示
-              </button>
-              <button type="button" disabled={!mine} onClick={onPass} className="disabled:opacity-30">
-                跳过
-              </button>
-              {host ? (
-                <button type="button" onClick={onFinish} className="text-foam/40">
-                  结束本局
-                </button>
-              ) : null}
-            </span>
-          </div>
-          <div className="flex gap-2">
-            <input
-              id="idiom-input"
-              value={draft}
-              onChange={(event) => onDraft(event.target.value)}
-              placeholder={`接「${need.char}」`}
-              disabled={!mine}
-              className="field"
-              autoComplete="off"
-            />
-            <button type="submit" disabled={!mine} className="btn btn-primary shrink-0 whitespace-nowrap px-5">
-              发送
-            </button>
-          </div>
-          {error ? <p className="px-1 text-xs text-coral">{error}</p> : null}
-          <div className="flex gap-2">
-            <input
-              value={barrage}
-              onChange={(event) => setBarrage(event.target.value)}
-              placeholder="弹幕"
-              maxLength={24}
-              className="field py-2.5 text-sm"
-            />
-            <button
-              type="button"
-              onClick={async () => {
-                const text = barrage.trim();
-                if (!text) return;
-                setBarrage("");
-                await onDanmaku(text);
-              }}
-              className="btn btn-quiet shrink-0 whitespace-nowrap px-5 py-2.5 text-sm"
-            >
-              发送
-            </button>
-          </div>
-        </form>
-      )}
+      ) : null}
       {showRecord ? <RecordSheet room={room} onClose={() => setShowRecord(false)} /> : null}
     </div>
   );

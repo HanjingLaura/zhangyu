@@ -5,8 +5,9 @@ import { hashPassword, normalizeName, verifyPassword } from "./auth";
 import { addFun, createGame, finishGame, hint, pass, submit } from "./engine";
 import { idiomIndex } from "./dictionary";
 import { narrateGame } from "./octopus-ai";
+import { MAX_PLAYERS, parseRoomOptions } from "./seats";
 import { computeShells, getOutfit } from "./wardrobe";
-import type { Danmaku, Game, GameConfig, RoomSnapshot, UserPublic } from "./types";
+import type { Danmaku, Game, GameConfig, LinkMode, RoomSnapshot, UserPublic } from "./types";
 
 type UserRecord = {
   id: string;
@@ -207,17 +208,18 @@ export function snapshot(room: RoomRecord): RoomSnapshot {
   };
 }
 
-export function createRoom(user: UserPublic) {
+export function createRoom(user: UserPublic, options?: { mode?: LinkMode; maxRounds?: number }) {
+  const picked = parseRoomOptions(options ?? {});
   const code = makeCode();
   const room: RoomRecord = {
     code,
     hostId: user.id,
     members: [{ id: user.id, name: user.name }],
     status: "lobby",
-    mode: "char",
+    mode: picked.mode,
     tentacles: 8,
     opening: "yiming",
-    maxRounds: 100,
+    maxRounds: picked.maxRounds,
     game: null,
     danmaku: [],
   };
@@ -235,7 +237,7 @@ export function joinRoom(code: string, user: UserPublic) {
   const seated = room.members.find((member) => member.id === user.id);
   if (seated) return snapshot(room);
   if (room.status !== "lobby") throw new Error("房间已开始");
-  if (room.members.length >= 4) throw new Error("房间已满");
+  if (room.members.length >= MAX_PLAYERS) throw new Error("房间已满");
   room.members.push({ id: user.id, name: user.name });
   return snapshot(room);
 }

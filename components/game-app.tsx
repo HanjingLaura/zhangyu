@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import {
-  apiConfigureRoom,
   apiCreateRoom,
   apiDanmaku,
   apiJoinRoom,
@@ -18,6 +17,7 @@ import {
 } from "@/lib/client";
 import type { RoomSnapshot, UserPublic } from "@/lib/types";
 import { AuthView } from "./auth-view";
+import { CreateView } from "./create-view";
 import { HomeView } from "./home-view";
 import { JoinView } from "./join-view";
 import { LobbyView } from "./lobby-view";
@@ -29,7 +29,7 @@ import { ShopView } from "./shop-view";
 import { BgmProvider } from "./bgm";
 import { GameCabinet } from "./shell";
 
-type View = "boot" | "auth" | "home" | "join" | "lobby" | "play" | "rules" | "scenes" | "shop" | "settings";
+type View = "boot" | "auth" | "home" | "create" | "join" | "lobby" | "play" | "rules" | "scenes" | "shop" | "settings";
 
 export function GameApp() {
   const [view, setView] = useState<View>("boot");
@@ -80,12 +80,9 @@ export function GameApp() {
       {view === "auth" ? <AuthView onReady={(next) => { setUser(next); setView("home"); }} /> : null}
       {view === "home" && user ? (
         <HomeView
-          onCreate={async () => {
-            try {
-              enterRoom(await apiCreateRoom());
-            } catch (err) {
-              setError(err instanceof Error ? err.message : "创建失败");
-            }
+          onCreate={() => {
+            setError("");
+            setView("create");
           }}
           onJoin={() => setView("join")}
           onRules={() => setView("rules")}
@@ -94,6 +91,23 @@ export function GameApp() {
           onSettings={() => {
             setError("");
             setView("settings");
+          }}
+        />
+      ) : null}
+      {view === "create" ? (
+        <CreateView
+          error={error}
+          onBack={() => {
+            setError("");
+            setView("home");
+          }}
+          onCreate={async (options) => {
+            try {
+              setError("");
+              enterRoom(await apiCreateRoom(options));
+            } catch (err) {
+              setError(err instanceof Error ? err.message : "创建失败");
+            }
           }}
         />
       ) : null}
@@ -112,12 +126,6 @@ export function GameApp() {
             await apiLeaveRoom(room.code);
             setRoom(null);
             setView("home");
-          }}
-          onConfigure={async (patch) => {
-            setRoom(await apiConfigureRoom(room.code, patch));
-          }}
-          onDanmaku={async (text) => {
-            setRoom(await apiDanmaku(room.code, text));
           }}
           onStart={async () => {
             try {
