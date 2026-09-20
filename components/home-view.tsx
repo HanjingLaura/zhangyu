@@ -25,6 +25,11 @@ export function HomeView({
 }) {
   return (
     <div className="screen screen-home">
+      <img
+        src="/house.webp"
+        alt=""
+        className="pointer-events-none absolute bottom-[2%] left-1/2 z-0 w-[50%] -translate-x-1/2 select-none"
+      />
       <TopBar
         title=""
         right={
@@ -40,8 +45,8 @@ export function HomeView({
           <div className="text-xs text-foam/55">贝壳 {user.shells}</div>
         </div>
       </div>
-      <div className="relative z-10 flex flex-1 items-center px-5">
-        <div className="w-full space-y-3 rounded-3xl bg-black/25 px-3 py-3">
+      <div className="pointer-events-none absolute inset-0 z-10 flex items-center px-5">
+        <div className="pointer-events-auto w-full space-y-3 rounded-3xl bg-black/25 px-3 py-3">
           <button type="button" onClick={onCreate} className="btn btn-primary w-full">
             创建房间
           </button>

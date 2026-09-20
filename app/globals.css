@@ -59,9 +59,8 @@ body {
 
 .screen-home {
   background:
-    linear-gradient(180deg, rgba(6, 48, 68, 0.16) 0%, transparent 20%),
-    url("/yard.webp") center 108% / 72% auto no-repeat,
-    #3aa7cc;
+    radial-gradient(130% 34% at 50% 118%, #e6d08a 0%, #d4b76f 46%, transparent 47%),
+    linear-gradient(180deg, #2486b0 0%, #3aa7cc 58%, #4aafc8 100%);
 }
 
 .iso-table {
