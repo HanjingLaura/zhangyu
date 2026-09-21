@@ -67,7 +67,7 @@ body {
 .screen-room {
   background:
     linear-gradient(180deg, rgba(20, 16, 10, 0.22) 0%, transparent 14%),
-    url("/interior.webp?v=5") center top / cover no-repeat,
+    url("/interior.webp?v=6") center top / cover no-repeat,
     #c6aeb4;
 }
 

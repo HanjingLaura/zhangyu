@@ -47,11 +47,11 @@ export function RoomScene({
       {overlay ? (
         <div className="absolute left-1/2 top-[3%] z-[20] w-[88%] max-w-[340px] -translate-x-1/2">{overlay}</div>
       ) : null}
-      <div className="absolute left-1/2 top-[58%] z-[8] w-[22%] -translate-x-1/2 -translate-y-full">
+      <div className="absolute left-[56%] top-[56%] z-[8] w-[20%] -translate-x-1/2 -translate-y-full">
         <OctopusFigure className="w-full drop-shadow-[0_10px_8px_rgba(0,20,28,0.35)]" />
       </div>
       {bubble ? (
-        <div className="bubble bubble-left absolute left-[64%] top-[40%] z-[9] w-max max-w-[30%]">
+        <div className="bubble bubble-left absolute left-[68%] top-[38%] z-[9] w-max max-w-[30%]">
           {bubble}
         </div>
       ) : null}
