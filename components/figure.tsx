@@ -21,7 +21,7 @@ function Face({
       <img
         src={src}
         alt=""
-        className="absolute object-cover object-[center_28%]"
+        className="absolute object-cover object-[center_22%]"
         style={style}
       />
     );

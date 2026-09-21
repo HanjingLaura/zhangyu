@@ -19,8 +19,8 @@ export const OUTFITS: Outfit[] = [
     price: 0,
     src: "/suit-plain.webp",
     mask: "/suit-plain-mask.webp",
-    aspect: 420 / 780,
-    hole: { cx: 50, cy: 16.92, rw: 18.21, rh: 9.81 },
+    aspect: 388 / 1016,
+    hole: { cx: 52.19, cy: 11.75, rw: 28.99, rh: 12.75 },
   },
   {
     id: "astronaut",
@@ -38,7 +38,7 @@ export const OUTFITS: Outfit[] = [
     src: "/suit-ranger.webp",
     mask: "/suit-ranger-mask.webp",
     aspect: 1324 / 1903,
-    hole: { cx: 50.26, cy: 12.77, rw: 12.54, rh: 10.27 },
+    hole: { cx: 48.34, cy: 11.52, rw: 11.97, rh: 10.48 },
   },
   {
     id: "diver",
@@ -47,7 +47,7 @@ export const OUTFITS: Outfit[] = [
     src: "/suit-diver.webp",
     mask: "/suit-diver-mask.webp",
     aspect: 373 / 418,
-    hole: { cx: 48.39, cy: 23.68, rw: 22.25, rh: 17.82 },
+    hole: { cx: 47.99, cy: 24.93, rw: 18.77, rh: 19.14 },
   },
 ];
 

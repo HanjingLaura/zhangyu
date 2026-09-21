@@ -21,7 +21,7 @@ export function SeaCard({
   children: ReactNode;
 }) {
   return (
-    <div className="screen screen-sea">
+    <div className="screen">
       <TopBar title={title} onBack={onBack} />
       <div className="relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-5">
         <form
