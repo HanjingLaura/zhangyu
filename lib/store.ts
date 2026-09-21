@@ -22,9 +22,15 @@ export type RoomRecord = {
 };
 
 const ROOM_TTL = 60 * 60 * 24;
+type RoomCache = {
+  get: (key: string) => Promise<unknown | null>;
+  set: (key: string, value: unknown, options?: { ttl?: number; name?: string; tags?: string[] }) => Promise<void>;
+  delete: (key: string) => Promise<void>;
+};
 const g = globalThis as typeof globalThis & {
   __zyRooms?: Map<string, RoomRecord>;
   __zyRedis?: Redis | null;
+  __zyCache?: RoomCache | null;
 };
 
 function rooms() {
@@ -40,6 +46,21 @@ function getRedis() {
     g.__zyRedis = null;
   }
   return g.__zyRedis;
+}
+
+async function getSharedCache() {
+  if (g.__zyCache !== undefined) return g.__zyCache;
+  if (!process.env.VERCEL || getRedis()) {
+    g.__zyCache = null;
+    return null;
+  }
+  try {
+    const { getCache } = await import("@vercel/functions");
+    g.__zyCache = getCache({ namespace: "zy-rooms" });
+  } catch {
+    g.__zyCache = null;
+  }
+  return g.__zyCache;
 }
 
 function roomKey(code: string) {
@@ -108,53 +129,74 @@ async function readRedis(code: string) {
 
 export async function getRoom(code: string) {
   const key = code.toUpperCase();
-  const redis = getRedis();
-  if (redis) return readRedis(key);
+  if (getRedis()) return readRedis(key);
+  const cache = await getSharedCache();
+  if (cache) return decodeRoom(await cache.get(roomKey(key)));
   return rooms().get(key) ?? null;
 }
 
 async function createRecord(room: RoomRecord) {
   const redis = getRedis();
-  if (!redis) {
-    if (rooms().has(room.code)) return false;
-    rooms().set(room.code, room);
+  if (redis) {
+    const ok = await redis.eval(CREATE_LUA, [roomKey(room.code), revKey(room.code)], [
+      JSON.stringify(room),
+      String(ROOM_TTL),
+    ]);
+    return Number(ok) === 1;
+  }
+  const cache = await getSharedCache();
+  if (cache) {
+    if (decodeRoom(await cache.get(roomKey(room.code)))) return false;
+    await cache.set(roomKey(room.code), room, { ttl: ROOM_TTL, name: `room-${room.code}` });
     return true;
   }
-  const ok = await redis.eval(CREATE_LUA, [roomKey(room.code), revKey(room.code)], [
-    JSON.stringify(room),
-    String(ROOM_TTL),
-  ]);
-  return Number(ok) === 1;
+  if (rooms().has(room.code)) return false;
+  rooms().set(room.code, room);
+  return true;
 }
 
 async function saveRoom(next: RoomRecord, expectedRev: number) {
   const room = { ...next, rev: expectedRev + 1 };
   const redis = getRedis();
-  if (!redis) {
-    const current = rooms().get(room.code);
+  if (redis) {
+    const ok = await redis.eval(SAVE_LUA, [roomKey(room.code), revKey(room.code)], [
+      String(expectedRev),
+      JSON.stringify(room),
+      String(ROOM_TTL),
+      String(room.rev),
+    ]);
+    return Number(ok) === 1;
+  }
+  const cache = await getSharedCache();
+  if (cache) {
+    const current = decodeRoom(await cache.get(roomKey(room.code)));
     if (!current || current.rev !== expectedRev) return false;
-    rooms().set(room.code, room);
+    await cache.set(roomKey(room.code), room, { ttl: ROOM_TTL, name: `room-${room.code}` });
     return true;
   }
-  const ok = await redis.eval(SAVE_LUA, [roomKey(room.code), revKey(room.code)], [
-    String(expectedRev),
-    JSON.stringify(room),
-    String(ROOM_TTL),
-    String(room.rev),
-  ]);
-  return Number(ok) === 1;
+  const current = rooms().get(room.code);
+  if (!current || current.rev !== expectedRev) return false;
+  rooms().set(room.code, room);
+  return true;
 }
 
 async function removeRoom(code: string, expectedRev: number) {
   const redis = getRedis();
-  if (!redis) {
-    const current = rooms().get(code);
+  if (redis) {
+    const ok = await redis.eval(DELETE_LUA, [roomKey(code), revKey(code)], [String(expectedRev)]);
+    return Number(ok) === 1;
+  }
+  const cache = await getSharedCache();
+  if (cache) {
+    const current = decodeRoom(await cache.get(roomKey(code)));
     if (!current || current.rev !== expectedRev) return false;
-    rooms().delete(code);
+    await cache.delete(roomKey(code));
     return true;
   }
-  const ok = await redis.eval(DELETE_LUA, [roomKey(code), revKey(code)], [String(expectedRev)]);
-  return Number(ok) === 1;
+  const current = rooms().get(code);
+  if (!current || current.rev !== expectedRev) return false;
+  rooms().delete(code);
+  return true;
 }
 
 async function mutateRoom(
@@ -387,4 +429,5 @@ export async function leaveRoom(code: string, userId: string) {
 export function resetMemoryRooms() {
   rooms().clear();
   g.__zyRedis = null;
+  delete g.__zyCache;
 }

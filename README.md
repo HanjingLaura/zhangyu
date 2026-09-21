@@ -28,6 +28,6 @@ npm run dev
 
 打开 [http://localhost:3000/zhangyu](http://localhost:3000/zhangyu)。
 
-好友联机要共享房间存储：在 Vercel 给这个项目装 Upstash Redis（`UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`）。本地不配这两个变量时，房间只活在当前进程里，刷新或换一台电脑就对不上房号。
+好友联机走房间号。线上没配 Redis 时，房间写在 Vercel 同区域缓存里，同一局里的手机都能进；想更稳就在 Marketplace 给项目装 Upstash Redis（`UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`）。本地不配时房间只活在当前进程。
 
 章鱼哥接的是[阿里云百炼](https://bailian.console.aliyun.com)。把 `DASHSCOPE_API_KEY` 写进 `.env.local`，模型默认 `qwen-turbo`。
