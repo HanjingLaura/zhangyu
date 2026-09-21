@@ -25,19 +25,17 @@ export function SeaCard({
       <TopBar title={title} onBack={onBack} />
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 pb-8">
         <form
-          className="flex min-h-[272px] w-full max-w-sm flex-col justify-between rounded-3xl bg-black/25 px-4 py-5"
+          className="w-full max-w-sm space-y-3 rounded-3xl bg-black/25 px-4 py-4"
           onSubmit={async (event: FormEvent) => {
             event.preventDefault();
             await onSubmit();
           }}
         >
-          <div className="space-y-4">{children}</div>
-          <div className="space-y-3">
-            {error ? <p className="text-center text-sm text-coral">{error}</p> : null}
-            <button type="submit" disabled={busy || disabled} className="btn btn-primary w-full">
-              {action}
-            </button>
-          </div>
+          {children}
+          {error ? <p className="text-center text-sm text-coral">{error}</p> : null}
+          <button type="submit" disabled={busy || disabled} className="btn btn-primary w-full">
+            {action}
+          </button>
         </form>
       </div>
     </div>

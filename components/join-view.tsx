@@ -57,7 +57,7 @@ export function JoinView({
             {Array.from({ length: 4 }, (_, index) => (
               <span
                 key={index}
-                className={`chip flex min-h-[42px] flex-1 items-center justify-center py-2.5 text-center font-display text-lg tracking-[0.2em] ${
+                className={`chip flex min-h-[48px] flex-1 items-center justify-center text-center font-display text-lg tracking-[0.2em] ${
                   code[index] ? "chip-on" : ""
                 }`}
               >
