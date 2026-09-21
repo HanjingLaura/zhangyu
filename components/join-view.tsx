@@ -51,17 +51,17 @@ export function JoinView({
             autoComplete="off"
             autoFocus
             aria-label="房号"
-            className="absolute inset-0 z-[1] cursor-text opacity-0"
+            className="absolute inset-0 z-[1] cursor-text opacity-0 outline-none"
           />
           <div className="flex gap-2">
             {Array.from({ length: 4 }, (_, index) => (
               <span
                 key={index}
-                className={`chip flex-1 py-2.5 text-center font-display text-lg tracking-[0.2em] ${
+                className={`chip flex min-h-[42px] flex-1 items-center justify-center py-2.5 text-center font-display text-lg tracking-[0.2em] ${
                   code[index] ? "chip-on" : ""
                 }`}
               >
-                {code[index] ?? "·"}
+                {code[index] || " "}
               </span>
             ))}
           </div>

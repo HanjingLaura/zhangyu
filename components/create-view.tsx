@@ -46,7 +46,7 @@ export function CreateView({
               key={id}
               type="button"
               onClick={() => setMode(id)}
-              className={`chip flex-1 py-2.5 text-center ${mode === id ? "chip-on" : ""}`}
+              className={`chip flex min-h-[42px] flex-1 items-center justify-center py-2.5 text-center ${mode === id ? "chip-on" : ""}`}
             >
               {label}
             </button>
@@ -60,7 +60,7 @@ export function CreateView({
               key={rounds}
               type="button"
               onClick={() => setMaxRounds(rounds)}
-              className={`chip flex-1 py-2.5 text-center ${maxRounds === rounds ? "chip-on" : ""}`}
+              className={`chip flex min-h-[42px] flex-1 items-center justify-center py-2.5 text-center ${maxRounds === rounds ? "chip-on" : ""}`}
             >
               {rounds} 轮
             </button>
