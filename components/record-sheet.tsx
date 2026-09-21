@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { copyRecord, downloadRecord, formatRecord } from "@/lib/record";
+import { downloadRecordImage } from "@/lib/record-image";
 import type { RoomSnapshot } from "@/lib/types";
 
 export function RecordSheet({
@@ -41,8 +42,14 @@ export function RecordSheet({
           >
             {copied ? "已复制" : "复制"}
           </button>
-          <button type="button" className="btn btn-primary py-3 text-sm" onClick={() => downloadRecord(room)}>
-            下载
+          <button
+            type="button"
+            className="btn btn-primary py-3 text-sm"
+            onClick={() => {
+              void downloadRecordImage(room).catch(() => downloadRecord(room));
+            }}
+          >
+            导出长图
           </button>
         </div>
       </div>

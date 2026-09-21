@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { currentNeed, rankPlayers } from "@/lib/engine";
+import { downloadRecord } from "@/lib/record";
+import { downloadRecordImage } from "@/lib/record-image";
 import type { RoomSnapshot, UserPublic } from "@/lib/types";
 import { lastSpeeches } from "@/lib/speeches";
-import { RecordSheet } from "./record-sheet";
 import { RoomScene } from "./room-scene";
 import { TopBar } from "./shell";
 
@@ -38,7 +39,7 @@ export function PlayView({
   onFinish: () => void;
 }) {
   const [barrage, setBarrage] = useState("");
-  const [showRecord, setShowRecord] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const game = room.game;
   if (!game) return null;
 
@@ -185,10 +186,16 @@ export function PlayView({
           <div className="mt-4 grid grid-cols-3 gap-2">
             <button
               type="button"
-              onClick={() => setShowRecord(true)}
-              className="btn bg-ink/8 py-3 text-sm text-ink"
+              disabled={exporting}
+              onClick={() => {
+                setExporting(true);
+                void downloadRecordImage(room)
+                  .catch(() => downloadRecord(room))
+                  .finally(() => setExporting(false));
+              }}
+              className="btn bg-ink/8 py-3 text-sm text-ink disabled:opacity-50"
             >
-              导出
+              {exporting ? "导出中" : "导出长图"}
             </button>
             <button type="button" onClick={onReseat} className="btn bg-ink/8 py-3 text-sm text-ink">
               回房间
@@ -199,7 +206,6 @@ export function PlayView({
           </div>
         </div>
       ) : null}
-      {showRecord ? <RecordSheet room={room} onClose={() => setShowRecord(false)} /> : null}
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { addFun, createGame, finishGame, hint, pass, submit } from "./engine";
 import { idiomIndex } from "./dictionary";
 import { narrateGame } from "./octopus-ai";
 import { MAX_PLAYERS, parseRoomOptions } from "./seats";
-import { computeShells, getOutfit } from "./wardrobe";
+import { computeShells, getOutfit, OUTFITS } from "./wardrobe";
 import type { Danmaku, Game, GameConfig, LinkMode, RoomSnapshot, UserPublic } from "./types";
 
 type UserRecord = {
@@ -377,7 +377,7 @@ export function grantWardrobe(userId: string) {
   const user = findUserById(userId);
   if (!user) throw new Error("请先登录");
   user.shells = Math.max(user.shells ?? 0, 80);
-  user.owned = ["plain", "astronaut", "ranger", "diver"];
+  user.owned = OUTFITS.map((outfit) => outfit.id);
   saveUsers();
   return publicUser(user);
 }

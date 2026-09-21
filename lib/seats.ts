@@ -1,20 +1,36 @@
 export const MAX_PLAYERS = 6;
 export const ROUND_OPTIONS = [20, 50, 100] as const;
 
-const MARGIN = [0, 50, 22, 16, 13, 12, 12];
 const SCALE = [1, 0.95, 0.92, 0.84, 0.74, 0.64, 0.56];
 
 export function seatLayout(index: number, total: number) {
   const count = Math.min(MAX_PLAYERS, Math.max(total, 1));
-  const margin = MARGIN[count] ?? 10;
-  const usable = 100 - margin * 2;
-  const left = count === 1 ? 50 : margin + (usable / (count - 1)) * index;
-  const bow = count <= 2 ? 0 : Math.sin((index / Math.max(count - 1, 1)) * Math.PI) * 2.2;
+  const scale = SCALE[count] ?? 0.56;
+
+  if (count <= 2) {
+    const left = count === 1 ? 22 : index === 0 ? 22 : 78;
+    return { left, top: 70, zIndex: 20 + index, scale };
+  }
+
+  const leftCount = Math.floor(count / 2);
+  const onLeft = index < leftCount;
+  const sideIndex = onLeft ? index : index - leftCount;
+  const sideCount = onLeft ? leftCount : count - leftCount;
+  const pad = count >= 5 ? 9 : 11;
+  const gap = count >= 5 ? 22 : 28;
+  const span = 50 - gap / 2 - pad;
+  const start = onLeft ? pad : 50 + gap / 2;
+  const left =
+    sideCount === 1
+      ? start + span * (onLeft ? 0.32 : 0.68)
+      : start + (span / (sideCount - 1)) * sideIndex;
+  const bow = Math.sin((index / Math.max(count - 1, 1)) * Math.PI) * 1.2;
+
   return {
     left,
-    top: 70 + bow,
+    top: 71 + bow,
     zIndex: 20 + index,
-    scale: SCALE[count] ?? 0.56,
+    scale,
   };
 }
 

@@ -38,7 +38,7 @@ describe("outfits", () => {
   });
 
   it("clips each face to that outfit's helmet opening", () => {
-    for (const id of ["plain", "astronaut", "ranger", "diver"] as const) {
+    for (const id of ["plain", "astronaut", "ranger", "diver", "office", "chef", "sailor", "jinyi"] as const) {
       const outfit = getOutfit(id);
       assert.ok(outfit.mask, `${id} needs a visor mask`);
       assert.match(outfit.mask ?? "", new RegExp(`${id}-mask\\.webp$`));

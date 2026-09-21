@@ -1,6 +1,6 @@
 import type { GameTitles, Player } from "./types";
 
-export type OutfitId = "plain" | "astronaut" | "ranger" | "diver";
+export type OutfitId = "plain" | "astronaut" | "ranger" | "diver" | "office" | "chef" | "sailor" | "jinyi";
 
 export type Outfit = {
   id: OutfitId;
@@ -48,6 +48,42 @@ export const OUTFITS: Outfit[] = [
     mask: "/suit-diver-mask.webp",
     aspect: 373 / 418,
     hole: { cx: 47.99, cy: 24.93, rw: 18.77, rh: 19.14 },
+  },
+  {
+    id: "office",
+    name: "西装",
+    price: 10,
+    src: "/suit-office.webp",
+    mask: "/suit-office-mask.webp",
+    aspect: 447 / 1213,
+    hole: { cx: 49.89, cy: 11.79, rw: 21.48, rh: 11.46 },
+  },
+  {
+    id: "chef",
+    name: "厨师",
+    price: 12,
+    src: "/suit-chef.webp",
+    mask: "/suit-chef-mask.webp",
+    aspect: 482 / 1213,
+    hole: { cx: 50, cy: 11.79, rw: 21.58, rh: 11.46 },
+  },
+  {
+    id: "sailor",
+    name: "水手",
+    price: 14,
+    src: "/suit-sailor.webp",
+    mask: "/suit-sailor-mask.webp",
+    aspect: 475 / 1218,
+    hole: { cx: 50.11, cy: 11.82, rw: 21.47, rh: 11.49 },
+  },
+  {
+    id: "jinyi",
+    name: "锦衣",
+    price: 16,
+    src: "/suit-jinyi.webp",
+    mask: "/suit-jinyi-mask.webp",
+    aspect: 537 / 1222,
+    hole: { cx: 49.91, cy: 11.78, rw: 21.6, rh: 11.46 },
   },
 ];
 

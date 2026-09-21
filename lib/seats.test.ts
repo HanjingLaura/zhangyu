@@ -14,6 +14,16 @@ describe("seat layout", () => {
       assert.ok(spots.every((spot) => spot.top > 66 && spot.top < 76));
     }
   });
+
+  it("leaves the middle for squidward when 3 to 6 people play", () => {
+    for (let n = 3; n <= MAX_PLAYERS; n++) {
+      const xs = Array.from({ length: n }, (_, i) => seatLayout(i, n).left);
+      assert.ok(
+        xs.every((left) => left < 42 || left > 58),
+        `${n} people should not stand on squidward`,
+      );
+    }
+  });
 });
 
 describe("room options", () => {
