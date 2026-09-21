@@ -19,7 +19,7 @@ export function CreateView({
   const [busy, setBusy] = useState(false);
 
   return (
-    <div className="screen">
+    <div className="screen screen-sea">
       <TopBar title="创建房间" onBack={onBack} />
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 pb-8">
         <form
@@ -35,7 +35,7 @@ export function CreateView({
           }}
         >
           <div>
-            <div className="mb-2 text-xs text-foam/50">怎么接</div>
+            <div className="mb-2 text-xs text-foam/50">玩法</div>
             <div className="flex gap-2">
               {(
                 [
@@ -55,7 +55,7 @@ export function CreateView({
             </div>
           </div>
           <div>
-            <div className="mb-2 text-xs text-foam/50">多少轮</div>
+            <div className="mb-2 text-xs text-foam/50">轮数</div>
             <div className="flex gap-2">
               {ROUND_OPTIONS.map((rounds) => (
                 <button
