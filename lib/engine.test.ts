@@ -59,23 +59,46 @@ describe("submit", () => {
   });
 
   it("roasts fake office classics without kicking anyone out", () => {
-    const result = submit(index, start(), "龙年大吉");
-    assert.equal(result.ok, false);
+    const game = createGame(index, {
+      names: ["Cora", "Lauraura"],
+      mode: "char",
+      tentacles: 2,
+      opening: "longfei",
+      maxRounds: 100,
+    });
+    const result = submit(index, game, "舞动青春");
+    assert.equal(result.ok, true);
     assert.equal(result.reason, "egg");
+    assert.deepEqual(result.game.chain, ["龙飞凤舞", "舞动青春"]);
+    assert.equal(result.game.rounds, 1);
     assert.equal(result.game.players[0].out, false);
     assert.equal(result.game.players[0].zhangyu, 1);
     assert.equal(result.game.players[0].fun, 3);
-    assert.equal(result.game.turn, 1);
-    assert.match(result.game.messages.map((m) => m.text).join("\n"), /成语/);
+    assert.equal(result.game.players[0].culture, 0);
+    assert.match(result.game.messages.map((m) => m.text).join("\n"), /广播体操/);
   });
 
   it("rejects unknown words and broken links", () => {
     const unknown = submit(index, start(), "春天来了");
-    assert.equal(unknown.reason, "egg");
+    assert.equal(unknown.ok, false);
+    assert.equal(unknown.reason, "unlink");
+    assert.deepEqual(unknown.game.chain, ["一鸣惊人"]);
+    const short = submit(index, start(), "人海");
+    assert.equal(short.reason, "not-four");
     const unlink = submit(index, start(), "龙飞凤舞");
     assert.equal(unlink.reason, "unlink");
     const used = submit(index, submit(index, start(), "人山人海").game, "一鸣惊人");
     assert.equal(used.reason, "used");
+  });
+
+  it("counts four linked characters even when they are not idioms", () => {
+    const result = submit(index, start(), "人来疯了");
+    assert.equal(result.ok, true);
+    assert.equal(result.reason, "not-idiom");
+    assert.deepEqual(result.game.chain, ["一鸣惊人", "人来疯了"]);
+    assert.equal(result.game.rounds, 1);
+    assert.equal(result.game.players[0].culture, 0);
+    assert.equal(result.game.players[0].zhangyu, 1);
   });
 
   it("finishes after the configured number of rounds", () => {
@@ -187,5 +210,29 @@ describe("pinyin mode", () => {
     });
     const result = submit(index, game, "人才辈出");
     assert.equal(result.ok, true);
+  });
+});
+
+describe("buzz", () => {
+  it("lets the faster player take the round", () => {
+    const game = createGame(index, {
+      names: ["Cora", "Lauraura"],
+      mode: "char",
+      tentacles: 2,
+      opening: "yiming",
+      maxRounds: 100,
+      buzz: true,
+    });
+    assert.match(game.messages.at(-1)?.text ?? "", /抢答/);
+    const stolen = submit(
+      index,
+      { ...game, turn: 1 },
+      "人山人海",
+    );
+    assert.equal(stolen.ok, true);
+    assert.equal(stolen.game.players[1].culture, 1);
+    assert.equal(stolen.game.players[0].culture, 0);
+    assert.equal(stolen.game.turn, 1);
+    assert.match(stolen.game.messages.at(-1)?.text ?? "", /抢答/);
   });
 });

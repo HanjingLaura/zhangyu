@@ -35,4 +35,25 @@ describe("history", () => {
     assert.equal(room.game?.chain.join("→"), "一鸣惊人→人山人海");
     assert.equal(room.danmaku[0].text, "nbb");
   });
+
+  it("keeps made-up four-character plays on the chain", () => {
+    const first = submit(
+      index,
+      createGame(index, {
+        names: ["Cora", "Lauraura"],
+        mode: "char",
+        tentacles: 2,
+        opening: "yiming",
+        maxRounds: 1,
+      }),
+      "人来疯了",
+    );
+    const record = historyFromGame({
+      code: "TEST",
+      game: first.game,
+      danmaku: [],
+    });
+    assert.deepEqual(record.chain, ["一鸣惊人", "人来疯了"]);
+    assert.equal(historyToRoom(record).game?.chain.join("→"), "一鸣惊人→人来疯了");
+  });
 });

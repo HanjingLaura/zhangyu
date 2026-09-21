@@ -34,11 +34,12 @@ export function seatLayout(index: number, total: number) {
   };
 }
 
-export function parseRoomOptions(body: { mode?: string; maxRounds?: number }) {
+export function parseRoomOptions(body: { mode?: string; maxRounds?: number; buzz?: boolean }) {
   return {
     mode: body.mode === "pinyin" ? ("pinyin" as const) : ("char" as const),
     maxRounds: ROUND_OPTIONS.includes(body.maxRounds as (typeof ROUND_OPTIONS)[number])
       ? (body.maxRounds as (typeof ROUND_OPTIONS)[number])
       : 100,
+    buzz: body.buzz === true,
   };
 }

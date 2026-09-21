@@ -9,6 +9,7 @@ export type HistoryRecord = {
   mode: LinkMode;
   rounds: number;
   maxRounds: number;
+  buzz?: boolean;
   playerIds: string[];
   chain: string[];
   danmaku: { name: string; text: string }[];
@@ -43,6 +44,7 @@ export function historyFromGame(room: {
     mode: game.mode,
     rounds: game.rounds,
     maxRounds: game.maxRounds,
+    buzz: Boolean(game.buzz),
     playerIds: game.players.map((player) => player.id),
     chain: game.chain,
     danmaku: room.danmaku.map((item) => ({ name: item.name, text: item.text })),
@@ -103,12 +105,14 @@ export function historyToRoom(record: HistoryRecord): RoomSnapshot {
     tentacles: 8,
     opening: "yiming",
     maxRounds: record.maxRounds,
+    buzz: Boolean(record.buzz),
     game: {
       mode: record.mode,
       players,
       turn: 0,
       maxTentacles: 8,
       maxRounds: record.maxRounds,
+      buzz: Boolean(record.buzz),
       rounds: record.rounds,
       chain: record.chain,
       used: record.chain,

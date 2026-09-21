@@ -45,7 +45,8 @@ export function PlayView({
   const current = game.players[game.turn];
   const finished = game.status === "finished";
   const speeches = lastSpeeches(game.messages);
-  const mine = !you || current.id === you.id;
+  const buzz = Boolean(room.buzz || game.buzz);
+  const mine = buzz || !you || current.id === you.id;
   const host = you?.id === room.hostId;
 
   if (finished) {
@@ -60,7 +61,12 @@ export function PlayView({
             第 {game.rounds + 1} 轮<span className="text-foam/40"> / {game.maxRounds}</span>
           </span>
         }
-        right={<span>{game.mode === "char" ? "字接字" : "音接音"}</span>}
+        right={
+          <span>
+            {game.mode === "char" ? "字接字" : "音接音"}
+            {buzz ? " · 抢答" : ""}
+          </span>
+        }
         onBack={onBack}
       />
 
@@ -83,13 +89,17 @@ export function PlayView({
               <div className="mb-1.5 flex items-center justify-between px-0.5">
                 <span className="text-[13px] font-semibold">接龙</span>
                 <span className="flex items-center gap-3 text-[11px] text-ink/50">
-                  <span>{mine ? "轮到你" : `等 ${current.name}`}</span>
-                  <button type="button" disabled={!mine} onClick={onHint} className="disabled:opacity-30">
-                    提示
-                  </button>
-                  <button type="button" disabled={!mine} onClick={onPass} className="disabled:opacity-30">
-                    跳过
-                  </button>
+                  <span>{buzz ? "看谁快" : mine ? "轮到你" : `等 ${current.name}`}</span>
+                  {buzz ? null : (
+                    <>
+                      <button type="button" disabled={!mine} onClick={onHint} className="disabled:opacity-30">
+                        提示
+                      </button>
+                      <button type="button" disabled={!mine} onClick={onPass} className="disabled:opacity-30">
+                        跳过
+                      </button>
+                    </>
+                  )}
                   {host ? (
                     <button type="button" onClick={onFinish} className="text-ink/35">
                       结束

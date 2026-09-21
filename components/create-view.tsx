@@ -12,10 +12,11 @@ export function CreateView({
 }: {
   error?: string;
   onBack: () => void;
-  onCreate: (options: { mode: LinkMode; maxRounds: number }) => Promise<void>;
+  onCreate: (options: { mode: LinkMode; maxRounds: number; buzz: boolean }) => Promise<void>;
 }) {
   const [mode, setMode] = useState<LinkMode>("char");
   const [maxRounds, setMaxRounds] = useState(100);
+  const [buzz, setBuzz] = useState(false);
   const [busy, setBusy] = useState(false);
 
   return (
@@ -28,7 +29,7 @@ export function CreateView({
       onSubmit={async () => {
         setBusy(true);
         try {
-          await onCreate({ mode, maxRounds });
+          await onCreate({ mode, maxRounds, buzz });
         } finally {
           setBusy(false);
         }
@@ -66,6 +67,17 @@ export function CreateView({
             </button>
           ))}
         </div>
+      </SeaField>
+      <SeaField label="抢答">
+        <label className="flex min-h-[42px] cursor-pointer items-center gap-2.5 rounded-2xl bg-white/8 px-3 text-sm text-foam/85">
+          <input
+            type="checkbox"
+            checked={buzz}
+            onChange={(event) => setBuzz(event.target.checked)}
+            className="h-4 w-4 accent-[#e8d48a]"
+          />
+          看谁快，不按顺序
+        </label>
       </SeaField>
     </SeaCard>
   );

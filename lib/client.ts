@@ -65,7 +65,11 @@ export async function apiUploadAvatar(image: string) {
   return setLocalAvatar(image);
 }
 
-export async function apiCreateRoom(options?: { mode?: "char" | "pinyin"; maxRounds?: number }) {
+export async function apiCreateRoom(options?: {
+  mode?: "char" | "pinyin";
+  maxRounds?: number;
+  buzz?: boolean;
+}) {
   const data = await read(
     await send("/api/rooms", {
       method: "POST",
@@ -122,11 +126,12 @@ export async function apiMove(
   code: string,
   action: "submit" | "hint" | "pass" | "finish",
   word = "",
+  prev?: string,
 ) {
   const data = await read(
     await send(`/api/rooms/${code}/move`, {
       method: "POST",
-      body: JSON.stringify(withPlayer({ action, word })),
+      body: JSON.stringify(withPlayer({ action, word, prev })),
     }),
   );
   return data as { room: RoomSnapshot; you?: UserPublic };

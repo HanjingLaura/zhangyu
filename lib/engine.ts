@@ -87,6 +87,7 @@ function maybeFinish(game: Game): Game {
 function announceTurn(game: Game): Game {
   const player = game.players[game.turn];
   const prev = game.chain[game.chain.length - 1];
+  const char = lastChar(prev);
   return {
     ...game,
     seq: game.seq + 1,
@@ -95,7 +96,7 @@ function announceTurn(game: Game): Game {
       {
         id: uid("turn", game.seq + 1),
         kind: "system",
-        text: lines.yourTurn(player.name, lastChar(prev)),
+        text: game.buzz ? lines.buzzTurn(char) : lines.yourTurn(player.name, char),
         tone: "turn",
       },
     ],
@@ -149,7 +150,7 @@ function applyFail(
   if (next.status === "playing") {
     next = announceTurn({
       ...next,
-      turn: nextIndex(next.players, game.turn),
+      turn: next.buzz ? game.turn : nextIndex(next.players, game.turn),
     });
   }
   return { game: next, ok: false, reason };
@@ -183,6 +184,7 @@ export function createGame(index: IdiomIndex, config: GameConfig): Game {
     turn: 0,
     maxTentacles: config.tentacles,
     maxRounds: config.maxRounds,
+    buzz: Boolean(config.buzz),
     rounds: 0,
     chain: [opening],
     used: [opening],
@@ -266,11 +268,8 @@ export function submit(
     tone: egg ? "egg" : undefined,
   });
 
-  if (egg) {
-    return applyFail(spoken, egg.roast, "egg", "egg", { fun: 3 });
-  }
-  if (!lookup(index, word)) {
-    return applyFail(spoken, lines.notIdiom(), "not-idiom");
+  if (word.length !== 4) {
+    return applyFail(spoken, lines.notFour(), "not-four");
   }
   if (spoken.used.includes(word)) {
     return applyFail(spoken, lines.used(), "used");
@@ -279,10 +278,16 @@ export function submit(
     return applyFail(spoken, lines.unlink(), "unlink");
   }
 
+  const idiom = Boolean(lookup(index, word));
   const scored: Player = {
     ...player,
-    culture: player.culture + 1,
+    culture: player.culture + (idiom ? 1 : 0),
+    zhangyu: player.zhangyu + (idiom ? 0 : 1),
+    fails: player.fails + (idiom ? 0 : 1),
+    fun: player.fun + (egg ? 3 : 0),
   };
+  const reason: SubmitResult["reason"] = idiom ? "ok" : egg ? "egg" : "not-idiom";
+  const roast = idiom ? lines.ok() : egg ? egg.roast : lines.okCasual();
   let next = append(
     {
       ...spoken,
@@ -294,9 +299,9 @@ export function submit(
     },
     {
       kind: "octopus",
-      text: lines.ok(),
+      text: roast,
       quote: word,
-      tone: "ok",
+      tone: idiom ? "ok" : egg ? "egg" : "fail",
     },
   );
 
@@ -304,10 +309,10 @@ export function submit(
   if (next.status === "playing") {
     next = announceTurn({
       ...next,
-      turn: nextIndex(next.players, spoken.turn),
+      turn: next.buzz ? spoken.turn : nextIndex(next.players, spoken.turn),
     });
   }
-  return { game: next, ok: true, reason: "ok" };
+  return { game: next, ok: true, reason };
 }
 
 export function pass(index: IdiomIndex, game: Game): SubmitResult {

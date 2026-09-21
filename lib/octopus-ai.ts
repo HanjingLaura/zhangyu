@@ -77,15 +77,19 @@ function reasonLabel(reason?: RoastContext["reason"]) {
     case "ok":
       return "接上了";
     case "egg":
-      return "群里的假成语";
+      return "群里的假成语，也算一轮";
     case "not-idiom":
-      return "不是成语";
+      return "不是成语，四个字也算";
+    case "not-four":
+      return "不是四个字";
     case "unlink":
       return "没接上";
     case "used":
       return "用过了";
     case "empty":
       return "空的或跳过";
+    case "late":
+      return "慢了";
     case "dead-end":
       return "这个字没词了";
     case "hint":
@@ -160,7 +164,8 @@ export function gameContext(
     ? game.players.find((item) => item.id === spoken.playerId)?.name
     : game.players[game.turn]?.name;
   const titles = game.titles;
-  const linked = reason === "ok" && game.chain.length >= 2;
+  const linked =
+    (reason === "ok" || reason === "not-idiom" || reason === "egg") && game.chain.length >= 2;
   const prev = (linked ? game.chain[game.chain.length - 2] : game.chain[game.chain.length - 1]) ?? "";
   return {
     action,

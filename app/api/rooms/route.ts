@@ -9,6 +9,7 @@ export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as {
     mode?: string;
     maxRounds?: number;
+    buzz?: boolean;
     player?: unknown;
   };
   const user = parsePlayer(request, body);

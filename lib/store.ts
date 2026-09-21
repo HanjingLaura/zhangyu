@@ -16,6 +16,7 @@ export type RoomRecord = {
   tentacles: number;
   opening: GameConfig["opening"];
   maxRounds: number;
+  buzz: boolean;
   game: Game | null;
   danmaku: Danmaku[];
   rev: number;
@@ -78,6 +79,7 @@ function asRoom(value: unknown): RoomRecord | null {
   return {
     ...room,
     rev: Number(room.rev ?? 1),
+    buzz: Boolean(room.buzz),
     danmaku: room.danmaku ?? [],
     members: room.members,
   };
@@ -256,6 +258,7 @@ export function snapshot(room: RoomRecord): RoomSnapshot {
     tentacles: room.tentacles,
     opening: room.opening,
     maxRounds: room.maxRounds,
+    buzz: Boolean(room.buzz || room.game?.buzz),
     game: decorateGame(room),
     danmaku: room.danmaku,
   };
@@ -272,7 +275,10 @@ function payoutRoom(room: RoomRecord) {
   return room;
 }
 
-export async function createRoom(user: UserPublic, options?: { mode?: LinkMode; maxRounds?: number }) {
+export async function createRoom(
+  user: UserPublic,
+  options?: { mode?: LinkMode; maxRounds?: number; buzz?: boolean },
+) {
   const picked = parseRoomOptions(options ?? {});
   for (let attempt = 0; attempt < 20; attempt += 1) {
     const code = randomCode();
@@ -285,6 +291,7 @@ export async function createRoom(user: UserPublic, options?: { mode?: LinkMode; 
       tentacles: 8,
       opening: "yiming",
       maxRounds: picked.maxRounds,
+      buzz: picked.buzz,
       game: null,
       danmaku: [],
       rev: 1,
@@ -337,6 +344,7 @@ export async function startRoom(code: string, userId: string) {
       tentacles: current.tentacles,
       opening: current.opening,
       maxRounds: current.maxRounds,
+      buzz: current.buzz,
     });
     current.status = "playing";
     return current;
@@ -349,6 +357,7 @@ export async function playRoom(
   userId: string,
   action: "submit" | "hint" | "pass" | "finish",
   word = "",
+  prev?: string,
 ) {
   const room = await mutateRoom(code, async (current) => {
     if (!current.game) throw new Error("房间还没开始");
@@ -360,8 +369,18 @@ export async function playRoom(
       return payoutRoom(current);
     }
     if (current.game.status !== "playing") throw new Error("本局已结束");
-    const player = current.game.players[current.game.turn];
-    if (player.id !== userId) throw new Error(`轮到 ${player.name}`);
+    const seated = current.game.players.findIndex((player) => player.id === userId);
+    if (seated < 0) throw new Error("你不在这个房间");
+    if (current.game.buzz) {
+      if (action === "hint" || action === "pass") throw new Error("抢答不用这个");
+      current.game = { ...current.game, turn: seated };
+    } else {
+      const player = current.game.players[current.game.turn];
+      if (player.id !== userId) throw new Error(`轮到 ${player.name}`);
+    }
+    if (action === "submit" && prev && current.game.chain.at(-1) !== prev) {
+      throw new Error("慢了");
+    }
 
     let reason: "hint" | ReturnType<typeof submit>["reason"] = "hint";
     if (action === "hint") {

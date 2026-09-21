@@ -38,6 +38,7 @@ export type GameConfig = {
   tentacles: number;
   opening: "random" | "yiming" | "longfei";
   maxRounds: number;
+  buzz?: boolean;
 };
 
 export type UserPublic = {
@@ -84,6 +85,7 @@ export type RoomSnapshot = {
   tentacles: number;
   opening: GameConfig["opening"];
   maxRounds: number;
+  buzz?: boolean;
   game: Game | null;
   danmaku: Danmaku[];
 };
@@ -94,6 +96,7 @@ export type Game = {
   turn: number;
   maxTentacles: number;
   maxRounds: number;
+  buzz?: boolean;
   rounds: number;
   chain: string[];
   used: string[];
@@ -114,9 +117,11 @@ export type SubmitResult = {
     | "empty"
     | "finished"
     | "not-idiom"
+    | "not-four"
     | "used"
     | "unlink"
     | "egg"
+    | "late"
     | "dead-end";
 };
 

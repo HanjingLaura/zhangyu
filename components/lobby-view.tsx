@@ -41,6 +41,7 @@ export function LobbyView({
             <div className="font-display text-[28px] tracking-[0.28em] text-[#6a5420]">{room.code}</div>
             <div className="text-[11px] text-ink/45">
               {room.maxRounds} 轮 · {room.mode === "char" ? "字接字" : "音接音"}
+              {room.buzz ? " · 抢答" : ""}
             </div>
             {error ? <p className="text-sm text-coral">{error}</p> : null}
             {host ? (

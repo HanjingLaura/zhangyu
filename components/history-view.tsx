@@ -49,7 +49,8 @@ export function HistoryView({ onBack }: { onBack: () => void }) {
                 <span className="min-w-0">
                   <span className="block truncate text-sm">{item.scores.map((score) => score.name).join("、")}</span>
                   <span className="mt-0.5 block text-[11px] text-foam/45">
-                    {item.mode === "char" ? "字接字" : "音接音"} · {item.rounds} 轮 · {item.code}
+                    {item.mode === "char" ? "字接字" : "音接音"}
+                    {item.buzz ? " · 抢答" : ""} · {item.rounds} 轮 · {item.code}
                   </span>
                 </span>
                 <span className="shrink-0 text-[11px] text-foam/40">{formatWhen(item.at)}</span>

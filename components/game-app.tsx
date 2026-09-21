@@ -154,7 +154,7 @@ export function GameApp() {
           onSubmit={async () => {
             try {
               setError("");
-              const next = await apiMove(room.code, "submit", draft);
+              const next = await apiMove(room.code, "submit", draft, room.game?.chain.at(-1));
               adopt(next.room, next.you);
               setDraft("");
             } catch (err) {

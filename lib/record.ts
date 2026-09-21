@@ -34,7 +34,7 @@ export function buildRecordPoster(room: RoomSnapshot): RecordPoster | null {
   return {
     title: "章鱼哥接龙",
     code: room.code,
-    mode: game.mode === "char" ? "字接字" : "音接音",
+    mode: `${game.mode === "char" ? "字接字" : "音接音"}${room.buzz || game.buzz ? " · 抢答" : ""}`,
     rounds: game.rounds,
     maxRounds: game.maxRounds,
     chain: game.chain,

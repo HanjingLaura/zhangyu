@@ -37,4 +37,19 @@ describe("shared rooms", () => {
     await leaveRoom(created.code, host.id);
     assert.equal(await getRoom(created.code), null);
   });
+
+  it("lets the faster guest take a buzz round", async () => {
+    const host = user("uaaa111111", "甲甲");
+    const guest = user("ubbb222222", "乙乙");
+    const created = await createRoom(host, { mode: "char", maxRounds: 20, buzz: true });
+    assert.equal(created.buzz, true);
+    await joinRoom(created.code, guest);
+    const playing = await startRoom(created.code, host.id);
+    assert.equal(playing.game?.buzz, true);
+    const prev = playing.game?.chain.at(-1);
+    const stolen = await playRoom(created.code, guest.id, "submit", "人来疯了", prev);
+    assert.equal(stolen.game?.rounds, 1);
+    assert.deepEqual(stolen.game?.chain.slice(-1), ["人来疯了"]);
+    assert.equal(stolen.game?.players.find((player) => player.id === guest.id)?.zhangyu, 1);
+  });
 });
