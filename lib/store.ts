@@ -6,7 +6,8 @@ import { addFun, createGame, finishGame, hint, pass, submit } from "./engine";
 import { idiomIndex } from "./dictionary";
 import { narrateGame } from "./octopus-ai";
 import { MAX_PLAYERS, parseRoomOptions } from "./seats";
-import { computeShells, getOutfit, OUTFITS } from "./wardrobe";
+import { historyFromGame, historyForUser, type HistoryRecord } from "./history";
+import { computeShells, getOutfit, isFreeOutfit, normalizeOwned, normalizeOutfitId, OUTFITS } from "./wardrobe";
 import type { Danmaku, Game, GameConfig, LinkMode, RoomSnapshot, UserPublic } from "./types";
 
 type UserRecord = {
@@ -38,6 +39,7 @@ type Memory = {
 };
 
 const USERS_PATH = join(process.cwd(), "data", "users.json");
+const HISTORY_PATH = join(process.cwd(), "data", "history.json");
 const g = globalThis as typeof globalThis & { __zhangyu?: Memory };
 
 function memory(): Memory {
@@ -56,8 +58,8 @@ function loadUsers() {
       ...row,
       avatarRev: row.avatarRev ?? 0,
       shells: row.shells ?? 0,
-      owned: row.owned?.length ? row.owned : ["plain"],
-      outfit: row.outfit ?? "plain",
+      owned: normalizeOwned(row.owned),
+      outfit: normalizeOutfitId(row.outfit),
     });
   }
   return map;
@@ -74,8 +76,8 @@ export function publicUser(user: UserRecord): UserPublic {
     name: user.name,
     avatarUrl: avatarUrl(user.id, user.avatarRev),
     shells: user.shells ?? 0,
-    owned: user.owned?.length ? user.owned : ["plain"],
-    outfit: user.outfit ?? "plain",
+    owned: normalizeOwned(user.owned),
+    outfit: normalizeOutfitId(user.outfit),
   };
 }
 
@@ -95,8 +97,8 @@ export function registerUser(name: string, password: string) {
     password: hashPassword(password),
     avatarRev: 0,
     shells: 0,
-    owned: ["plain"],
-    outfit: "plain",
+    owned: normalizeOwned(["astronaut"]),
+    outfit: "astronaut",
   };
   memory().users.set(key, user);
   saveUsers();
@@ -340,6 +342,46 @@ export function postDanmaku(code: string, user: UserPublic, text: string) {
   return snapshot(room);
 }
 
+let historyCache: HistoryRecord[] | null = null;
+
+function loadHistory() {
+  if (!existsSync(HISTORY_PATH)) return [] as HistoryRecord[];
+  try {
+    return JSON.parse(readFileSync(HISTORY_PATH, "utf8")) as HistoryRecord[];
+  } catch {
+    return [];
+  }
+}
+
+function historyList() {
+  if (!historyCache) historyCache = loadHistory();
+  return historyCache;
+}
+
+function persistHistory() {
+  mkdirSync(dirname(HISTORY_PATH), { recursive: true });
+  writeFileSync(HISTORY_PATH, JSON.stringify(historyList(), null, 2));
+}
+
+function archiveGame(room: RoomRecord) {
+  if (!room.game || room.game.status !== "finished") return;
+  const record = historyFromGame({ code: room.code, game: room.game, danmaku: room.danmaku });
+  const list = historyList();
+  if (
+    list.some(
+      (item) => item.code === record.code && item.chain.join("→") === record.chain.join("→") && item.rounds === record.rounds,
+    )
+  ) {
+    return;
+  }
+  historyCache = [record, ...list].slice(0, 80);
+  persistHistory();
+}
+
+export function listHistory(userId: string) {
+  return historyForUser(historyList(), userId).slice(0, 40);
+}
+
 function payoutRoom(room: RoomRecord) {
   if (!room.game || room.game.status !== "finished" || room.game.payouts) return;
   const titles = room.game.titles;
@@ -353,13 +395,18 @@ function payoutRoom(room: RoomRecord) {
   }
   if (Object.keys(payouts).length) saveUsers();
   room.game = { ...room.game, payouts };
+  archiveGame(room);
 }
 
 export function buyOutfit(userId: string, outfitId: string) {
   const user = findUserById(userId);
   if (!user) throw new Error("请先登录");
   const outfit = getOutfit(outfitId);
-  if (outfit.id === "plain") return publicUser(user);
+  if (isFreeOutfit(outfit.id)) {
+    user.outfit = outfit.id;
+    saveUsers();
+    return publicUser(user);
+  }
   if ((user.owned ?? []).includes(outfit.id)) {
     user.outfit = outfit.id;
     saveUsers();
@@ -367,7 +414,7 @@ export function buyOutfit(userId: string, outfitId: string) {
   }
   if ((user.shells ?? 0) < outfit.price) throw new Error("贝壳不够");
   user.shells -= outfit.price;
-  user.owned = [...new Set([...(user.owned ?? ["plain"]), outfit.id])];
+  user.owned = [...new Set([...normalizeOwned(user.owned), outfit.id])];
   user.outfit = outfit.id;
   saveUsers();
   return publicUser(user);
@@ -386,7 +433,7 @@ export function wearOutfit(userId: string, outfitId: string) {
   const user = findUserById(userId);
   if (!user) throw new Error("请先登录");
   const outfit = getOutfit(outfitId);
-  if (outfit.id !== "plain" && !(user.owned ?? []).includes(outfit.id)) {
+  if (!isFreeOutfit(outfit.id) && !(user.owned ?? []).includes(outfit.id)) {
     throw new Error("还没买");
   }
   user.outfit = outfit.id;

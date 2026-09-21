@@ -1,3 +1,4 @@
+import type { HistoryRecord } from "./history";
 import type { RoomSnapshot, UserPublic } from "./types";
 
 async function read(response: Response) {
@@ -156,6 +157,11 @@ export async function apiShop(action: "buy" | "wear", id: string) {
     }),
   );
   return (data as { user: UserPublic }).user;
+}
+
+export async function apiHistory() {
+  const data = await read(await fetch("/api/history", { cache: "no-store" }));
+  return (data as { records: HistoryRecord[] }).records;
 }
 
 export async function apiLeaveRoom(code: string) {

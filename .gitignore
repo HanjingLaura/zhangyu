@@ -41,6 +41,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# local accounts and uploaded avatars
+# local accounts, history, and uploaded avatars
 /data/users.json
+/data/history.json
 /data/avatars/

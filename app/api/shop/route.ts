@@ -11,8 +11,8 @@ export async function POST(request: Request) {
       body.action === "grant" && process.env.NODE_ENV !== "production"
         ? grantWardrobe(user.id)
         : body.action === "wear"
-          ? wearOutfit(user.id, body.id ?? "plain")
-          : buyOutfit(user.id, body.id ?? "plain");
+          ? wearOutfit(user.id, body.id ?? "astronaut")
+          : buyOutfit(user.id, body.id ?? "astronaut");
     return NextResponse.json({ user: next });
   } catch (error) {
     return NextResponse.json(

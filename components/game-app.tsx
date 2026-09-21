@@ -23,7 +23,7 @@ import { JoinView } from "./join-view";
 import { LobbyView } from "./lobby-view";
 import { PlayView } from "./play-view";
 import { RulesView } from "./rules-view";
-import { ScenesView } from "./scenes-view";
+import { HistoryView } from "./history-view";
 import { SettingsView } from "./settings-view";
 import { ShopView } from "./shop-view";
 import { BgmProvider } from "./bgm";
@@ -254,9 +254,7 @@ export function GameApp() {
         />
       ) : null}
       {view === "rules" ? <RulesView onBack={() => setView("home")} /> : null}
-      {view === "scenes" ? (
-        <ScenesView onBack={() => setView("home")} onPlay={() => setView("home")} />
-      ) : null}
+      {view === "scenes" ? <HistoryView onBack={() => setView("home")} /> : null}
       </GameCabinet>
     </BgmProvider>
   );

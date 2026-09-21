@@ -50,13 +50,15 @@ describe("shells", () => {
 });
 
 describe("outfits", () => {
-  it("falls back to 常服", () => {
-    assert.equal(getOutfit("nope").id, "plain");
+  it("falls back to 宇航服", () => {
+    assert.equal(getOutfit("nope").id, "astronaut");
+    assert.equal(getOutfit("plain").id, "astronaut");
     assert.equal(getOutfit("ranger").price, 24);
+    assert.equal(getOutfit("astronaut").price, 0);
   });
 
   it("clips each face to that outfit's helmet opening", () => {
-    for (const id of ["plain", "astronaut", "ranger", "diver", "office", "chef", "sailor", "jinyi"] as const) {
+    for (const id of ["astronaut", "ranger", "diver"] as const) {
       const outfit = getOutfit(id);
       assert.ok(outfit.mask, `${id} needs a visor mask`);
       assert.match(outfit.mask ?? "", new RegExp(`${id}-mask\\.webp$`));

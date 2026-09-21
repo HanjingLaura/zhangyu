@@ -1,6 +1,6 @@
 import type { GameTitles, Player } from "./types";
 
-export type OutfitId = "plain" | "astronaut" | "ranger" | "diver" | "office" | "chef" | "sailor" | "jinyi";
+export type OutfitId = "astronaut" | "ranger" | "diver";
 
 export type Outfit = {
   id: OutfitId;
@@ -12,24 +12,17 @@ export type Outfit = {
   hole?: { cx: number; cy: number; rw: number; rh: number };
 };
 
+export const DEFAULT_OUTFIT: OutfitId = "astronaut";
+
 export const OUTFITS: Outfit[] = [
   {
-    id: "plain",
-    name: "常服",
-    price: 0,
-    src: "/suit-plain.webp",
-    mask: "/suit-plain-mask.webp",
-    aspect: 388 / 1016,
-    hole: { cx: 52.19, cy: 11.75, rw: 28.99, rh: 12.75 },
-  },
-  {
     id: "astronaut",
-    name: "宇航员",
-    price: 12,
+    name: "宇航服",
+    price: 0,
     src: "/suit-astronaut.webp",
     mask: "/suit-astronaut-mask.webp",
-    aspect: 668 / 992,
-    hole: { cx: 50.15, cy: 20.92, rw: 18.79, rh: 11.49 },
+    aspect: 528 / 1057,
+    hole: { cx: 49.87, cy: 11.62, rw: 15.06, rh: 6.62 },
   },
   {
     id: "ranger",
@@ -42,53 +35,32 @@ export const OUTFITS: Outfit[] = [
   },
   {
     id: "diver",
-    name: "松鼠头盔",
+    name: "松鼠",
     price: 16,
     src: "/suit-diver.webp",
     mask: "/suit-diver-mask.webp",
     aspect: 373 / 418,
     hole: { cx: 47.99, cy: 24.93, rw: 18.77, rh: 19.14 },
   },
-  {
-    id: "office",
-    name: "西装",
-    price: 10,
-    src: "/suit-office.webp",
-    mask: "/suit-office-mask.webp",
-    aspect: 447 / 1213,
-    hole: { cx: 49.89, cy: 11.79, rw: 21.48, rh: 11.46 },
-  },
-  {
-    id: "chef",
-    name: "厨师",
-    price: 12,
-    src: "/suit-chef.webp",
-    mask: "/suit-chef-mask.webp",
-    aspect: 482 / 1213,
-    hole: { cx: 50, cy: 11.79, rw: 21.58, rh: 11.46 },
-  },
-  {
-    id: "sailor",
-    name: "水手",
-    price: 14,
-    src: "/suit-sailor.webp",
-    mask: "/suit-sailor-mask.webp",
-    aspect: 475 / 1218,
-    hole: { cx: 50.11, cy: 11.82, rw: 21.47, rh: 11.49 },
-  },
-  {
-    id: "jinyi",
-    name: "锦衣",
-    price: 16,
-    src: "/suit-jinyi.webp",
-    mask: "/suit-jinyi-mask.webp",
-    aspect: 537 / 1222,
-    hole: { cx: 49.91, cy: 11.78, rw: 21.6, rh: 11.46 },
-  },
 ];
 
 export function getOutfit(id?: string) {
   return OUTFITS.find((item) => item.id === id) ?? OUTFITS[0];
+}
+
+export function isFreeOutfit(id: string) {
+  return getOutfit(id).price === 0;
+}
+
+export function normalizeOutfitId(id?: string): OutfitId {
+  return getOutfit(id).id;
+}
+
+export function normalizeOwned(owned?: string[]) {
+  const allowed = new Set(OUTFITS.map((item) => item.id));
+  const next = [...new Set((owned ?? []).filter((id): id is OutfitId => allowed.has(id as OutfitId)))];
+  if (!next.includes(DEFAULT_OUTFIT)) next.unshift(DEFAULT_OUTFIT);
+  return next;
 }
 
 export type ShellPayout = {

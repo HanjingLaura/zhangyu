@@ -86,7 +86,7 @@ export function HomeView({
           加入房间
         </button>
         <button type="button" onClick={onScenes} className="shrink-0 px-1 text-[15px] text-white">
-          记录
+          历史记录
         </button>
       </div>
     </div>

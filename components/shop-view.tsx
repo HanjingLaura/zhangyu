@@ -23,7 +23,7 @@ export function ShopView({
       <TopBar title="服装" right={<span className="text-sm text-foam">贝壳 {user.shells}</span>} onBack={onBack} />
       <div className="relative z-10 flex-1 space-y-3 overflow-y-auto px-4 pb-8 pt-2">
         {OUTFITS.map((outfit) => {
-          const owned = outfit.id === "plain" || user.owned.includes(outfit.id);
+          const owned = outfit.price === 0 || user.owned.includes(outfit.id);
           const wearing = user.outfit === outfit.id;
           return (
             <div key={outfit.id} className="flex items-center gap-3 rounded-3xl bg-black/20 px-3 py-2.5">
