@@ -1,3 +1,5 @@
+import { withBase } from "@/lib/base-path";
+
 export function OctopusFigure({
   className = "",
 }: {
@@ -7,7 +9,7 @@ export function OctopusFigure({
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src="/octopus.webp"
+      src={withBase("/octopus.webp")}
       alt=""
       width={609}
       height={1383}

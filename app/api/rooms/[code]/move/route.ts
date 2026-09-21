@@ -1,21 +1,21 @@
 import { NextResponse } from "next/server";
-import { currentUser } from "@/lib/session";
+import { parsePlayer } from "@/lib/player";
 import { playRoom } from "@/lib/store";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request, { params }: { params: Promise<{ code: string }> }) {
-  const user = await currentUser();
-  if (!user) return NextResponse.json({ error: "请先登录" }, { status: 401 });
-  const body = (await request.json()) as {
+  const body = (await request.json().catch(() => ({}))) as {
     action?: "submit" | "hint" | "pass" | "finish";
     word?: string;
+    player?: unknown;
   };
+  const user = parsePlayer(request, body);
+  if (!user) return NextResponse.json({ error: "请先登录" }, { status: 401 });
   try {
     const { code } = await params;
-    const room = await playRoom(code, user.id, body.action ?? "submit", body.word ?? "");
-    const you = await currentUser();
     return NextResponse.json({
-      room,
-      you,
+      room: await playRoom(code, user.id, body.action ?? "submit", body.word ?? ""),
     });
   } catch (error) {
     return NextResponse.json(

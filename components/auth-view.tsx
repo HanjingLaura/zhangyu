@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { apiLogin, apiRegister, apiResetPassword, apiUploadAvatar } from "@/lib/client";
+import { apiLogin, apiRegister, apiResetPassword } from "@/lib/client";
 import type { UserPublic } from "@/lib/types";
 import { AvatarPicker } from "./avatar";
 
@@ -38,19 +38,12 @@ export function AuthView({ onReady }: { onReady: (user: UserPublic) => void }) {
             setBusy(true);
             setError("");
             try {
-              let user =
+              const user =
                 mode === "register"
-                  ? await apiRegister(name, password)
+                  ? await apiRegister(name, password, avatar || undefined)
                   : mode === "forgot"
                     ? await apiResetPassword(name, password)
                     : await apiLogin(name, password);
-              if (avatar && mode === "register") {
-                try {
-                  user = await apiUploadAvatar(avatar);
-                } catch {
-                  // Photo can be added later from the home screen.
-                }
-              }
               onReady(user);
             } catch (err) {
               setError(err instanceof Error ? err.message : "失败");

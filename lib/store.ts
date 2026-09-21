@@ -1,29 +1,16 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { avatarUrl, saveAvatarDataUrl } from "./avatar";
-import { hashPassword, normalizeName, verifyPassword } from "./auth";
+import { Redis } from "@upstash/redis";
 import { addFun, createGame, finishGame, hint, pass, submit } from "./engine";
 import { idiomIndex } from "./dictionary";
 import { narrateGame } from "./octopus-ai";
+import { appearanceOf } from "./player";
 import { MAX_PLAYERS, parseRoomOptions } from "./seats";
-import { historyFromGame, historyForUser, type HistoryRecord } from "./history";
-import { computeShells, getOutfit, isFreeOutfit, normalizeOwned, normalizeOutfitId, OUTFITS } from "./wardrobe";
-import type { Danmaku, Game, GameConfig, LinkMode, RoomSnapshot, UserPublic } from "./types";
+import { computeShells } from "./wardrobe";
+import type { Danmaku, Game, GameConfig, LinkMode, RoomMember, RoomSnapshot, UserPublic } from "./types";
 
-type UserRecord = {
-  id: string;
-  name: string;
-  password: string;
-  avatarRev: number;
-  shells: number;
-  owned: string[];
-  outfit: string;
-};
-
-type RoomRecord = {
+export type RoomRecord = {
   code: string;
   hostId: string;
-  members: { id: string; name: string }[];
+  members: RoomMember[];
   status: RoomSnapshot["status"];
   mode: RoomSnapshot["mode"];
   tentacles: number;
@@ -31,166 +18,188 @@ type RoomRecord = {
   maxRounds: number;
   game: Game | null;
   danmaku: Danmaku[];
+  rev: number;
 };
 
-type Memory = {
-  users: Map<string, UserRecord>;
-  rooms: Map<string, RoomRecord>;
+const ROOM_TTL = 60 * 60 * 24;
+const g = globalThis as typeof globalThis & {
+  __zyRooms?: Map<string, RoomRecord>;
+  __zyRedis?: Redis | null;
 };
 
-const USERS_PATH = join(process.cwd(), "data", "users.json");
-const HISTORY_PATH = join(process.cwd(), "data", "history.json");
-const g = globalThis as typeof globalThis & { __zhangyu?: Memory };
+function rooms() {
+  if (!g.__zyRooms) g.__zyRooms = new Map();
+  return g.__zyRooms;
+}
 
-function memory(): Memory {
-  if (!g.__zhangyu) {
-    g.__zhangyu = { users: loadUsers(), rooms: new Map() };
+function getRedis() {
+  if (g.__zyRedis !== undefined) return g.__zyRedis;
+  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+    g.__zyRedis = Redis.fromEnv();
+  } else {
+    g.__zyRedis = null;
   }
-  return g.__zhangyu;
+  return g.__zyRedis;
 }
 
-function loadUsers() {
-  const map = new Map<string, UserRecord>();
-  if (!existsSync(USERS_PATH)) return map;
-  const rows = JSON.parse(readFileSync(USERS_PATH, "utf8")) as UserRecord[];
-  for (const row of rows) {
-    map.set(row.name.toLowerCase(), {
-      ...row,
-      avatarRev: row.avatarRev ?? 0,
-      shells: row.shells ?? 0,
-      owned: normalizeOwned(row.owned),
-      outfit: normalizeOutfitId(row.outfit),
-    });
-  }
-  return map;
+function roomKey(code: string) {
+  return `zy:room:${code}`;
 }
 
-function saveUsers() {
-  mkdirSync(dirname(USERS_PATH), { recursive: true });
-  writeFileSync(USERS_PATH, JSON.stringify([...memory().users.values()], null, 2));
+function revKey(code: string) {
+  return `zy:room:${code}:rev`;
 }
 
-export function publicUser(user: UserRecord): UserPublic {
+function asRoom(value: unknown): RoomRecord | null {
+  if (!value || typeof value !== "object") return null;
+  const room = value as RoomRecord;
+  if (!room.code || !Array.isArray(room.members)) return null;
   return {
-    id: user.id,
-    name: user.name,
-    avatarUrl: avatarUrl(user.id, user.avatarRev),
-    shells: user.shells ?? 0,
-    owned: normalizeOwned(user.owned),
-    outfit: normalizeOutfitId(user.outfit),
+    ...room,
+    rev: Number(room.rev ?? 1),
+    danmaku: room.danmaku ?? [],
+    members: room.members,
   };
 }
 
-export function findUserById(id: string) {
-  return [...memory().users.values()].find((user) => user.id === id) ?? null;
-}
-
-export function registerUser(name: string, password: string) {
-  const clean = normalizeName(name);
-  if (clean.length < 2) throw new Error("昵称至少 2 个字");
-  if (password.length < 4) throw new Error("密码至少 4 位");
-  const key = clean.toLowerCase();
-  if (memory().users.has(key)) throw new Error("昵称已被使用");
-  const user: UserRecord = {
-    id: `u${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
-    name: clean,
-    password: hashPassword(password),
-    avatarRev: 0,
-    shells: 0,
-    owned: normalizeOwned(["astronaut"]),
-    outfit: "astronaut",
-  };
-  memory().users.set(key, user);
-  saveUsers();
-  return publicUser(user);
-}
-
-export function loginUser(name: string, password: string) {
-  const user = memory().users.get(normalizeName(name).toLowerCase());
-  if (!user || !verifyPassword(password, user.password)) {
-    throw new Error("昵称或密码错误");
-  }
-  return publicUser(user);
-}
-
-export function resetPassword(name: string, password: string) {
-  const user = memory().users.get(normalizeName(name).toLowerCase());
-  if (!user) throw new Error("昵称不存在");
-  if (password.length < 4) throw new Error("密码至少 4 位");
-  user.password = hashPassword(password);
-  saveUsers();
-  return publicUser(user);
-}
-
-export function setUserAvatar(userId: string, dataUrl: string) {
-  const user = findUserById(userId);
-  if (!user) throw new Error("请先登录");
-  saveAvatarDataUrl(userId, dataUrl);
-  user.avatarRev = (user.avatarRev ?? 0) + 1;
-  saveUsers();
-  return publicUser(user);
-}
-
-export function setUserName(userId: string, name: string) {
-  const user = findUserById(userId);
-  if (!user) throw new Error("请先登录");
-  const clean = normalizeName(name);
-  if (clean.length < 2) throw new Error("昵称至少 2 个字");
-  const nextKey = clean.toLowerCase();
-  const oldKey = user.name.toLowerCase();
-  if (nextKey !== oldKey && memory().users.has(nextKey)) {
-    throw new Error("昵称已被使用");
-  }
-  if (nextKey !== oldKey) {
-    memory().users.delete(oldKey);
-    user.name = clean;
-    memory().users.set(nextKey, user);
-  }
-  for (const room of memory().rooms.values()) {
-    for (const member of room.members) {
-      if (member.id === userId) member.name = clean;
-    }
-    if (room.game) {
-      const player = room.game.players.find((item) => item.id === userId);
-      if (player) player.name = clean;
+function decodeRoom(value: unknown) {
+  if (typeof value === "string") {
+    try {
+      return asRoom(JSON.parse(value));
+    } catch {
+      return null;
     }
   }
-  saveUsers();
-  return publicUser(user);
+  return asRoom(value);
 }
 
-function makeCode() {
+const CREATE_LUA = `
+if redis.call('EXISTS', KEYS[1]) == 1 then return 0 end
+redis.call('SET', KEYS[1], ARGV[1], 'EX', tonumber(ARGV[2]))
+redis.call('SET', KEYS[2], '1', 'EX', tonumber(ARGV[2]))
+return 1
+`;
+
+const SAVE_LUA = `
+if redis.call('GET', KEYS[2]) ~= ARGV[1] then return 0 end
+redis.call('SET', KEYS[1], ARGV[2], 'EX', tonumber(ARGV[3]))
+redis.call('SET', KEYS[2], ARGV[4], 'EX', tonumber(ARGV[3]))
+return 1
+`;
+
+const DELETE_LUA = `
+if redis.call('GET', KEYS[2]) ~= ARGV[1] then return 0 end
+redis.call('DEL', KEYS[1], KEYS[2])
+return 1
+`;
+
+async function readRedis(code: string) {
+  const redis = getRedis();
+  if (!redis) return null;
+  const [raw, rev] = await Promise.all([
+    redis.get<string | RoomRecord>(roomKey(code)),
+    redis.get<string | number>(revKey(code)),
+  ]);
+  const room = decodeRoom(raw);
+  if (!room) return null;
+  room.rev = Number(rev ?? room.rev ?? 1);
+  return room;
+}
+
+export async function getRoom(code: string) {
+  const key = code.toUpperCase();
+  const redis = getRedis();
+  if (redis) return readRedis(key);
+  return rooms().get(key) ?? null;
+}
+
+async function createRecord(room: RoomRecord) {
+  const redis = getRedis();
+  if (!redis) {
+    if (rooms().has(room.code)) return false;
+    rooms().set(room.code, room);
+    return true;
+  }
+  const ok = await redis.eval(CREATE_LUA, [roomKey(room.code), revKey(room.code)], [
+    JSON.stringify(room),
+    String(ROOM_TTL),
+  ]);
+  return Number(ok) === 1;
+}
+
+async function saveRoom(next: RoomRecord, expectedRev: number) {
+  const room = { ...next, rev: expectedRev + 1 };
+  const redis = getRedis();
+  if (!redis) {
+    const current = rooms().get(room.code);
+    if (!current || current.rev !== expectedRev) return false;
+    rooms().set(room.code, room);
+    return true;
+  }
+  const ok = await redis.eval(SAVE_LUA, [roomKey(room.code), revKey(room.code)], [
+    String(expectedRev),
+    JSON.stringify(room),
+    String(ROOM_TTL),
+    String(room.rev),
+  ]);
+  return Number(ok) === 1;
+}
+
+async function removeRoom(code: string, expectedRev: number) {
+  const redis = getRedis();
+  if (!redis) {
+    const current = rooms().get(code);
+    if (!current || current.rev !== expectedRev) return false;
+    rooms().delete(code);
+    return true;
+  }
+  const ok = await redis.eval(DELETE_LUA, [roomKey(code), revKey(code)], [String(expectedRev)]);
+  return Number(ok) === 1;
+}
+
+async function mutateRoom(
+  code: string,
+  fn: (room: RoomRecord) => RoomRecord | Promise<RoomRecord | null> | null,
+) {
+  const key = code.toUpperCase();
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    const room = await getRoom(key);
+    if (!room) throw new Error("房间不存在");
+    const next = await fn(structuredClone(room));
+    if (next === null) {
+      if (await removeRoom(key, room.rev)) return null;
+      continue;
+    }
+    next.code = room.code;
+    if (await saveRoom(next, room.rev)) return next;
+  }
+  throw new Error("请重试");
+}
+
+function randomCode() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  for (let attempt = 0; attempt < 20; attempt += 1) {
-    let code = "";
-    for (let i = 0; i < 4; i += 1) {
-      code += alphabet[Math.floor(Math.random() * alphabet.length)];
-    }
-    if (!memory().rooms.has(code)) return code;
+  let code = "";
+  for (let i = 0; i < 4; i += 1) {
+    code += alphabet[Math.floor(Math.random() * alphabet.length)];
   }
-  throw new Error("创建失败，请重试");
+  return code;
 }
 
-function decorateMembers(members: RoomRecord["members"]) {
-  return members.map((member) => {
-    const user = findUserById(member.id);
-    return user
-      ? publicUser(user)
-      : { id: member.id, name: member.name };
-  });
-}
-
-function decorateGame(game: Game | null): Game | null {
-  if (!game) return null;
+function decorateGame(room: RoomRecord): Game | null {
+  if (!room.game) return null;
+  const byId = new Map(room.members.map((member) => [member.id, member]));
   return {
-    ...game,
-    players: game.players.map((player) => {
-      const user = findUserById(player.id);
-      return {
-        ...player,
-        avatarUrl: user ? publicUser(user).avatarUrl : player.avatarUrl,
-        outfit: user ? publicUser(user).outfit : player.outfit,
-      };
+    ...room.game,
+    players: room.game.players.map((player) => {
+      const member = byId.get(player.id);
+      return member
+        ? {
+            ...player,
+            name: member.name,
+            avatarUrl: member.avatarUrl,
+            outfit: member.outfit,
+          }
+        : player;
     }),
   };
 }
@@ -199,82 +208,98 @@ export function snapshot(room: RoomRecord): RoomSnapshot {
   return {
     code: room.code,
     hostId: room.hostId,
-    members: decorateMembers(room.members),
+    members: room.members,
     status: room.status,
     mode: room.mode,
     tentacles: room.tentacles,
     opening: room.opening,
     maxRounds: room.maxRounds,
-    game: decorateGame(room.game),
+    game: decorateGame(room),
     danmaku: room.danmaku,
   };
 }
 
-export function createRoom(user: UserPublic, options?: { mode?: LinkMode; maxRounds?: number }) {
+function payoutRoom(room: RoomRecord) {
+  if (!room.game || room.game.status !== "finished" || room.game.payouts) return room;
+  const titles = room.game.titles;
+  const payouts: Record<string, number> = {};
+  for (const player of room.game.players) {
+    payouts[player.id] = computeShells(player, titles);
+  }
+  room.game = { ...room.game, payouts };
+  return room;
+}
+
+export async function createRoom(user: UserPublic, options?: { mode?: LinkMode; maxRounds?: number }) {
   const picked = parseRoomOptions(options ?? {});
-  const code = makeCode();
-  const room: RoomRecord = {
-    code,
-    hostId: user.id,
-    members: [{ id: user.id, name: user.name }],
-    status: "lobby",
-    mode: picked.mode,
-    tentacles: 8,
-    opening: "yiming",
-    maxRounds: picked.maxRounds,
-    game: null,
-    danmaku: [],
-  };
-  memory().rooms.set(code, room);
-  return snapshot(room);
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const code = randomCode();
+    const room: RoomRecord = {
+      code,
+      hostId: user.id,
+      members: [appearanceOf(user)],
+      status: "lobby",
+      mode: picked.mode,
+      tentacles: 8,
+      opening: "yiming",
+      maxRounds: picked.maxRounds,
+      game: null,
+      danmaku: [],
+      rev: 1,
+    };
+    if (await createRecord(room)) return snapshot(room);
+  }
+  throw new Error("创建失败，请重试");
 }
 
-export function getRoom(code: string) {
-  return memory().rooms.get(code.toUpperCase()) ?? null;
+export async function joinRoom(code: string, user: UserPublic) {
+  const room = await mutateRoom(code, (current) => {
+    const seated = current.members.find((member) => member.id === user.id);
+    if (seated) {
+      Object.assign(seated, appearanceOf(user));
+      return current;
+    }
+    if (current.status !== "lobby") throw new Error("房间已开始");
+    if (current.members.length >= MAX_PLAYERS) throw new Error("房间已满");
+    current.members.push(appearanceOf(user));
+    return current;
+  });
+  return snapshot(room!);
 }
 
-export function joinRoom(code: string, user: UserPublic) {
-  const room = getRoom(code);
-  if (!room) throw new Error("房间不存在");
-  const seated = room.members.find((member) => member.id === user.id);
-  if (seated) return snapshot(room);
-  if (room.status !== "lobby") throw new Error("房间已开始");
-  if (room.members.length >= MAX_PLAYERS) throw new Error("房间已满");
-  room.members.push({ id: user.id, name: user.name });
-  return snapshot(room);
-}
-
-export function configureRoom(
+export async function configureRoom(
   code: string,
   userId: string,
   patch: Partial<Pick<RoomRecord, "mode" | "tentacles" | "opening" | "maxRounds">>,
 ) {
-  const room = getRoom(code);
-  if (!room) throw new Error("房间不存在");
-  if (room.hostId !== userId) throw new Error("只有房主能修改");
-  if (room.status !== "lobby") throw new Error("房间已开始");
-  if (patch.mode) room.mode = patch.mode;
-  if (patch.tentacles) room.tentacles = patch.tentacles;
-  if (patch.opening) room.opening = patch.opening;
-  if (patch.maxRounds) room.maxRounds = patch.maxRounds;
-  return snapshot(room);
+  const room = await mutateRoom(code, (current) => {
+    if (current.hostId !== userId) throw new Error("只有房主能修改");
+    if (current.status !== "lobby") throw new Error("房间已开始");
+    if (patch.mode) current.mode = patch.mode;
+    if (patch.tentacles) current.tentacles = patch.tentacles;
+    if (patch.opening) current.opening = patch.opening;
+    if (patch.maxRounds) current.maxRounds = patch.maxRounds;
+    return current;
+  });
+  return snapshot(room!);
 }
 
-export function startRoom(code: string, userId: string) {
-  const room = getRoom(code);
-  if (!room) throw new Error("房间不存在");
-  if (room.hostId !== userId) throw new Error("只有房主能开始");
-  if (room.members.length < 2) throw new Error("至少 2 人");
-  room.game = createGame(idiomIndex, {
-    names: room.members.map((member) => member.name),
-    seatPlayers: decorateMembers(room.members),
-    mode: room.mode,
-    tentacles: room.tentacles,
-    opening: room.opening,
-    maxRounds: room.maxRounds,
+export async function startRoom(code: string, userId: string) {
+  const room = await mutateRoom(code, (current) => {
+    if (current.hostId !== userId) throw new Error("只有房主能开始");
+    if (current.members.length < 2) throw new Error("至少 2 人");
+    current.game = createGame(idiomIndex, {
+      names: current.members.map((member) => member.name),
+      seatPlayers: current.members,
+      mode: current.mode,
+      tentacles: current.tentacles,
+      opening: current.opening,
+      maxRounds: current.maxRounds,
+    });
+    current.status = "playing";
+    return current;
   });
-  room.status = "playing";
-  return snapshot(room);
+  return snapshot(room!);
 }
 
 export async function playRoom(
@@ -283,172 +308,83 @@ export async function playRoom(
   action: "submit" | "hint" | "pass" | "finish",
   word = "",
 ) {
-  const room = getRoom(code);
-  if (!room?.game) throw new Error("房间还没开始");
-  if (action === "finish") {
-    if (room.hostId !== userId) throw new Error("只有房主能结束");
-    room.game = finishGame(room.game);
-    room.status = "finished";
-    room.game = await narrateGame(room.game, "finish", word, "finished");
-    payoutRoom(room);
-    return snapshot(room);
-  }
-  if (room.game.status !== "playing") throw new Error("本局已结束");
-  const current = room.game.players[room.game.turn];
-  if (current.id !== userId) throw new Error(`轮到 ${current.name}`);
+  const room = await mutateRoom(code, async (current) => {
+    if (!current.game) throw new Error("房间还没开始");
+    if (action === "finish") {
+      if (current.hostId !== userId) throw new Error("只有房主能结束");
+      current.game = finishGame(current.game);
+      current.status = "finished";
+      current.game = await narrateGame(current.game, "finish", word, "finished");
+      return payoutRoom(current);
+    }
+    if (current.game.status !== "playing") throw new Error("本局已结束");
+    const player = current.game.players[current.game.turn];
+    if (player.id !== userId) throw new Error(`轮到 ${player.name}`);
 
-  let reason: "hint" | ReturnType<typeof submit>["reason"] = "hint";
-  if (action === "hint") {
-    room.game = hint(idiomIndex, room.game);
-  } else if (action === "pass") {
-    const result = pass(idiomIndex, room.game);
-    room.game = result.game;
-    reason = result.reason;
-  } else {
-    const result = submit(idiomIndex, room.game, word);
-    room.game = result.game;
-    reason = result.reason;
-  }
-  if (room.game.status === "finished") room.status = "finished";
-  room.game = await narrateGame(
-    room.game,
-    action,
-    word,
-    room.game.status === "finished" && action !== "hint" ? "finished" : reason,
-  );
-  if (room.game.status === "finished") payoutRoom(room);
-  return snapshot(room);
+    let reason: "hint" | ReturnType<typeof submit>["reason"] = "hint";
+    if (action === "hint") {
+      current.game = hint(idiomIndex, current.game);
+    } else if (action === "pass") {
+      const result = pass(idiomIndex, current.game);
+      current.game = result.game;
+      reason = result.reason;
+    } else {
+      const result = submit(idiomIndex, current.game, word);
+      current.game = result.game;
+      reason = result.reason;
+    }
+    if (current.game.status === "finished") current.status = "finished";
+    current.game = await narrateGame(
+      current.game,
+      action,
+      word,
+      current.game.status === "finished" && action !== "hint" ? "finished" : reason,
+    );
+    if (current.game.status === "finished") payoutRoom(current);
+    return current;
+  });
+  return snapshot(room!);
 }
 
-export function postDanmaku(code: string, user: UserPublic, text: string) {
-  const room = getRoom(code);
-  if (!room) throw new Error("房间不存在");
-  if (!room.members.some((member) => member.id === user.id)) {
-    throw new Error("你不在这个房间");
-  }
-  const clean = text.replace(/\s+/g, " ").trim().slice(0, 24);
-  if (!clean) throw new Error("弹幕不能为空");
-  const item: Danmaku = {
-    id: `d${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`,
-    userId: user.id,
-    name: user.name,
-    text: clean,
-    at: Date.now(),
-  };
-  room.danmaku = [...room.danmaku, item].slice(-40);
-  if (room.game?.status === "playing") {
-    room.game = addFun(room.game, user.id, 1);
-  }
-  return snapshot(room);
+export async function postDanmaku(code: string, user: UserPublic, text: string) {
+  const room = await mutateRoom(code, (current) => {
+    if (!current.members.some((member) => member.id === user.id)) {
+      throw new Error("你不在这个房间");
+    }
+    const clean = text.replace(/\s+/g, " ").trim().slice(0, 24);
+    if (!clean) throw new Error("弹幕不能为空");
+    const item: Danmaku = {
+      id: `d${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`,
+      userId: user.id,
+      name: user.name,
+      text: clean,
+      at: Date.now(),
+    };
+    current.danmaku = [...current.danmaku, item].slice(-40);
+    if (current.game?.status === "playing") {
+      current.game = addFun(current.game, user.id, 1);
+    }
+    return current;
+  });
+  return snapshot(room!);
 }
 
-let historyCache: HistoryRecord[] | null = null;
-
-function loadHistory() {
-  if (!existsSync(HISTORY_PATH)) return [] as HistoryRecord[];
+export async function leaveRoom(code: string, userId: string) {
   try {
-    return JSON.parse(readFileSync(HISTORY_PATH, "utf8")) as HistoryRecord[];
-  } catch {
-    return [];
+    const room = await mutateRoom(code, (current) => {
+      current.members = current.members.filter((member) => member.id !== userId);
+      if (current.members.length === 0) return null;
+      if (current.hostId === userId) current.hostId = current.members[0].id;
+      return current;
+    });
+    return room ? snapshot(room) : null;
+  } catch (error) {
+    if (error instanceof Error && error.message === "房间不存在") return null;
+    throw error;
   }
 }
 
-function historyList() {
-  if (!historyCache) historyCache = loadHistory();
-  return historyCache;
-}
-
-function persistHistory() {
-  mkdirSync(dirname(HISTORY_PATH), { recursive: true });
-  writeFileSync(HISTORY_PATH, JSON.stringify(historyList(), null, 2));
-}
-
-function archiveGame(room: RoomRecord) {
-  if (!room.game || room.game.status !== "finished") return;
-  const record = historyFromGame({ code: room.code, game: room.game, danmaku: room.danmaku });
-  const list = historyList();
-  if (
-    list.some(
-      (item) => item.code === record.code && item.chain.join("→") === record.chain.join("→") && item.rounds === record.rounds,
-    )
-  ) {
-    return;
-  }
-  historyCache = [record, ...list].slice(0, 80);
-  persistHistory();
-}
-
-export function listHistory(userId: string) {
-  return historyForUser(historyList(), userId).slice(0, 40);
-}
-
-function payoutRoom(room: RoomRecord) {
-  if (!room.game || room.game.status !== "finished" || room.game.payouts) return;
-  const titles = room.game.titles;
-  const payouts: Record<string, number> = {};
-  for (const player of room.game.players) {
-    const user = findUserById(player.id);
-    if (!user) continue;
-    const amount = computeShells(player, titles);
-    user.shells = (user.shells ?? 0) + amount;
-    payouts[player.id] = amount;
-  }
-  if (Object.keys(payouts).length) saveUsers();
-  room.game = { ...room.game, payouts };
-  archiveGame(room);
-}
-
-export function buyOutfit(userId: string, outfitId: string) {
-  const user = findUserById(userId);
-  if (!user) throw new Error("请先登录");
-  const outfit = getOutfit(outfitId);
-  if (isFreeOutfit(outfit.id)) {
-    user.outfit = outfit.id;
-    saveUsers();
-    return publicUser(user);
-  }
-  if ((user.owned ?? []).includes(outfit.id)) {
-    user.outfit = outfit.id;
-    saveUsers();
-    return publicUser(user);
-  }
-  if ((user.shells ?? 0) < outfit.price) throw new Error("贝壳不够");
-  user.shells -= outfit.price;
-  user.owned = [...new Set([...normalizeOwned(user.owned), outfit.id])];
-  user.outfit = outfit.id;
-  saveUsers();
-  return publicUser(user);
-}
-
-export function grantWardrobe(userId: string) {
-  const user = findUserById(userId);
-  if (!user) throw new Error("请先登录");
-  user.shells = Math.max(user.shells ?? 0, 80);
-  user.owned = OUTFITS.map((outfit) => outfit.id);
-  saveUsers();
-  return publicUser(user);
-}
-
-export function wearOutfit(userId: string, outfitId: string) {
-  const user = findUserById(userId);
-  if (!user) throw new Error("请先登录");
-  const outfit = getOutfit(outfitId);
-  if (!isFreeOutfit(outfit.id) && !(user.owned ?? []).includes(outfit.id)) {
-    throw new Error("还没买");
-  }
-  user.outfit = outfit.id;
-  saveUsers();
-  return publicUser(user);
-}
-
-export function leaveRoom(code: string, userId: string) {
-  const room = getRoom(code);
-  if (!room) return null;
-  room.members = room.members.filter((member) => member.id !== userId);
-  if (room.members.length === 0) {
-    memory().rooms.delete(room.code);
-    return null;
-  }
-  if (room.hostId === userId) room.hostId = room.members[0].id;
-  return snapshot(room);
+export function resetMemoryRooms() {
+  rooms().clear();
+  g.__zyRedis = null;
 }

@@ -1,3 +1,4 @@
+import { withBase } from "./base-path";
 import type { GameTitles, Player } from "./types";
 
 export type OutfitId = "astronaut" | "ranger" | "diver";
@@ -19,8 +20,8 @@ export const OUTFITS: Outfit[] = [
     id: "astronaut",
     name: "宇航服",
     price: 0,
-    src: "/suit-astronaut.webp",
-    mask: "/suit-astronaut-mask.webp",
+    src: withBase("/suit-astronaut.webp"),
+    mask: withBase("/suit-astronaut-mask.webp"),
     aspect: 528 / 1057,
     hole: { cx: 49.87, cy: 11.62, rw: 15.06, rh: 6.62 },
   },
@@ -28,8 +29,8 @@ export const OUTFITS: Outfit[] = [
     id: "ranger",
     name: "巴斯光年",
     price: 24,
-    src: "/suit-ranger.webp",
-    mask: "/suit-ranger-mask.webp",
+    src: withBase("/suit-ranger.webp"),
+    mask: withBase("/suit-ranger-mask.webp"),
     aspect: 1324 / 1903,
     hole: { cx: 48.34, cy: 11.52, rw: 11.97, rh: 10.48 },
   },
@@ -37,8 +38,8 @@ export const OUTFITS: Outfit[] = [
     id: "diver",
     name: "松鼠",
     price: 16,
-    src: "/suit-diver.webp",
-    mask: "/suit-diver-mask.webp",
+    src: withBase("/suit-diver.webp"),
+    mask: withBase("/suit-diver-mask.webp"),
     aspect: 373 / 418,
     hole: { cx: 47.99, cy: 24.93, rw: 18.77, rh: 19.14 },
   },

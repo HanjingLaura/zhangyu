@@ -2,12 +2,14 @@
 
 上班群里那局「龙年大吉 → 鸡年大吉 → 舞动青春 → 春天来了」，被做成了一款能围桌玩的成语接龙。
 
-**丈育**谐音**章鱼**。石桌摆在章鱼哥房子前面。
+**丈育**谐音**章鱼**。打开 [https://hanjing-laura.vercel.app/zhangyu](https://hanjing-laura.vercel.app/zhangyu)。
+
+昵称、头像、贝壳、服装、历史记在这台浏览器里。房间号走服务器，所以好友用自己的手机填同一个房号就能联机。
 
 ## 怎么玩
 
-1. 注册或登录，头像可以上传照片。
-2. 创建房间或加入房间，两到四人围着石桌坐。
+1. 注册或登录（只存在这台浏览器）。头像可以上传照片。
+2. 创建房间或加入房间，两到六人围坐。
 3. 顺时针一个个接，没有时间限制。
 4. **字接字**：上一句最后一个字，等于下一句第一个字。**音接音**：读音对上即可。
 5. 默认每局接一百轮。开桌的人也可以改成二十或五十轮。
@@ -24,6 +26,8 @@ npm test
 npm run dev
 ```
 
-打开 [http://localhost:3000](http://localhost:3000)。
+打开 [http://localhost:3000/zhangyu](http://localhost:3000/zhangyu)。
+
+好友联机要共享房间存储：在 Vercel 给这个项目装 Upstash Redis（`UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`）。本地不配这两个变量时，房间只活在当前进程里，刷新或换一台电脑就对不上房号。
 
 章鱼哥接的是[阿里云百炼](https://bailian.console.aliyun.com)。把 `DASHSCOPE_API_KEY` 写进 `.env.local`，模型默认 `qwen-turbo`。

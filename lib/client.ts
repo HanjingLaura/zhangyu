@@ -1,3 +1,17 @@
+import { withBase } from "./base-path";
+import {
+  buyOutfitLocal,
+  listLocalHistory,
+  loadCurrentUser,
+  loginLocal,
+  logoutLocal,
+  registerLocal,
+  resetLocal,
+  setLocalAvatar,
+  setLocalName,
+  wearOutfitLocal,
+} from "./local-user";
+import { playerHeaders, playerPayload } from "./player";
 import type { HistoryRecord } from "./history";
 import type { RoomSnapshot, UserPublic } from "./types";
 
@@ -7,92 +21,70 @@ async function read(response: Response) {
   return data;
 }
 
-export async function apiMe() {
-  const data = await read(await fetch("/api/auth/me", { cache: "no-store" }));
-  return (data as { user: UserPublic | null }).user;
+function send(path: string, init: RequestInit = {}) {
+  const user = loadCurrentUser();
+  const headers = new Headers(init.headers);
+  const identity = playerHeaders(user);
+  for (const [key, value] of Object.entries(identity)) headers.set(key, value);
+  if (init.body && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+  return fetch(withBase(path), { ...init, headers, cache: "no-store" });
 }
 
-export async function apiRegister(name: string, password: string) {
-  const data = await read(
-    await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, password }),
-    }),
-  );
-  return (data as { user: UserPublic }).user;
+function withPlayer<T extends Record<string, unknown>>(body: T) {
+  const user = loadCurrentUser();
+  return user ? { ...body, player: playerPayload(user) } : body;
+}
+
+export async function apiMe() {
+  return loadCurrentUser();
+}
+
+export async function apiRegister(name: string, password: string, avatar?: string) {
+  return registerLocal(name, password, avatar);
 }
 
 export async function apiLogin(name: string, password: string) {
-  const data = await read(
-    await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, password }),
-    }),
-  );
-  return (data as { user: UserPublic }).user;
+  return loginLocal(name, password);
 }
 
 export async function apiResetPassword(name: string, password: string) {
-  const data = await read(
-    await fetch("/api/auth/reset", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, password }),
-    }),
-  );
-  return (data as { user: UserPublic }).user;
+  return resetLocal(name, password);
 }
 
 export async function apiLogout() {
-  await fetch("/api/auth/logout", { method: "POST" });
+  logoutLocal();
 }
 
 export async function apiUpdateName(name: string) {
-  const data = await read(
-    await fetch("/api/auth/profile", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
-    }),
-  );
-  return (data as { user: UserPublic }).user;
+  return setLocalName(name);
 }
 
 export async function apiUploadAvatar(image: string) {
-  const data = await read(
-    await fetch("/api/auth/avatar", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ image }),
-    }),
-  );
-  return (data as { user: UserPublic }).user;
+  return setLocalAvatar(image);
 }
 
 export async function apiCreateRoom(options?: { mode?: "char" | "pinyin"; maxRounds?: number }) {
   const data = await read(
-    await fetch("/api/rooms", {
+    await send("/api/rooms", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(options ?? {}),
+      body: JSON.stringify(withPlayer(options ?? {})),
     }),
   );
   return (data as { room: RoomSnapshot }).room;
 }
 
 export async function apiRoom(code: string) {
-  const data = await read(await fetch(`/api/rooms/${code}`, { cache: "no-store" }));
-  return data as { room: RoomSnapshot; you: UserPublic };
+  const data = await read(await send(`/api/rooms/${code}`));
+  return data as { room: RoomSnapshot; you?: UserPublic };
 }
 
 export async function apiJoinRoom(code: string) {
   const data = await read(
-    await fetch(`/api/rooms/${code}`, {
+    await send(`/api/rooms/${code}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "join" }),
+      body: JSON.stringify(withPlayer({ action: "join" })),
     }),
   );
   return (data as { room: RoomSnapshot }).room;
@@ -108,17 +100,21 @@ export async function apiConfigureRoom(
   },
 ) {
   const data = await read(
-    await fetch(`/api/rooms/${code}`, {
+    await send(`/api/rooms/${code}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "configure", ...patch }),
+      body: JSON.stringify(withPlayer({ action: "configure", ...patch })),
     }),
   );
   return (data as { room: RoomSnapshot }).room;
 }
 
 export async function apiStartRoom(code: string) {
-  const data = await read(await fetch(`/api/rooms/${code}/start`, { method: "POST" }));
+  const data = await read(
+    await send(`/api/rooms/${code}/start`, {
+      method: "POST",
+      body: JSON.stringify(withPlayer({})),
+    }),
+  );
   return (data as { room: RoomSnapshot }).room;
 }
 
@@ -128,10 +124,9 @@ export async function apiMove(
   word = "",
 ) {
   const data = await read(
-    await fetch(`/api/rooms/${code}/move`, {
+    await send(`/api/rooms/${code}/move`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action, word }),
+      body: JSON.stringify(withPlayer({ action, word })),
     }),
   );
   return data as { room: RoomSnapshot; you?: UserPublic };
@@ -139,35 +134,25 @@ export async function apiMove(
 
 export async function apiDanmaku(code: string, text: string) {
   const data = await read(
-    await fetch(`/api/rooms/${code}`, {
+    await send(`/api/rooms/${code}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "danmaku", text }),
+      body: JSON.stringify(withPlayer({ action: "danmaku", text })),
     }),
   );
   return (data as { room: RoomSnapshot }).room;
 }
 
 export async function apiShop(action: "buy" | "wear", id: string) {
-  const data = await read(
-    await fetch("/api/shop", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action, id }),
-    }),
-  );
-  return (data as { user: UserPublic }).user;
+  return action === "wear" ? wearOutfitLocal(id) : buyOutfitLocal(id);
 }
 
 export async function apiHistory() {
-  const data = await read(await fetch("/api/history", { cache: "no-store" }));
-  return (data as { records: HistoryRecord[] }).records;
+  return listLocalHistory() as HistoryRecord[];
 }
 
 export async function apiLeaveRoom(code: string) {
-  await fetch(`/api/rooms/${code}`, {
+  await send(`/api/rooms/${code}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "leave" }),
+    body: JSON.stringify(withPlayer({ action: "leave" })),
   });
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { withBase } from "@/lib/base-path";
 
 const STORAGE_KEY = "zhangyu-bgm";
 
@@ -40,7 +41,7 @@ export function BgmProvider({ children }: { children: ReactNode }) {
 
   return (
     <BgmContext.Provider value={{ on: Boolean(on), toggle: () => setOn((value) => !value) }}>
-      <audio ref={audioRef} src="/bgm.mp3" loop preload="auto" />
+      <audio ref={audioRef} src={withBase("/bgm.mp3")} loop preload="auto" />
       {children}
     </BgmContext.Provider>
   );

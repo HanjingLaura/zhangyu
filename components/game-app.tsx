@@ -15,6 +15,7 @@ import {
   apiUpdateName,
   apiUploadAvatar,
 } from "@/lib/client";
+import { syncFinishedGame } from "@/lib/local-user";
 import type { RoomSnapshot, UserPublic } from "@/lib/types";
 import { AuthView } from "./auth-view";
 import { CreateView } from "./create-view";
@@ -47,14 +48,20 @@ export function GameApp() {
       .catch(() => setView("auth"));
   }, []);
 
+  const adopt = (next: RoomSnapshot, you?: UserPublic | null) => {
+    setRoom(next);
+    const rewarded = syncFinishedGame(next);
+    if (rewarded) setUser(rewarded);
+    else if (you) setUser(you);
+  };
+
   const roomCode = room?.code;
   useEffect(() => {
     if (!roomCode || (view !== "lobby" && view !== "play")) return;
     const timer = window.setInterval(() => {
       apiRoom(roomCode)
         .then((data) => {
-          setRoom(data.room);
-          if (data.you) setUser(data.you);
+          adopt(data.room, data.you);
           if (data.room.status === "playing" || data.room.status === "finished") {
             setView("play");
           }
@@ -65,7 +72,7 @@ export function GameApp() {
   }, [roomCode, view]);
 
   const enterRoom = (next: RoomSnapshot) => {
-    setRoom(next);
+    adopt(next);
     setError("");
     setDraft("");
     setView(next.status === "lobby" ? "lobby" : "play");
@@ -148,8 +155,7 @@ export function GameApp() {
             try {
               setError("");
               const next = await apiMove(room.code, "submit", draft);
-              setRoom(next.room);
-              if (next.you) setUser(next.you);
+              adopt(next.room, next.you);
               setDraft("");
             } catch (err) {
               setError(err instanceof Error ? err.message : "发送失败");
@@ -158,8 +164,7 @@ export function GameApp() {
           onHint={async () => {
             try {
               const next = await apiMove(room.code, "hint");
-              setRoom(next.room);
-              if (next.you) setUser(next.you);
+              adopt(next.room, next.you);
             } catch (err) {
               setError(err instanceof Error ? err.message : "提示失败");
             }
@@ -167,8 +172,7 @@ export function GameApp() {
           onPass={async () => {
             try {
               const next = await apiMove(room.code, "pass");
-              setRoom(next.room);
-              if (next.you) setUser(next.you);
+              adopt(next.room, next.you);
             } catch (err) {
               setError(err instanceof Error ? err.message : "跳过失败");
             }
@@ -181,7 +185,7 @@ export function GameApp() {
           }}
           onAgain={async () => {
             try {
-              setRoom(await apiStartRoom(room.code));
+              adopt(await apiStartRoom(room.code));
               setDraft("");
             } catch (err) {
               setError(err instanceof Error ? err.message : "开始失败");
@@ -191,8 +195,7 @@ export function GameApp() {
           onFinish={async () => {
             try {
               const next = await apiMove(room.code, "finish");
-              setRoom(next.room);
-              if (next.you) setUser(next.you);
+              adopt(next.room, next.you);
             } catch (err) {
               setError(err instanceof Error ? err.message : "结束失败");
             }
