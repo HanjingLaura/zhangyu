@@ -57,10 +57,10 @@ export function JoinView({
             <span
               key={index}
               className={`chip flex h-12 flex-1 items-center justify-center py-0 text-center font-display text-lg tracking-[0.2em] ${
-                code[index] ? "chip-on" : ""
+                code[index] ? "chip-on" : "border-white/30 bg-white/15 text-foam/35"
               }`}
             >
-              {code[index] || " "}
+              {code[index] || "·"}
             </span>
           ))}
         </div>
