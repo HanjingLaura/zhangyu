@@ -3,13 +3,10 @@
 import { useState } from "react";
 import { currentNeed, rankPlayers } from "@/lib/engine";
 import type { RoomSnapshot, UserPublic } from "@/lib/types";
+import { lastSpeeches } from "@/lib/speeches";
 import { RecordSheet } from "./record-sheet";
 import { RoomScene } from "./room-scene";
 import { TopBar } from "./shell";
-
-function lastOctopus(room: RoomSnapshot) {
-  return [...(room.game?.messages ?? [])].reverse().find((message) => message.kind === "octopus");
-}
 
 export function PlayView({
   room,
@@ -50,7 +47,7 @@ export function PlayView({
   const finished = game.status === "finished";
   const titles = game.titles;
   const ranked = rankPlayers(game);
-  const bubble = lastOctopus(room)?.text;
+  const speeches = lastSpeeches(game.messages);
   const mine = !you || current.id === you.id;
   const host = you?.id === room.hostId;
 
@@ -75,20 +72,22 @@ export function PlayView({
         youId={you?.id}
         currentId={current.id}
         finished={finished}
-        bubble={bubble}
+        bubble={speeches.octopus}
+        speeches={speeches.players}
         danmaku={room.danmaku}
         overlay={
           finished ? undefined : (
             <form
-              className="space-y-2 rounded-3xl bg-black/28 px-3 py-2.5"
+              className="rounded-[22px] bg-[#f7f1de] px-3 py-2.5 text-ink shadow-[0_12px_28px_rgba(0,20,28,0.35)]"
               onSubmit={(event) => {
                 event.preventDefault();
                 onSubmit();
               }}
             >
-              <div className="flex items-center justify-between px-0.5 text-[11px] text-foam/55">
-                <span>{mine ? "轮到你" : `等 ${current.name}`}</span>
-                <span className="flex gap-3">
+              <div className="mb-1.5 flex items-center justify-between px-0.5">
+                <span className="text-[13px] font-semibold">接龙</span>
+                <span className="flex items-center gap-3 text-[11px] text-ink/50">
+                  <span>{mine ? "轮到你" : `等 ${current.name}`}</span>
                   <button type="button" disabled={!mine} onClick={onHint} className="disabled:opacity-30">
                     提示
                   </button>
@@ -96,7 +95,7 @@ export function PlayView({
                     跳过
                   </button>
                   {host ? (
-                    <button type="button" onClick={onFinish} className="text-foam/40">
+                    <button type="button" onClick={onFinish} className="text-ink/35">
                       结束
                     </button>
                   ) : null}
@@ -109,39 +108,45 @@ export function PlayView({
                   onChange={(event) => onDraft(event.target.value)}
                   placeholder={`接「${need.char}」`}
                   disabled={!mine}
-                  className="field py-2.5 text-sm"
+                  className="min-w-0 flex-1 rounded-[14px] border border-ink/10 bg-white px-3 py-2.5 text-[15px] text-ink outline-none placeholder:text-ink/30 disabled:opacity-40"
                   autoComplete="off"
                 />
                 <button type="submit" disabled={!mine} className="btn btn-primary shrink-0 px-4 py-2.5 text-sm">
                   发送
                 </button>
               </div>
-              {error ? <p className="text-xs text-coral">{error}</p> : null}
-              <div className="flex gap-2">
-                <input
-                  value={barrage}
-                  onChange={(event) => setBarrage(event.target.value)}
-                  placeholder="弹幕"
-                  maxLength={24}
-                  className="field py-2.5 text-sm"
-                />
-                <button
-                  type="button"
-                  onClick={async () => {
-                    const text = barrage.trim();
-                    if (!text) return;
-                    setBarrage("");
-                    await onDanmaku(text);
-                  }}
-                  className="btn btn-quiet shrink-0 px-4 py-2.5 text-sm"
-                >
-                  发送
-                </button>
-              </div>
+              {error ? <p className="mt-1 text-xs text-coral">{error}</p> : null}
             </form>
           )
         }
       />
+
+      {finished ? null : (
+        <form
+          className="relative z-20 flex shrink-0 items-center gap-2 px-3 pb-[calc(10px+env(safe-area-inset-bottom))] pt-1"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const text = barrage.trim();
+            if (!text) return;
+            setBarrage("");
+            void onDanmaku(text);
+          }}
+        >
+          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-[18px] bg-[#12343c]/90 px-3 py-2 shadow-[0_10px_24px_rgba(0,20,28,0.4)]">
+            <span className="shrink-0 text-[13px] font-semibold text-gold">弹幕</span>
+            <input
+              value={barrage}
+              onChange={(event) => setBarrage(event.target.value)}
+              placeholder="从这儿发，底部飘过"
+              maxLength={24}
+              className="min-w-0 flex-1 bg-transparent py-1 text-[15px] text-foam outline-none placeholder:text-foam/35"
+            />
+            <button type="submit" className="btn btn-primary shrink-0 px-3 py-1.5 text-sm">
+              发送
+            </button>
+          </div>
+        </form>
+      )}
 
       {finished ? (
         <div className="sheet relative z-10 max-h-[52%] shrink-0 overflow-y-auto rounded-t-[28px] px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4">

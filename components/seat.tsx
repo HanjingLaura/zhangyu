@@ -21,12 +21,14 @@ export function Seat({
   settled = false,
   you = false,
   scale = 1,
+  speech,
 }: {
   person: SeatPerson;
   active?: boolean;
   settled?: boolean;
   you?: boolean;
   scale?: number;
+  speech?: string;
 }) {
   const player = person.player;
   return (
@@ -34,8 +36,15 @@ export function Seat({
       className="flex flex-col items-center"
       style={{ transform: `translate(-50%, -88%) scale(${scale})` }}
     >
-      <div className={active ? "drop-shadow-[0_0_14px_#6ec8c0]" : "drop-shadow-[0_10px_10px_rgba(0,20,28,0.35)]"}>
-        <Figure name={person.name} src={person.avatarUrl} outfitId={person.outfit} size={148} />
+      <div className="relative">
+        {speech ? (
+          <div className="bubble absolute bottom-[94%] left-1/2 z-10 w-max max-w-[7.8rem] -translate-x-1/2 text-center">
+            {speech}
+          </div>
+        ) : null}
+        <div className={active ? "drop-shadow-[0_0_14px_#6ec8c0]" : "drop-shadow-[0_10px_10px_rgba(0,20,28,0.35)]"}>
+          <Figure name={person.name} src={person.avatarUrl} outfitId={person.outfit} size={148} />
+        </div>
       </div>
       <div className="mt-0.5 max-w-[5.6rem] truncate rounded-full bg-black/70 px-2.5 py-0.5 text-[11px] text-foam">
         {you ? "我" : person.name}

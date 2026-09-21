@@ -8,12 +8,12 @@ import { rotateSeats, Seat, type SeatPerson } from "./seat";
 export function DanmakuLayer({ items }: { items: Danmaku[] }) {
   const recent = items.slice(-12);
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-[2%] z-[5] h-[28%] overflow-hidden">
+    <div className="pointer-events-none absolute inset-x-0 bottom-[1%] z-[22] h-[15%] overflow-hidden">
       {recent.map((item, index) => (
         <div
           key={item.id}
           className="danmaku-item"
-          style={{ top: `${(index * 17) % 85}%`, color: colorFor(item.userId) }}
+          style={{ top: `${(index * 22) % 78}%`, color: colorFor(item.userId) }}
         >
           {item.name}：{item.text}
         </div>
@@ -28,6 +28,7 @@ export function RoomScene({
   currentId,
   finished = false,
   bubble,
+  speeches,
   danmaku = [],
   overlay,
 }: {
@@ -36,6 +37,7 @@ export function RoomScene({
   currentId?: string;
   finished?: boolean;
   bubble?: string;
+  speeches?: Map<string, string>;
   danmaku?: Danmaku[];
   overlay?: ReactNode;
 }) {
@@ -43,18 +45,19 @@ export function RoomScene({
 
   return (
     <div className="relative z-[1] min-h-0 flex-1">
-      <DanmakuLayer items={danmaku} />
       {overlay ? (
-        <div className="absolute left-1/2 top-[3%] z-[20] w-[88%] max-w-[340px] -translate-x-1/2">{overlay}</div>
+        <div className="absolute left-1/2 top-[2%] z-[20] w-[90%] max-w-[360px] -translate-x-1/2">{overlay}</div>
       ) : null}
-      <div className="absolute left-[56%] top-[56%] z-[8] w-[20%] -translate-x-1/2 -translate-y-full">
-        <OctopusFigure className="w-full drop-shadow-[0_10px_8px_rgba(0,20,28,0.35)]" />
-      </div>
-      {bubble ? (
-        <div className="bubble bubble-left absolute left-[68%] top-[38%] z-[9] w-max max-w-[30%]">
-          {bubble}
+      <div className="absolute left-[58%] top-[58%] z-[8] w-[20%] -translate-x-1/2 -translate-y-full">
+        <div className="relative">
+          {bubble ? (
+            <div className="bubble absolute bottom-[96%] left-1/2 z-10 w-max max-w-[9.5rem] -translate-x-1/2 text-center">
+              {bubble}
+            </div>
+          ) : null}
+          <OctopusFigure className="w-full drop-shadow-[0_10px_8px_rgba(0,20,28,0.35)]" />
         </div>
-      ) : null}
+      </div>
       {seated.map((person, index) => {
         const place = seatLayout(index, seated.length);
         return (
@@ -73,10 +76,12 @@ export function RoomScene({
               settled={finished}
               you={person.id === youId}
               scale={place.scale}
+              speech={speeches?.get(person.id)}
             />
           </div>
         );
       })}
+      <DanmakuLayer items={danmaku} />
     </div>
   );
 }

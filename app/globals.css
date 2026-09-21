@@ -66,9 +66,9 @@ body {
 
 .screen-room {
   background:
-    linear-gradient(180deg, rgba(20, 16, 10, 0.22) 0%, transparent 14%),
-    url("/interior.webp?v=6") center top / cover no-repeat,
-    #c6aeb4;
+    linear-gradient(180deg, rgba(20, 16, 10, 0.2) 0%, transparent 12%),
+    url("/interior.webp?v=7") center 8% / cover no-repeat,
+    #cbb8bc;
 }
 
 .drawer {
@@ -160,31 +160,28 @@ body {
 }
 
 .bubble {
-  background: var(--foam);
+  position: relative;
+  background: #fffdf4;
   color: var(--ink);
   border-radius: 16px;
-  padding: 8px 12px;
-  font-size: 12px;
-  line-height: 1.5;
-  box-shadow: 0 10px 24px rgba(0, 20, 28, 0.28);
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  box-shadow: 0 8px 18px rgba(0, 20, 28, 0.28);
+  border: 1px solid rgba(22, 52, 60, 0.08);
 }
 
 .bubble::after {
   content: "";
   position: absolute;
-  width: 12px;
-  height: 12px;
-  background: var(--foam);
+  width: 11px;
+  height: 11px;
+  background: #fffdf4;
   left: 50%;
-  bottom: -6px;
+  bottom: -5px;
   transform: translateX(-50%) rotate(45deg);
-}
-
-.bubble-left::after {
-  left: -5px;
-  bottom: auto;
-  top: 14px;
-  transform: rotate(45deg);
+  box-shadow: 2px 2px 0 rgba(22, 52, 60, 0.06);
 }
 
 .sheet {
@@ -198,19 +195,19 @@ body {
     transform: translateX(0);
   }
   to {
-    transform: translateX(calc(-100% - 100vw));
+    transform: translateX(calc(100vw + 100%));
   }
 }
 
 .danmaku-item {
   position: absolute;
-  left: 100%;
+  right: 100%;
   white-space: nowrap;
   pointer-events: none;
-  font-size: 13px;
-  font-weight: 500;
-  text-shadow: 0 1px 3px rgba(0, 20, 28, 0.75);
-  animation: danmaku-fly 11s linear forwards;
+  font-size: 15px;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(0, 20, 28, 0.7);
+  animation: danmaku-fly 9s linear forwards;
 }
 
 .seat-glow {

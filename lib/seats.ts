@@ -12,7 +12,7 @@ export function seatLayout(index: number, total: number) {
   const bow = count <= 2 ? 0 : Math.sin((index / Math.max(count - 1, 1)) * Math.PI) * 2.2;
   return {
     left,
-    top: 70 + bow,
+    top: 68 + bow,
     zIndex: 20 + index,
     scale: SCALE[count] ?? 0.56,
   };
