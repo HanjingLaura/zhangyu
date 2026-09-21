@@ -301,7 +301,7 @@ export function submit(
       kind: "octopus",
       text: roast,
       quote: word,
-      tone: idiom ? "ok" : egg ? "egg" : "fail",
+      tone: egg && !idiom ? "egg" : "ok",
     },
   );
 

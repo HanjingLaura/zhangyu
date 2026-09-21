@@ -101,6 +101,16 @@ describe("submit", () => {
     assert.equal(result.game.players[0].zhangyu, 1);
   });
 
+  it("finishes when casual four-character links fill the round limit", () => {
+    const first = submit(index, start(2), "人来疯了");
+    const second = submit(index, first.game, "了却心事");
+    assert.equal(second.ok, true);
+    assert.equal(second.reason, "not-idiom");
+    assert.equal(second.game.rounds, 2);
+    assert.equal(second.game.status, "finished");
+    assert.deepEqual(second.game.chain, ["一鸣惊人", "人来疯了", "了却心事"]);
+  });
+
   it("finishes after the configured number of rounds", () => {
     const first = submit(index, start(2), "人山人海");
     const second = submit(index, first.game, "海阔天空");

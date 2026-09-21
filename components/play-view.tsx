@@ -58,7 +58,7 @@ export function PlayView({
       <TopBar
         title={
           <span>
-            第 {game.rounds + 1} 轮<span className="text-foam/40"> / {game.maxRounds}</span>
+            已接 {game.rounds}<span className="text-foam/40"> / {game.maxRounds}</span>
           </span>
         }
         right={
@@ -107,6 +107,9 @@ export function PlayView({
                   ) : null}
                 </span>
               </div>
+              <p className="mb-1.5 truncate px-0.5 text-[11px] text-ink/45">
+                {game.chain.slice(-3).join(" → ")}
+              </p>
               <div className="flex gap-2">
                 <input
                   id="idiom-input"
