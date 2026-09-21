@@ -66,9 +66,9 @@ body {
 
 .screen-room {
   background:
-    linear-gradient(180deg, rgba(20, 16, 10, 0.2) 0%, transparent 12%),
-    url("/interior.webp?v=7") center 8% / cover no-repeat,
-    #cbb8bc;
+    linear-gradient(180deg, rgba(20, 16, 10, 0.16) 0%, transparent 10%),
+    url("/interior.webp?v=8") center top / cover no-repeat,
+    #c6b4bc;
 }
 
 .drawer {

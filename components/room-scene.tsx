@@ -48,10 +48,10 @@ export function RoomScene({
       {overlay ? (
         <div className="absolute left-1/2 top-[2%] z-[20] w-[90%] max-w-[360px] -translate-x-1/2">{overlay}</div>
       ) : null}
-      <div className="absolute left-[58%] top-[58%] z-[8] w-[20%] -translate-x-1/2 -translate-y-full">
+      <div className="absolute left-[50%] top-[54%] z-[8] w-[20%] -translate-x-1/2 -translate-y-full">
         <div className="relative">
           {bubble ? (
-            <div className="bubble absolute bottom-[96%] left-1/2 z-10 w-max max-w-[9.5rem] -translate-x-1/2 text-center">
+        <div className="bubble absolute bottom-[96%] left-[72%] z-10 w-max max-w-[9.5rem] -translate-x-1/2 text-center">
               {bubble}
             </div>
           ) : null}
