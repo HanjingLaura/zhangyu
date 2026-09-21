@@ -9,10 +9,10 @@ export function seatLayout(index: number, total: number) {
   const margin = MARGIN[count] ?? 10;
   const usable = 100 - margin * 2;
   const left = count === 1 ? 50 : margin + (usable / (count - 1)) * index;
-  const bow = count <= 2 ? 0 : Math.sin((index / Math.max(count - 1, 1)) * Math.PI) * 2.4;
+  const bow = count <= 2 ? 0 : Math.sin((index / Math.max(count - 1, 1)) * Math.PI) * 2.2;
   return {
     left,
-    top: 84 + bow,
+    top: 74 + bow,
     zIndex: 20 + index,
     scale: SCALE[count] ?? 0.56,
   };
