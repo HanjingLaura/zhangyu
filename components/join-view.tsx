@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { SeaCard, SeaField } from "./sea-card";
+import { SeaCard } from "./sea-card";
 
 export function JoinView({
   onBack,
@@ -40,33 +40,31 @@ export function JoinView({
         }
       }}
     >
-      <SeaField label="房号">
-        <div className="relative">
-          <input
-            ref={inputRef}
-            value={code}
-            onChange={(event) => setCode(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4))}
-            maxLength={4}
-            autoCapitalize="characters"
-            autoComplete="off"
-            autoFocus
-            aria-label="房号"
-            className="absolute inset-0 z-[1] cursor-text opacity-0 outline-none"
-          />
-          <div className="flex gap-2">
-            {Array.from({ length: 4 }, (_, index) => (
-              <span
-                key={index}
-                className={`chip flex min-h-[48px] flex-1 items-center justify-center text-center font-display text-lg tracking-[0.2em] ${
-                  code[index] ? "chip-on" : ""
-                }`}
-              >
-                {code[index] || " "}
-              </span>
-            ))}
-          </div>
+      <div className="relative">
+        <input
+          ref={inputRef}
+          value={code}
+          onChange={(event) => setCode(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4))}
+          maxLength={4}
+          autoCapitalize="characters"
+          autoComplete="off"
+          autoFocus
+          aria-label="房号"
+          className="absolute inset-0 z-[1] cursor-text opacity-0 outline-none"
+        />
+        <div className="flex gap-2">
+          {Array.from({ length: 4 }, (_, index) => (
+            <span
+              key={index}
+              className={`chip flex h-12 flex-1 items-center justify-center py-0 text-center font-display text-lg tracking-[0.2em] ${
+                code[index] ? "chip-on" : ""
+              }`}
+            >
+              {code[index] || " "}
+            </span>
+          ))}
         </div>
-      </SeaField>
+      </div>
     </SeaCard>
   );
 }

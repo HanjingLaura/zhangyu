@@ -23,9 +23,9 @@ export function SeaCard({
   return (
     <div className="screen screen-sea">
       <TopBar title={title} onBack={onBack} />
-      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 pb-8">
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-5">
         <form
-          className="w-full max-w-sm space-y-3 rounded-3xl bg-black/25 px-4 py-4"
+          className="h-fit w-full max-w-sm space-y-2.5 rounded-3xl bg-black/25 px-3.5 py-3"
           onSubmit={async (event: FormEvent) => {
             event.preventDefault();
             await onSubmit();
@@ -33,7 +33,7 @@ export function SeaCard({
         >
           {children}
           {error ? <p className="text-center text-sm text-coral">{error}</p> : null}
-          <button type="submit" disabled={busy || disabled} className="btn btn-primary w-full">
+          <button type="submit" disabled={busy || disabled} className="btn btn-primary h-12 w-full py-0">
             {action}
           </button>
         </form>
