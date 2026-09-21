@@ -40,7 +40,11 @@ describe("record poster", () => {
     assert.deepEqual(poster.chain, ["一鸣惊人", "人山人海"]);
     assert.deepEqual(poster.danmaku, [{ name: "Cora", text: "nbb" }]);
     assert.equal(poster.mode, "字接字");
+    assert.equal(poster.scores[0].name, "Cora");
+    assert.equal(poster.scores[0].shells, 6 + 3 + 10);
+    assert.equal(poster.scores[1].shells, 6 + 4);
     assert.match(formatRecord(room), /一鸣惊人 → 人山人海/);
+    assert.match(formatRecord(room), /贝壳 \+19/);
   });
 
   it("wraps a long chain into rows", () => {

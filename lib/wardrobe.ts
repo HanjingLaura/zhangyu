@@ -91,9 +91,28 @@ export function getOutfit(id?: string) {
   return OUTFITS.find((item) => item.id === id) ?? OUTFITS[0];
 }
 
+export type ShellPayout = {
+  base: number;
+  fromCulture: number;
+  cultureBonus: number;
+  zhangyuBonus: number;
+  amount: number;
+};
+
+export function shellPayout(player: Pick<Player, "id" | "culture">, titles: GameTitles | null): ShellPayout {
+  const base = 6;
+  const fromCulture = player.culture * 3;
+  const cultureBonus = titles?.culture.id === player.id ? 10 : 0;
+  const zhangyuBonus = titles?.zhangyu.id === player.id ? 4 : 0;
+  return {
+    base,
+    fromCulture,
+    cultureBonus,
+    zhangyuBonus,
+    amount: Math.min(50, base + fromCulture + cultureBonus + zhangyuBonus),
+  };
+}
+
 export function computeShells(player: Pick<Player, "id" | "culture">, titles: GameTitles | null) {
-  let shells = 6 + player.culture * 3;
-  if (titles?.culture.id === player.id) shells += 10;
-  if (titles?.zhangyu.id === player.id) shells += 4;
-  return Math.min(50, shells);
+  return shellPayout(player, titles).amount;
 }

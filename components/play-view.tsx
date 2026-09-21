@@ -153,8 +153,7 @@ export function PlayView({
         <div className="sheet relative z-10 max-h-[52%] shrink-0 overflow-y-auto rounded-t-[28px] px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4">
           <div className="text-center font-display text-2xl">结算</div>
           <p className="mt-1 text-center text-xs text-ink/50">
-            共 {game.rounds} 轮
-            {you && game.payouts?.[you.id] != null ? ` · 贝壳 +${game.payouts[you.id]}` : ""}
+            共 {game.rounds} 轮 · 底 6 · 文化×3 · 最有文化 +10 · 最丈育 +4 · 最多 50
           </p>
           {titles ? (
             <div className="mt-3 grid grid-cols-2 gap-2 text-center">
@@ -171,17 +170,25 @@ export function PlayView({
             </div>
           ) : null}
           <ol className="mt-3 divide-y divide-ink/8 text-sm">
-            {ranked.map((player, index) => (
-              <li key={player.id} className="flex items-center justify-between gap-3 py-2">
-                <span className="truncate">
-                  <span className="mr-2 text-ink/40">{index + 1}</span>
-                  {player.name}
-                </span>
-                <span className="shrink-0 text-xs text-ink/60">
-                  {player.culture} 分 · 有意思 {player.fun} · 丈育 {player.zhangyu} · 失误 {player.fails}
-                </span>
-              </li>
-            ))}
+            {ranked.map((player, index) => {
+              const shells = game.payouts?.[player.id];
+              return (
+                <li key={player.id} className="flex items-center justify-between gap-3 py-2">
+                  <span className="min-w-0">
+                    <span className="truncate">
+                      <span className="mr-2 text-ink/40">{index + 1}</span>
+                      {player.name}
+                    </span>
+                    <span className="mt-0.5 block text-[11px] text-ink/45">
+                      {player.culture} 分 · 有意思 {player.fun} · 丈育 {player.zhangyu} · 失误 {player.fails}
+                    </span>
+                  </span>
+                  {shells != null ? (
+                    <span className="shrink-0 font-display text-lg text-[#6a5420]">+{shells}</span>
+                  ) : null}
+                </li>
+              );
+            })}
           </ol>
           <div className="mt-4 grid grid-cols-3 gap-2">
             <button

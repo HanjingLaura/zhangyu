@@ -1,5 +1,6 @@
 import { rankPlayers } from "./engine";
 import type { RoomSnapshot } from "./types";
+import { computeShells } from "./wardrobe";
 
 export type RecordPoster = {
   title: string;
@@ -22,6 +23,7 @@ export type RecordPoster = {
     fun: number;
     zhangyu: number;
     fails: number;
+    shells: number;
   }[];
 };
 
@@ -52,6 +54,7 @@ export function buildRecordPoster(room: RoomSnapshot): RecordPoster | null {
       fun: player.fun,
       zhangyu: player.zhangyu,
       fails: player.fails,
+      shells: game.payouts?.[player.id] ?? computeShells(player, titles),
     })),
   };
 }
@@ -105,7 +108,7 @@ export function formatRecord(room: RoomSnapshot) {
     "分数",
     ...poster.scores.map(
       (player) =>
-        `${player.rank}. ${player.name}  ${player.culture} 分  有意思 ${player.fun}  丈育 ${player.zhangyu}  失误 ${player.fails}`,
+        `${player.rank}. ${player.name}  ${player.culture} 分  贝壳 +${player.shells}  有意思 ${player.fun}  丈育 ${player.zhangyu}  失误 ${player.fails}`,
     ),
     "",
     "弹幕",

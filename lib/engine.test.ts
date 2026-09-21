@@ -126,6 +126,16 @@ describe("settlement", () => {
     assert.equal(ended.status, "finished");
   });
 
+  it("does not give 最丈育 and 最有文化 to the same person", () => {
+    const first = submit(index, start(), "人山人海");
+    const second = submit(index, first.game, "海阔天空");
+    const third = submit(index, second.game, "空前绝后");
+    const titles = computeTitles(finishGame(third.game));
+    assert.equal(titles.culture.name, "Cora");
+    assert.equal(titles.zhangyu.name, "Lauraura");
+    assert.notEqual(titles.culture.id, titles.zhangyu.id);
+  });
+
   it("exports the chain and scores", () => {
     const first = submit(index, start(1), "人山人海");
     const room: RoomSnapshot = {

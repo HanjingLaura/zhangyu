@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { computeShells, getOutfit } from "./wardrobe";
+import { computeShells, getOutfit, shellPayout } from "./wardrobe";
 import type { GameTitles, Player } from "./types";
 
 function player(id: string, culture: number): Player {
@@ -28,6 +28,24 @@ describe("shells", () => {
     } as GameTitles;
     assert.equal(computeShells(culture, titles), 6 + 6 + 10);
     assert.equal(computeShells(zhangyu, titles), 6 + 4);
+    assert.deepEqual(shellPayout(culture, titles), {
+      base: 6,
+      fromCulture: 6,
+      cultureBonus: 10,
+      zhangyuBonus: 0,
+      amount: 22,
+    });
+  });
+
+  it("caps a round at 50", () => {
+    const culture = player("a", 20);
+    const titles = {
+      culture,
+      zhangyu: player("b", 0),
+      fun: culture,
+      uncultured: culture,
+    } as GameTitles;
+    assert.equal(computeShells(culture, titles), 50);
   });
 });
 

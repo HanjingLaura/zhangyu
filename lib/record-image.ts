@@ -239,13 +239,9 @@ function drawScores(ctx: CanvasRenderingContext2D, y: number, h: number, poster:
     ctx.textAlign = "left";
     ctx.fillText(`${player.rank}. ${player.name}`, PAD + 24, rowY + 28);
     ctx.textAlign = "right";
-    ctx.fillStyle = MUTED;
-    ctx.font = `16px ${SANS}`;
-    ctx.fillText(
-      `${player.culture} 分 · 有意思 ${player.fun} · 丈育 ${player.zhangyu} · 失误 ${player.fails}`,
-      PAD + INNER - 24,
-      rowY + 28,
-    );
+    ctx.fillStyle = GOLD;
+    ctx.font = `22px ${DISPLAY}`;
+    ctx.fillText(`+${player.shells}`, PAD + INNER - 24, rowY + 28);
   });
   return y + h + 16;
 }

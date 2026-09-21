@@ -30,19 +30,26 @@ function replacePlayer(players: Player[], id: string, next: Player) {
   return players.map((player) => (player.id === id ? next : player));
 }
 
+function rankBy(game: Game, score: (player: Player) => number) {
+  return [...game.players].sort((a, b) => {
+    const delta = score(b) - score(a);
+    if (delta !== 0) return delta;
+    return a.name.localeCompare(b.name, "zh-CN");
+  });
+}
+
 export function computeTitles(game: Game): GameTitles {
-  const ranked = (score: (player: Player) => number) =>
-    [...game.players].sort((a, b) => {
-      const delta = score(b) - score(a);
-      if (delta !== 0) return delta;
-      return a.name.localeCompare(b.name, "zh-CN");
-    })[0];
+  const culture = rankBy(game, (player) => player.culture)[0];
+  const zhangyuRank = rankBy(game, (player) => player.zhangyu);
+  const zhangyu = zhangyuRank.find((player) => player.id !== culture.id) ?? zhangyuRank[0];
+  const fun = rankBy(game, (player) => player.fun)[0];
+  const uncultured = rankBy(game, (player) => player.fails * 10 - player.culture)[0];
 
   return {
-    fun: ranked((player) => player.fun),
-    uncultured: ranked((player) => player.fails * 10 - player.culture),
-    zhangyu: ranked((player) => player.zhangyu),
-    culture: ranked((player) => player.culture),
+    fun,
+    uncultured,
+    zhangyu,
+    culture,
   };
 }
 
