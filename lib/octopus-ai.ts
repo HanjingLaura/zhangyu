@@ -44,11 +44,6 @@ function readNote(value: unknown) {
   return typeof value === "string" && value.trim() ? clipText(value, 10) : "";
 }
 
-function pickPlayer(game: Game, name: unknown, fallback: Game["players"][number]) {
-  if (typeof name !== "string" || !name.trim()) return fallback;
-  return game.players.find((player) => player.name === name.trim()) ?? fallback;
-}
-
 export function parseRoast(raw: string | null, fallback: string) {
   const data = raw ? parseJsonObject(raw) : null;
   return {
@@ -203,15 +198,10 @@ export async function narrateGame(
     const settled = await octopusSettle(context);
     let next = replaceLastOctopus(game, settled.roast);
     if (next.titles) {
-      const zhangyu = pickPlayer(next, settled.zhangyu, next.titles.zhangyu);
-      const culture = pickPlayer(next, settled.culture, next.titles.culture);
       next = {
         ...next,
-        winnerId: culture.id,
         titles: {
           ...next.titles,
-          zhangyu,
-          culture,
           notes: settled.notes,
         },
       };
