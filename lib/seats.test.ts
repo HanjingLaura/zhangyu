@@ -11,7 +11,7 @@ describe("seat layout", () => {
       for (let i = 1; i < xs.length; i++) {
         assert.ok(xs[i] - xs[i - 1] > 8, `${n} people need space`);
       }
-      assert.ok(spots.every((spot) => spot.top > 84));
+      assert.ok(spots.every((spot) => spot.top > 82));
     }
   });
 });

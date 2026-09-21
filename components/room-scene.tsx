@@ -45,13 +45,13 @@ export function RoomScene({
     <div className="relative z-[1] min-h-0 flex-1">
       <DanmakuLayer items={danmaku} />
       {overlay ? (
-        <div className="absolute left-1/2 top-[8%] z-[20] w-[90%] max-w-[360px] -translate-x-1/2">{overlay}</div>
+        <div className="absolute left-1/2 top-[5%] z-[20] w-[88%] max-w-[340px] -translate-x-1/2">{overlay}</div>
       ) : null}
-      <div className="absolute left-1/2 top-[40%] z-[8] w-[22%] -translate-x-1/2">
+      <div className="absolute left-1/2 top-[52%] z-[8] w-[20%] -translate-x-1/2">
         <OctopusFigure className="w-full drop-shadow-[0_10px_8px_rgba(0,20,28,0.35)]" />
       </div>
       {bubble ? (
-        <div className="bubble bubble-left absolute left-[68%] top-[44%] z-[9] w-max max-w-[30%]">
+        <div className="bubble bubble-left absolute left-[66%] top-[54%] z-[9] w-max max-w-[30%]">
           {bubble}
         </div>
       ) : null}

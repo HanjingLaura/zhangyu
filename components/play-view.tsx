@@ -80,7 +80,7 @@ export function PlayView({
         overlay={
           finished ? undefined : (
             <form
-              className="space-y-2 rounded-3xl bg-black/35 px-3 py-3"
+              className="space-y-2 rounded-3xl bg-black/28 px-3 py-2.5"
               onSubmit={(event) => {
                 event.preventDefault();
                 onSubmit();

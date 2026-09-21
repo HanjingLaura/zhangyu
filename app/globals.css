@@ -66,9 +66,9 @@ body {
 
 .screen-room {
   background:
-    linear-gradient(180deg, rgba(20, 16, 10, 0.1) 0%, transparent 18%, rgba(20, 12, 8, 0.16) 100%),
-    url("/interior.webp") center 28% / cover no-repeat,
-    #6d8a52;
+    linear-gradient(180deg, rgba(20, 16, 10, 0.12) 0%, transparent 16%, rgba(20, 12, 8, 0.08) 100%),
+    url("/interior.webp") center 42% / cover no-repeat,
+    #c9b4bb;
 }
 
 .drawer {
@@ -224,6 +224,6 @@ body {
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
   mask-position: center;
-  -webkit-mask-mode: alpha;
-  mask-mode: alpha;
+  -webkit-mask-mode: luminance;
+  mask-mode: luminance;
 }

@@ -37,7 +37,7 @@ export function LobbyView({
         youId={you.id}
         danmaku={room.danmaku}
         overlay={
-          <div className="space-y-2 rounded-3xl bg-black/35 px-3 py-3 text-center">
+          <div className="space-y-2 rounded-3xl bg-black/28 px-3 py-2.5 text-center">
             <div className="font-display text-[28px] tracking-[0.28em] text-gold">{room.code}</div>
             <div className="text-[11px] text-foam/55">
               {room.maxRounds} 轮 · {room.mode === "char" ? "字接字" : "音接音"}

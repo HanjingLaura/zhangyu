@@ -77,7 +77,7 @@ export function Figure({
         <img src={outfit.mask} alt="" className="hidden" />
       ) : null}
       <span
-        className="visor-hole absolute inset-0 bg-[#1a120c]"
+        className="visor-hole absolute inset-0"
         style={
           outfit.mask
             ? {
