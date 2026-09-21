@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { TopBar } from "./shell";
+import { useRef, useState } from "react";
+import { SeaCard, SeaField } from "./sea-card";
 
 export function JoinView({
   onBack,
@@ -13,45 +13,60 @@ export function JoinView({
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="screen screen-sea">
-      <TopBar title="加入房间" onBack={onBack} />
-      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 pb-8">
-        <form
-          className="w-full max-w-sm space-y-4 rounded-3xl bg-black/25 px-4 py-5"
-          onSubmit={async (event) => {
-            event.preventDefault();
-            setBusy(true);
-            setError("");
-            try {
-              await onJoin(code.trim().toUpperCase());
-            } catch (err) {
-              setError(err instanceof Error ? err.message : "加入失败");
-            } finally {
-              setBusy(false);
-            }
-          }}
-        >
-          <div>
-            <div className="mb-2 text-xs text-foam/50">房号</div>
-            <input
-              value={code}
-              onChange={(event) => setCode(event.target.value.toUpperCase())}
-              placeholder="四位房号"
-              className="field text-center font-display text-3xl tracking-[0.4em] placeholder:font-sans placeholder:text-base placeholder:tracking-normal"
-              maxLength={4}
-              autoCapitalize="characters"
-              autoComplete="off"
-              autoFocus
-            />
+    <SeaCard
+      title="加入房间"
+      action="加入"
+      error={error}
+      busy={busy}
+      onBack={onBack}
+      onSubmit={async () => {
+        const next = code.trim().toUpperCase();
+        if (next.length < 4) {
+          setError("请输入四位房号");
+          inputRef.current?.focus();
+          return;
+        }
+        setBusy(true);
+        setError("");
+        try {
+          await onJoin(next);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "加入失败");
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      <SeaField label="房号">
+        <div className="relative">
+          <input
+            ref={inputRef}
+            value={code}
+            onChange={(event) => setCode(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4))}
+            maxLength={4}
+            autoCapitalize="characters"
+            autoComplete="off"
+            autoFocus
+            aria-label="房号"
+            className="absolute inset-0 z-[1] cursor-text opacity-0"
+          />
+          <div className="flex gap-2">
+            {Array.from({ length: 4 }, (_, index) => (
+              <span
+                key={index}
+                className={`chip flex-1 py-2.5 text-center font-display text-lg tracking-[0.2em] ${
+                  code[index] ? "chip-on" : ""
+                }`}
+              >
+                {code[index] ?? "·"}
+              </span>
+            ))}
           </div>
-          {error ? <p className="text-center text-sm text-coral">{error}</p> : null}
-          <button type="submit" disabled={busy || code.length < 4} className="btn btn-primary w-full">
-            加入
-          </button>
-        </form>
-      </div>
-    </div>
+        </div>
+      </SeaField>
+    </SeaCard>
   );
 }
