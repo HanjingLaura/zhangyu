@@ -6,10 +6,11 @@ const dest = "https://zhangyu-roan.vercel.app";
 
 const nextConfig: NextConfig = {
   basePath,
-  assetPrefix: process.env.VERCEL_ENV === "production" ? dest : undefined,
+  // basePath is not appended to assetPrefix; dest assets live under /zhangyu/_next.
+  assetPrefix: process.env.VERCEL_ENV === "production" ? dest + basePath : undefined,
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
-    NEXT_PUBLIC_BUILD: "20260921-buzz",
+    NEXT_PUBLIC_BUILD: "20260921-buzz2",
   },
 };
 
