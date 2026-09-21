@@ -54,10 +54,18 @@ export function parsePlayer(request: Request, body?: unknown): UserPublic | null
   };
 }
 
+function latin1(value: string) {
+  return /^[\x00-\xff]*$/.test(value) ? value : "";
+}
+
 export function playerHeaders(user: Pick<UserPublic, "id" | "name" | "outfit"> | null) {
   if (!user) return {} as Record<string, string>;
   return {
-    "x-zy-player": JSON.stringify({ id: user.id, name: user.name, outfit: user.outfit }),
+    "x-zy-player": JSON.stringify({
+      id: user.id,
+      name: latin1(user.name) || user.id,
+      outfit: user.outfit,
+    }),
   };
 }
 
