@@ -27,10 +27,15 @@ describe("seat layout", () => {
 });
 
 describe("room options", () => {
-  it("only keeps 字接字 / 音接音 and 20 50 100", () => {
+  it("only keeps 字接字 / 音接音 / 英文 and 20 50 100", () => {
     assert.deepEqual(parseRoomOptions({ mode: "pinyin", maxRounds: 20 }), {
       mode: "pinyin",
       maxRounds: 20,
+      buzz: false,
+    });
+    assert.deepEqual(parseRoomOptions({ mode: "english", maxRounds: 50 }), {
+      mode: "english",
+      maxRounds: 50,
       buzz: false,
     });
     assert.deepEqual(parseRoomOptions({ mode: "nope", maxRounds: 7 }), { mode: "char", maxRounds: 100, buzz: false });

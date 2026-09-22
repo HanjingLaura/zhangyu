@@ -1,4 +1,4 @@
-export type LinkMode = "char" | "pinyin";
+export type LinkMode = "char" | "pinyin" | "english";
 
 export type Player = {
   id: string;
@@ -118,6 +118,7 @@ export type SubmitResult = {
     | "finished"
     | "not-idiom"
     | "not-four"
+    | "not-word"
     | "used"
     | "unlink"
     | "egg"

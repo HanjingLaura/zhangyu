@@ -34,9 +34,18 @@ export function seatLayout(index: number, total: number) {
   };
 }
 
+export function modeLabel(mode?: string) {
+  if (mode === "pinyin") return "音接音";
+  if (mode === "english") return "英文";
+  return "字接字";
+}
+
 export function parseRoomOptions(body: { mode?: string; maxRounds?: number; buzz?: boolean }) {
   return {
-    mode: body.mode === "pinyin" ? ("pinyin" as const) : ("char" as const),
+    mode:
+      body.mode === "pinyin" || body.mode === "english"
+        ? body.mode
+        : ("char" as const),
     maxRounds: ROUND_OPTIONS.includes(body.maxRounds as (typeof ROUND_OPTIONS)[number])
       ? (body.maxRounds as (typeof ROUND_OPTIONS)[number])
       : 100,

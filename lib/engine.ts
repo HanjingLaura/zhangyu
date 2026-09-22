@@ -1,4 +1,12 @@
 import {
+  englishCandidates,
+  englishLinks,
+  isEnglishWord,
+  normalizeEnglish,
+  pickEnglishHints,
+  pickEnglishOpening,
+} from "./english";
+import {
   candidates,
   lastChar,
   links,
@@ -177,7 +185,7 @@ export function createGame(index: IdiomIndex, config: GameConfig): Game {
     out: false,
   }));
 
-  const opening = pickOpening(index, config.opening);
+  const opening = config.mode === "english" ? pickEnglishOpening() : pickOpening(index, config.opening);
   const seed: Game = {
     mode: config.mode,
     players,
@@ -216,12 +224,15 @@ export function currentNeed(game: Game) {
 export function hint(index: IdiomIndex, game: Game): Game {
   if (game.status !== "playing") return game;
   const prev = game.chain[game.chain.length - 1];
-  const options = pickHints(index, prev, game.mode, game.used, 3);
+  const options =
+    game.mode === "english"
+      ? pickEnglishHints(prev, game.used, 3)
+      : pickHints(index, prev, game.mode, game.used, 3);
   const player = game.players[game.turn];
   if (options.length === 0) {
     return append(
       { ...game, lastHint: null },
-      { kind: "octopus", text: lines.deadEnd(), tone: "hint" },
+      { kind: "octopus", text: game.mode === "english" ? lines.deadEndLetter() : lines.deadEnd(), tone: "hint" },
     );
   }
   const word = options[0];
@@ -252,12 +263,16 @@ export function submit(
     return { game, ok: false, reason: "finished" };
   }
 
-  const word = raw.replace(/\s+/g, "").trim();
   const player = game.players[game.turn];
   const prev = game.chain[game.chain.length - 1];
+  const word = game.mode === "english" ? normalizeEnglish(raw) : raw.replace(/\s+/g, "").trim();
 
   if (!word) {
     return applyFail(game, lines.empty(), "empty");
+  }
+
+  if (game.mode === "english") {
+    return submitEnglish(game, player, prev, word);
   }
 
   const egg = detectEgg(word);
@@ -315,12 +330,61 @@ export function submit(
   return { game: next, ok: true, reason };
 }
 
+function submitEnglish(game: Game, player: Player, prev: string, word: string): SubmitResult {
+  const spoken = append(game, {
+    kind: "player",
+    playerId: player.id,
+    text: word,
+  });
+  if (word.length < 2 || !isEnglishWord(word)) {
+    return applyFail(spoken, lines.notWord(), "not-word");
+  }
+  if (spoken.used.some((item) => normalizeEnglish(item) === word)) {
+    return applyFail(spoken, lines.used(), "used");
+  }
+  if (!englishLinks(prev, word)) {
+    return applyFail(spoken, lines.unlink(), "unlink");
+  }
+
+  const scored: Player = {
+    ...player,
+    culture: player.culture + 1,
+  };
+  let next = append(
+    {
+      ...spoken,
+      players: replacePlayer(spoken.players, player.id, scored),
+      chain: [...spoken.chain, word],
+      used: [...spoken.used, word],
+      lastHint: null,
+      rounds: spoken.rounds + 1,
+    },
+    {
+      kind: "octopus",
+      text: lines.ok(),
+      quote: word,
+      tone: "ok",
+    },
+  );
+  next = maybeFinish(next);
+  if (next.status === "playing") {
+    next = announceTurn({
+      ...next,
+      turn: next.buzz ? spoken.turn : nextIndex(next.players, spoken.turn),
+    });
+  }
+  return { game: next, ok: true, reason: "ok" };
+}
+
 export function pass(index: IdiomIndex, game: Game): SubmitResult {
   if (game.status !== "playing") {
     return { game, ok: false, reason: "finished" };
   }
   const prev = game.chain[game.chain.length - 1];
-  const moves = candidates(index, prev, game.mode, game.used);
+  const moves =
+    game.mode === "english"
+      ? englishCandidates(prev, game.used)
+      : candidates(index, prev, game.mode, game.used);
   const player = game.players[game.turn];
   const spoken = append(game, {
     kind: "player",
@@ -332,7 +396,7 @@ export function pass(index: IdiomIndex, game: Game): SubmitResult {
   if (moves.length === 0) {
     const skipped = append(
       { ...spoken, lastHint: null },
-      { kind: "octopus", text: lines.deadEnd(), tone: "hint" },
+      { kind: "octopus", text: game.mode === "english" ? lines.deadEndLetter() : lines.deadEnd(), tone: "hint" },
     );
     return {
       game: announceTurn({

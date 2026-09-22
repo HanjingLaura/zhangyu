@@ -66,7 +66,7 @@ export async function apiUploadAvatar(image: string) {
 }
 
 export async function apiCreateRoom(options?: {
-  mode?: "char" | "pinyin";
+  mode?: "char" | "pinyin" | "english";
   maxRounds?: number;
   buzz?: boolean;
 }) {
@@ -97,7 +97,7 @@ export async function apiJoinRoom(code: string) {
 export async function apiConfigureRoom(
   code: string,
   patch: {
-    mode?: "char" | "pinyin";
+    mode?: "char" | "pinyin" | "english";
     tentacles?: number;
     opening?: "random" | "yiming" | "longfei";
     maxRounds?: number;

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { currentNeed } from "@/lib/engine";
+import { modeLabel } from "@/lib/seats";
 import type { RoomSnapshot, UserPublic } from "@/lib/types";
 import { lastSpeeches } from "@/lib/speeches";
 import { RoomScene } from "./room-scene";
@@ -63,7 +64,7 @@ export function PlayView({
         }
         right={
           <span>
-            {game.mode === "char" ? "字接字" : "音接音"}
+            {modeLabel(game.mode)}
             {buzz ? " · 抢答" : ""}
           </span>
         }
@@ -117,6 +118,7 @@ export function PlayView({
                   onChange={(event) => onDraft(event.target.value)}
                   placeholder={`接「${need.char}」`}
                   disabled={!mine}
+                  autoCapitalize={game.mode === "english" ? "none" : undefined}
                   className="min-w-0 flex-1 rounded-[14px] border border-ink/10 bg-white px-3 py-2.5 text-[15px] text-ink outline-none placeholder:text-ink/30 disabled:opacity-40"
                   autoComplete="off"
                 />

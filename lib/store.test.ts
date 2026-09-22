@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { beforeEach, describe, it } from "node:test";
+import { englishCandidates } from "./english";
 import { createRoom, getRoom, joinRoom, leaveRoom, resetMemoryRooms, startRoom, playRoom } from "./store";
 import type { UserPublic } from "./types";
 
@@ -51,5 +52,22 @@ describe("shared rooms", () => {
     assert.equal(stolen.game?.rounds, 1);
     assert.deepEqual(stolen.game?.chain.slice(-1), ["人来疯了"]);
     assert.equal(stolen.game?.players.find((player) => player.id === guest.id)?.zhangyu, 1);
+  });
+
+  it("plays an English word chain", async () => {
+    const host = user("uaaa111111", "甲甲");
+    const guest = user("ubbb222222", "乙乙");
+    const created = await createRoom(host, { mode: "english", maxRounds: 20 });
+    assert.equal(created.mode, "english");
+    await joinRoom(created.code, guest);
+    const playing = await startRoom(created.code, host.id);
+    const prev = playing.game?.chain.at(-1) ?? "";
+    assert.match(prev, /^[a-z]{2,}$/);
+    const word = englishCandidates(prev, playing.game?.used ?? [])[0];
+    assert.ok(word);
+    const moved = await playRoom(created.code, host.id, "submit", word, prev);
+    assert.equal(moved.game?.rounds, 1);
+    assert.equal(moved.game?.chain.at(-1), word);
+    assert.equal(moved.game?.players[0].culture, 1);
   });
 });

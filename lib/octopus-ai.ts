@@ -82,6 +82,8 @@ function reasonLabel(reason?: RoastContext["reason"]) {
       return "不是成语，四个字也算";
     case "not-four":
       return "不是四个字";
+    case "not-word":
+      return "不是英文单词";
     case "unlink":
       return "没接上";
     case "used":

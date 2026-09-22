@@ -1,6 +1,6 @@
 "use client";
 
-import { MAX_PLAYERS } from "@/lib/seats";
+import { MAX_PLAYERS, modeLabel } from "@/lib/seats";
 import type { RoomSnapshot, UserPublic } from "@/lib/types";
 import { RoomScene } from "./room-scene";
 import { TopBar } from "./shell";
@@ -40,7 +40,7 @@ export function LobbyView({
           <div className="space-y-2 rounded-[22px] bg-[#f7f1de] px-3 py-2.5 text-center text-ink shadow-[0_12px_28px_rgba(0,20,28,0.35)]">
             <div className="font-display text-[28px] tracking-[0.28em] text-[#6a5420]">{room.code}</div>
             <div className="text-[11px] text-ink/45">
-              {room.maxRounds} 轮 · {room.mode === "char" ? "字接字" : "音接音"}
+              {room.maxRounds} 轮 · {modeLabel(room.mode)}
               {room.buzz ? " · 抢答" : ""}
             </div>
             {error ? <p className="text-sm text-coral">{error}</p> : null}

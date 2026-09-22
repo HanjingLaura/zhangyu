@@ -1,4 +1,5 @@
 import { rankPlayers } from "./engine";
+import { modeLabel } from "./seats";
 import type { RoomSnapshot } from "./types";
 import { computeShells } from "./wardrobe";
 
@@ -34,7 +35,7 @@ export function buildRecordPoster(room: RoomSnapshot): RecordPoster | null {
   return {
     title: "章鱼哥接龙",
     code: room.code,
-    mode: `${game.mode === "char" ? "字接字" : "音接音"}${room.buzz || game.buzz ? " · 抢答" : ""}`,
+    mode: `${modeLabel(game.mode)}${room.buzz || game.buzz ? " · 抢答" : ""}`,
     rounds: game.rounds,
     maxRounds: game.maxRounds,
     chain: game.chain,

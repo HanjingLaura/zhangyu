@@ -209,6 +209,59 @@ describe("clockwise turns", () => {
   });
 });
 
+describe("english mode", () => {
+  it("accepts a linked dictionary word and counts a round", () => {
+    const game = createGame(index, {
+      names: ["Cora", "Lauraura"],
+      mode: "english",
+      tentacles: 2,
+      opening: "yiming",
+      maxRounds: 20,
+    });
+    const prev = game.chain[0];
+    assert.match(prev, /^[a-z]{2,}$/);
+    const known: Record<string, string> = {
+      n: "night",
+      r: "river",
+      s: "school",
+      e: "earth",
+      t: "table",
+      d: "dance",
+      l: "light",
+      c: "chain",
+    };
+    const word = known[prev.slice(-1)] ?? "apple";
+    const result = submit(index, game, word);
+    assert.equal(result.ok, true, result.reason);
+    assert.equal(result.game.rounds, 1);
+    assert.equal(result.game.chain.at(-1), word);
+    assert.equal(result.game.players[0].culture, 1);
+  });
+
+  it("rejects a non-word and a broken English link", () => {
+    const game = {
+      ...createGame(index, {
+        names: ["A", "B"],
+        mode: "english",
+        tentacles: 2,
+        opening: "yiming",
+        maxRounds: 20,
+      }),
+      chain: ["ocean"],
+      used: ["ocean"],
+    };
+    const fake = submit(index, game, "xyzzy");
+    assert.equal(fake.ok, false);
+    assert.equal(fake.reason, "not-word");
+    assert.equal(fake.game.rounds, 0);
+    const unlink = submit(index, game, "apple");
+    assert.equal(unlink.reason, "unlink");
+    const ok = submit(index, game, "night");
+    assert.equal(ok.ok, true);
+    assert.deepEqual(ok.game.chain, ["ocean", "night"]);
+  });
+});
+
 describe("pinyin mode", () => {
   it("allows same-sound links", () => {
     const game = createGame(index, {

@@ -22,7 +22,7 @@ export async function POST(request: Request, { params }: Params) {
   const { code } = await params;
   const body = (await request.json().catch(() => ({}))) as {
     action?: string;
-    mode?: "char" | "pinyin";
+    mode?: "char" | "pinyin" | "english";
     tentacles?: number;
     opening?: "random" | "yiming" | "longfei";
     maxRounds?: number;

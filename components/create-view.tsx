@@ -41,13 +41,14 @@ export function CreateView({
             [
               ["char", "字接字"],
               ["pinyin", "音接音"],
+              ["english", "英文"],
             ] as const
           ).map(([id, label]) => (
             <button
               key={id}
               type="button"
               onClick={() => setMode(id)}
-              className={`chip flex min-h-[42px] flex-1 items-center justify-center py-2.5 text-center ${mode === id ? "chip-on" : ""}`}
+              className={`chip flex min-h-[42px] min-w-0 flex-1 items-center justify-center px-1 py-2.5 text-center ${mode === id ? "chip-on" : ""}`}
             >
               {label}
             </button>

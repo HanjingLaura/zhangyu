@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { apiHistory } from "@/lib/client";
 import { historyToRoom, type HistoryRecord } from "@/lib/history";
+import { modeLabel } from "@/lib/seats";
 import { SettleView } from "./settle-view";
 import { TopBar } from "./shell";
 
@@ -49,7 +50,7 @@ export function HistoryView({ onBack }: { onBack: () => void }) {
                 <span className="min-w-0">
                   <span className="block truncate text-sm">{item.scores.map((score) => score.name).join("、")}</span>
                   <span className="mt-0.5 block text-[11px] text-foam/45">
-                    {item.mode === "char" ? "字接字" : "音接音"}
+                    {modeLabel(item.mode)}
                     {item.buzz ? " · 抢答" : ""} · {item.rounds} 轮 · {item.code}
                   </span>
                 </span>
