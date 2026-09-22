@@ -64,5 +64,7 @@ describe("outfits", () => {
       assert.match(outfit.mask ?? "", new RegExp(`${id}-mask\\.webp$`));
       assert.ok(outfit.hole);
     }
+    assert.equal(getOutfit("crab").name, "蟹老板");
+    assert.equal(getOutfit("sponge").name, "海绵厨师");
   });
 });
