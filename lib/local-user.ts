@@ -119,7 +119,7 @@ export async function registerLocal(name: string, password: string, avatarUrl?: 
     name: clean,
     pin: await hashPin(password),
     avatarUrl: avatarUrl || undefined,
-    shells: 0,
+    shells: 20,
     owned: normalizeOwned(["astronaut"]),
     outfit: "astronaut",
     paid: [],

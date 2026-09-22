@@ -22,12 +22,14 @@ export function ShopView({
     <div className="screen">
       <TopBar title="服装" right={<span className="text-sm text-foam">贝壳 {user.shells}</span>} onBack={onBack} />
       <div className="relative z-10 flex-1 space-y-3 overflow-y-auto px-4 pb-8 pt-2">
+        <p className="px-1 text-xs text-foam/45">新号送 20 贝壳。打完一局还能再拿，头像会嵌在开口里。</p>
         {OUTFITS.map((outfit) => {
           const owned = outfit.price === 0 || user.owned.includes(outfit.id);
           const wearing = user.outfit === outfit.id;
+          const short = Math.max(0, outfit.price - user.shells);
           return (
             <div key={outfit.id} className="flex items-center gap-3 rounded-3xl bg-black/20 px-3 py-2.5">
-              <div className="flex h-[148px] w-[112px] shrink-0 items-end justify-center overflow-hidden rounded-2xl bg-white/95">
+              <div className="flex h-[148px] w-[112px] shrink-0 items-end justify-center overflow-hidden rounded-2xl bg-[#d7ece8]">
                 <Figure name={user.name} src={user.avatarUrl} outfitId={outfit.id} size={148} />
               </div>
               <div className="min-w-0 flex-1">
@@ -40,6 +42,8 @@ export function ShopView({
                 <button type="button" onClick={() => onWear(outfit.id)} className="btn btn-quiet px-4 py-2 text-sm">
                   穿上
                 </button>
+              ) : short ? (
+                <span className="text-sm text-foam/40">还差 {short}</span>
               ) : (
                 <button type="button" onClick={() => onBuy(outfit.id)} className="btn btn-primary px-4 py-2 text-sm">
                   兑换

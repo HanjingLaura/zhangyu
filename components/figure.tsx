@@ -1,3 +1,4 @@
+import { colorFor } from "./avatar";
 import { getOutfit } from "@/lib/wardrobe";
 
 function Face({
@@ -28,8 +29,8 @@ function Face({
   }
   return (
     <span
-      className="absolute flex items-center justify-center text-[11px] font-semibold text-[#f4f7f2]"
-      style={style}
+      className="absolute flex items-center justify-center font-semibold text-ink"
+      style={{ ...style, background: colorFor(name || "座") }}
     >
       {name.slice(0, 1)}
     </span>

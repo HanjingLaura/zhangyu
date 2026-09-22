@@ -92,18 +92,19 @@ describe("local user", () => {
   it("keeps nickname, shells, clothes, and history on this browser", async () => {
     const user = await registerLocal("甲甲", "pass");
     assert.equal(user.outfit, "astronaut");
+    assert.equal(user.shells, 20);
     assert.equal(loadCurrentUser()?.id, user.id);
     const paid = syncFinishedGame(finishedRoom(user.id));
-    assert.equal(paid?.shells, 22);
+    assert.equal(paid?.shells, 42);
     assert.equal(listLocalHistory().length, 1);
-    assert.equal(syncFinishedGame(finishedRoom(user.id))?.shells, 22);
+    assert.equal(syncFinishedGame(finishedRoom(user.id))?.shells, 42);
     const bought = buyOutfitLocal("diver");
     assert.equal(bought.outfit, "diver");
-    assert.equal(bought.shells, 6);
+    assert.equal(bought.shells, 26);
     logoutLocal();
     assert.equal(loadCurrentUser(), null);
     const again = await loginLocal("甲甲", "pass");
-    assert.equal(again.shells, 6);
+    assert.equal(again.shells, 26);
     assert.equal(again.outfit, "diver");
   });
 });
