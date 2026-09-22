@@ -5,10 +5,7 @@ export type OutfitId =
   | "astronaut"
   | "ranger"
   | "diver"
-  | "copper"
-  | "crab"
   | "knight"
-  | "panda"
   | "mecha"
   | "bee"
   | "starfish"
@@ -55,36 +52,12 @@ export const OUTFITS: Outfit[] = [
     hole: { cx: 47.99, cy: 24.93, rw: 18.77, rh: 19.14 },
   },
   {
-    id: "copper",
-    name: "铜盔潜水员",
-    price: 18,
-    src: withBase("/outfits/1.webp"),
-    aspect: 720 / 960,
-    hole: { cx: 50, cy: 16, rw: 8, rh: 8 },
-  },
-  {
-    id: "crab",
-    name: "蟹老板",
-    price: 16,
-    src: withBase("/outfits/2.webp"),
-    aspect: 720 / 960,
-    hole: { cx: 50, cy: 24, rw: 16, rh: 14 },
-  },
-  {
     id: "knight",
     name: "骑士",
     price: 18,
     src: withBase("/outfits/3.webp"),
     aspect: 720 / 960,
     hole: { cx: 50, cy: 12, rw: 7, rh: 8 },
-  },
-  {
-    id: "panda",
-    name: "熊猫",
-    price: 16,
-    src: withBase("/outfits/4.webp"),
-    aspect: 720 / 960,
-    hole: { cx: 50, cy: 28, rw: 10, rh: 10 },
   },
   {
     id: "mecha",

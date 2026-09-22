@@ -28,12 +28,7 @@ export function ShopView({
           return (
             <div key={outfit.id} className="flex items-center gap-3 rounded-3xl bg-black/20 px-3 py-2.5">
               <div className="flex h-[148px] w-[112px] shrink-0 items-end justify-center overflow-hidden rounded-2xl bg-white/95">
-                {outfit.mask ? (
-                  <Figure name={user.name} src={user.avatarUrl} outfitId={outfit.id} size={148} />
-                ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={outfit.src} alt={outfit.name} className="h-full w-full object-contain" />
-                )}
+                <Figure name={user.name} src={user.avatarUrl} outfitId={outfit.id} size={148} />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-[15px]">{outfit.name}</div>
