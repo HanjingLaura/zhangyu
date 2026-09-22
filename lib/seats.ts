@@ -1,3 +1,5 @@
+import type { LinkMode } from "./types";
+
 export const MAX_PLAYERS = 6;
 export const ROUND_OPTIONS = [20, 50, 100] as const;
 
@@ -40,12 +42,15 @@ export function modeLabel(mode?: string) {
   return "字接字";
 }
 
-export function parseRoomOptions(body: { mode?: string; maxRounds?: number; buzz?: boolean }) {
+export function parseRoomOptions(body: { mode?: string; maxRounds?: number; buzz?: boolean }): {
+  mode: LinkMode;
+  maxRounds: (typeof ROUND_OPTIONS)[number];
+  buzz: boolean;
+} {
+  const mode: LinkMode =
+    body.mode === "pinyin" ? "pinyin" : body.mode === "english" ? "english" : "char";
   return {
-    mode:
-      body.mode === "pinyin" || body.mode === "english"
-        ? body.mode
-        : ("char" as const),
+    mode,
     maxRounds: ROUND_OPTIONS.includes(body.maxRounds as (typeof ROUND_OPTIONS)[number])
       ? (body.maxRounds as (typeof ROUND_OPTIONS)[number])
       : 100,
