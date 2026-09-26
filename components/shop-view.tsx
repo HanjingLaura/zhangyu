@@ -22,7 +22,6 @@ export function ShopView({
     <div className="screen">
       <TopBar title="服装" right={<span className="text-sm text-foam">贝壳 {user.shells}</span>} onBack={onBack} />
       <div className="relative z-10 flex-1 space-y-3 overflow-y-auto px-4 pb-8 pt-2">
-        <p className="px-1 text-xs text-foam/45">新号送 20 贝壳。打完一局还能再拿，头像会嵌在开口里。</p>
         {OUTFITS.map((outfit) => {
           const owned = outfit.price === 0 || user.owned.includes(outfit.id);
           const wearing = user.outfit === outfit.id;

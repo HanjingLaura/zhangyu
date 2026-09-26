@@ -15,6 +15,7 @@ import {
   apiUpdateName,
   apiUploadAvatar,
 } from "@/lib/client";
+import { withBase } from "@/lib/base-path";
 import { syncFinishedGame } from "@/lib/local-user";
 import type { RoomSnapshot, UserPublic } from "@/lib/types";
 import { AuthView } from "./auth-view";
@@ -38,6 +39,14 @@ export function GameApp() {
   const [room, setRoom] = useState<RoomSnapshot | null>(null);
   const [draft, setDraft] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    for (const src of ["/house.webp?v=4", "/sand.webp"]) {
+      const img = new Image();
+      img.src = withBase(src);
+      void img.decode?.().catch(() => undefined);
+    }
+  }, []);
 
   useEffect(() => {
     apiMe()
@@ -85,21 +94,27 @@ export function GameApp() {
         <div className="screen items-center justify-center text-foam/50">加载中</div>
       ) : null}
       {view === "auth" ? <AuthView onReady={(next) => { setUser(next); setView("home"); }} /> : null}
-      {view === "home" && user ? (
-        <HomeView
-          onCreate={() => {
-            setError("");
-            setView("create");
-          }}
-          onJoin={() => setView("join")}
-          onRules={() => setView("rules")}
-          onScenes={() => setView("scenes")}
-          onShop={() => setView("shop")}
-          onSettings={() => {
-            setError("");
-            setView("settings");
-          }}
-        />
+      {user ? (
+        <div
+          className={view === "home" ? "h-full" : "invisible pointer-events-none absolute inset-0"}
+          inert={view === "home" ? undefined : true}
+          aria-hidden={view === "home" ? undefined : true}
+        >
+          <HomeView
+            onCreate={() => {
+              setError("");
+              setView("create");
+            }}
+            onJoin={() => setView("join")}
+            onRules={() => setView("rules")}
+            onScenes={() => setView("scenes")}
+            onShop={() => setView("shop")}
+            onSettings={() => {
+              setError("");
+              setView("settings");
+            }}
+          />
+        </div>
       ) : null}
       {view === "create" ? (
         <CreateView

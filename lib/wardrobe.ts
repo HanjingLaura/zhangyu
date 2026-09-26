@@ -49,7 +49,7 @@ export const OUTFITS: Outfit[] = [
     src: withBase("/suit-diver.webp"),
     mask: withBase("/suit-diver-mask.webp"),
     aspect: 373 / 418,
-    hole: { cx: 47.99, cy: 24.93, rw: 18.77, rh: 19.14 },
+    hole: { cx: 48.39, cy: 24.4, rw: 21.58, rh: 18.66 },
   },
   {
     id: "knight",

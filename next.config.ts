@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
   assetPrefix: process.env.VERCEL_ENV === "production" ? dest + basePath : undefined,
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
-    NEXT_PUBLIC_BUILD: "20260922-cutouts",
+    NEXT_PUBLIC_BUILD: "20260926-home",
   },
 };
 
