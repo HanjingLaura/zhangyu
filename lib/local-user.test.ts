@@ -98,13 +98,13 @@ describe("local user", () => {
     assert.equal(paid?.shells, 42);
     assert.equal(listLocalHistory().length, 1);
     assert.equal(syncFinishedGame(finishedRoom(user.id))?.shells, 42);
-    const bought = buyOutfitLocal("diver");
-    assert.equal(bought.outfit, "diver");
-    assert.equal(bought.shells, 26);
+    const bought = buyOutfitLocal("bee");
+    assert.equal(bought.outfit, "bee");
+    assert.equal(bought.shells, 28);
     logoutLocal();
     assert.equal(loadCurrentUser(), null);
     const again = await loginLocal("甲甲", "pass");
-    assert.equal(again.shells, 26);
-    assert.equal(again.outfit, "diver");
+    assert.equal(again.shells, 28);
+    assert.equal(again.outfit, "bee");
   });
 });

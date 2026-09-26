@@ -58,7 +58,7 @@ describe("outfits", () => {
   });
 
   it("clips each face to that outfit's helmet opening", () => {
-    for (const id of ["astronaut", "ranger", "diver", "knight", "mecha", "bee", "starfish", "sponge"] as const) {
+    for (const id of ["astronaut", "ranger", "mecha", "bee", "starfish", "sponge"] as const) {
       const outfit = getOutfit(id);
       assert.ok(outfit.mask, `${id} needs a visor mask`);
       assert.match(outfit.mask ?? "", /mask\.webp$/);
@@ -67,7 +67,8 @@ describe("outfits", () => {
     assert.equal(getOutfit("copper").id, "astronaut");
     assert.equal(getOutfit("crab").id, "astronaut");
     assert.equal(getOutfit("panda").id, "astronaut");
-    assert.equal(getOutfit("knight").name, "骑士");
+    assert.equal(getOutfit("diver").id, "astronaut");
+    assert.equal(getOutfit("knight").id, "astronaut");
     assert.equal(getOutfit("mecha").name, "机甲");
     assert.equal(getOutfit("bee").name, "蜜蜂");
     assert.equal(getOutfit("starfish").name, "粉海星");
