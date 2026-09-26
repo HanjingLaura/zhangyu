@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   apiCreateRoom,
   apiDanmaku,
@@ -15,7 +15,7 @@ import {
   apiUpdateName,
   apiUploadAvatar,
 } from "@/lib/client";
-import { withBase } from "@/lib/base-path";
+import { backdropKind, warmAssets, warmUrls } from "@/lib/assets";
 import { syncFinishedGame } from "@/lib/local-user";
 import type { RoomSnapshot, UserPublic } from "@/lib/types";
 import { AuthView } from "./auth-view";
@@ -28,7 +28,10 @@ import { RulesView } from "./rules-view";
 import { HistoryView } from "./history-view";
 import { SettingsView } from "./settings-view";
 import { ShopView } from "./shop-view";
+import { AssetWarm } from "./asset-warm";
 import { BgmProvider } from "./bgm";
+import { Keep } from "./keep";
+import { SceneBackdrop } from "./scene-backdrop";
 import { GameCabinet } from "./shell";
 
 type View = "boot" | "auth" | "home" | "create" | "join" | "lobby" | "play" | "rules" | "scenes" | "shop" | "settings";
@@ -41,21 +44,36 @@ export function GameApp() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    for (const src of ["/house.webp?v=4", "/sand.webp"]) {
-      const img = new Image();
-      img.src = withBase(src);
-      void img.decode?.().catch(() => undefined);
-    }
+    let cancel = false;
+    Promise.all([
+      apiMe().catch(() => null),
+      Promise.race([
+        warmAssets(),
+        new Promise<void>((resolve) => {
+          window.setTimeout(resolve, 2500);
+        }),
+      ]),
+    ]).then(([next]) => {
+      if (cancel) return;
+      setUser(next);
+      setView(next ? "home" : "auth");
+    });
+    return () => {
+      cancel = true;
+    };
   }, []);
 
-  useEffect(() => {
-    apiMe()
-      .then((next) => {
-        setUser(next);
-        setView(next ? "home" : "auth");
-      })
-      .catch(() => setView("auth"));
-  }, []);
+  const faceUrls = useMemo(() => {
+    const urls: string[] = [];
+    if (user?.avatarUrl) urls.push(user.avatarUrl);
+    for (const member of room?.members ?? []) {
+      if (member.avatarUrl) urls.push(member.avatarUrl);
+    }
+    for (const player of room?.game?.players ?? []) {
+      if (player.avatarUrl) urls.push(player.avatarUrl);
+    }
+    return urls;
+  }, [user, room]);
 
   const adopt = (next: RoomSnapshot, you?: UserPublic | null) => {
     setRoom(next);
@@ -80,26 +98,41 @@ export function GameApp() {
     return () => window.clearInterval(timer);
   }, [roomCode, view]);
 
-  const enterRoom = (next: RoomSnapshot) => {
+  const enterRoom = async (next: RoomSnapshot) => {
+    const faces = [
+      ...next.members.map((member) => member.avatarUrl),
+      ...(next.game?.players.map((player) => player.avatarUrl) ?? []),
+    ].filter((url): url is string => Boolean(url));
+    await Promise.race([
+      warmUrls(faces),
+      new Promise<void>((resolve) => {
+        window.setTimeout(resolve, 350);
+      }),
+    ]);
     adopt(next);
     setError("");
     setDraft("");
     setView(next.status === "lobby" ? "lobby" : "play");
   };
 
+  const loggedIn = view !== "boot" && Boolean(user);
+  const playing = Boolean(room?.game && room.game.status !== "finished");
+
   return (
     <BgmProvider>
       <GameCabinet>
+      <SceneBackdrop kind={backdropKind(view, playing)} />
+      <AssetWarm extra={faceUrls} />
       {view === "boot" ? (
-        <div className="screen items-center justify-center text-foam/50">加载中</div>
+        <div className="screen relative z-10 items-center justify-center text-foam/50">加载中</div>
       ) : null}
-      {view === "auth" ? <AuthView onReady={(next) => { setUser(next); setView("home"); }} /> : null}
-      {user ? (
-        <div
-          className={view === "home" ? "h-full" : "invisible pointer-events-none absolute inset-0"}
-          inert={view === "home" ? undefined : true}
-          aria-hidden={view === "home" ? undefined : true}
-        >
+      {view === "auth" ? (
+        <div className="relative z-10 h-full">
+          <AuthView onReady={(next) => { setUser(next); setView("home"); }} />
+        </div>
+      ) : null}
+      {loggedIn && user ? (
+        <Keep show={view === "home"}>
           <HomeView
             onCreate={() => {
               setError("");
@@ -114,9 +147,10 @@ export function GameApp() {
               setView("settings");
             }}
           />
-        </div>
+        </Keep>
       ) : null}
-      {view === "create" ? (
+      {loggedIn ? (
+        <Keep show={view === "create"}>
         <CreateView
           error={error}
           onBack={() => {
@@ -126,20 +160,24 @@ export function GameApp() {
           onCreate={async (options) => {
             try {
               setError("");
-              enterRoom(await apiCreateRoom(options));
+              await enterRoom(await apiCreateRoom(options));
             } catch (err) {
               setError(err instanceof Error ? err.message : "创建失败");
             }
           }}
         />
+        </Keep>
       ) : null}
-      {view === "join" ? (
+      {loggedIn ? (
+        <Keep show={view === "join"}>
         <JoinView
           onBack={() => setView("home")}
           onJoin={async (code) => enterRoom(await apiJoinRoom(code))}
         />
+        </Keep>
       ) : null}
-      {view === "lobby" && room && user ? (
+      {room && user ? (
+        <Keep show={view === "lobby"}>
         <LobbyView
           room={room}
           you={user}
@@ -152,14 +190,16 @@ export function GameApp() {
           onStart={async () => {
             try {
               setError("");
-              enterRoom(await apiStartRoom(room.code));
+              await enterRoom(await apiStartRoom(room.code));
             } catch (err) {
               setError(err instanceof Error ? err.message : "开始失败");
             }
           }}
         />
+        </Keep>
       ) : null}
-      {view === "play" && room?.game ? (
+      {room && room.game ? (
+        <Keep show={view === "play"}>
         <PlayView
           room={room}
           you={user}
@@ -216,8 +256,10 @@ export function GameApp() {
             }
           }}
         />
+        </Keep>
       ) : null}
-      {view === "settings" && user ? (
+      {loggedIn && user ? (
+        <Keep show={view === "settings"}>
         <SettingsView
           user={user}
           error={error}
@@ -244,8 +286,10 @@ export function GameApp() {
             setView("auth");
           }}
         />
+        </Keep>
       ) : null}
-      {view === "shop" && user ? (
+      {loggedIn && user ? (
+        <Keep show={view === "shop"}>
         <ShopView
           user={user}
           error={error}
@@ -270,9 +314,18 @@ export function GameApp() {
             }
           }}
         />
+        </Keep>
       ) : null}
-      {view === "rules" ? <RulesView onBack={() => setView("home")} /> : null}
-      {view === "scenes" ? <HistoryView onBack={() => setView("home")} /> : null}
+      {loggedIn ? (
+        <Keep show={view === "rules"}>
+          <RulesView onBack={() => setView("home")} />
+        </Keep>
+      ) : null}
+      {loggedIn ? (
+        <Keep show={view === "scenes"}>
+          <HistoryView onBack={() => setView("home")} />
+        </Keep>
+      ) : null}
       </GameCabinet>
     </BgmProvider>
   );

@@ -13,6 +13,7 @@ export function OctopusFigure({
       alt=""
       width={609}
       height={1383}
+      decoding="sync"
       className={`select-none object-contain ${className}`}
     />
   );

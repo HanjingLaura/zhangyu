@@ -1,7 +1,6 @@
 "use client";
 
 import { BgmToggle } from "./bgm";
-import { withBase } from "@/lib/base-path";
 
 function SettingsIcon() {
   return (
@@ -53,15 +52,6 @@ export function HomeView({
 
   return (
     <div className="screen screen-home">
-      <img
-        src={withBase("/house.webp?v=4")}
-        alt=""
-        width={543}
-        height={753}
-        decoding="sync"
-        fetchPriority="high"
-        className="pointer-events-none absolute left-1/2 top-[46%] z-0 w-[78%] -translate-x-1/2 -translate-y-1/2 select-none"
-      />
       <div className="relative z-10 flex items-center justify-between px-4 pt-[calc(12px+env(safe-area-inset-top))]">
         <button
           type="button"

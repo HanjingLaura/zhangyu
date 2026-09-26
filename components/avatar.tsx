@@ -52,6 +52,7 @@ export function Avatar({
         <img
           src={src}
           alt=""
+          decoding="sync"
           className="h-full w-full object-cover"
           onError={() => setBrokenSrc(src ?? null)}
         />
