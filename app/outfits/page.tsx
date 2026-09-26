@@ -3,7 +3,7 @@ import { OUTFITS } from "@/lib/wardrobe";
 
 export default function OutfitsPage() {
   return (
-    <main className="min-h-dvh bg-[#04202c] text-[#f4f7f2]">
+    <main className="h-dvh overflow-y-auto bg-[#04202c] text-[#f4f7f2]">
       <div className="mx-auto max-w-[480px] px-4 pb-10 pt-6">
         <a href={withBase("/")} className="text-sm text-[#e8d48a]">
           回游戏
