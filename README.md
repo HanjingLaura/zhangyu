@@ -1,1 +1,33 @@
-# zhangyu
+# 章鱼哥接龙
+
+上班群里那局「龙年大吉 → 鸡年大吉 → 舞动青春 → 春天来了」，被做成了一款能围桌玩的成语接龙。
+
+**丈育**谐音**章鱼**。打开 [https://hanjing-laura.vercel.app/zhangyu](https://hanjing-laura.vercel.app/zhangyu)。
+
+昵称、头像、贝壳、服装、历史记在这台浏览器里。房间号走服务器，所以好友用自己的手机填同一个房号就能联机。
+
+## 怎么玩
+
+1. 注册或登录（只存在这台浏览器）。头像可以上传照片。
+2. 创建房间或加入房间，两到六人围坐。
+3. 顺时针一个个接，没有时间限制。
+4. **字接字**：上一句最后一个字，等于下一句第一个字。**音接音**：读音对上即可。
+5. 默认每局接一百轮。开桌的人也可以改成二十或五十轮。
+6. 桌上可以发弹幕。查词会记丈育值。
+7. 散场由章鱼哥评最丈育和最有文化。记录可以导出。
+8. 打完发贝壳，用来兑换桌边服装。头像嵌在头盔里。
+9. 配了百炼 key，章鱼哥用通义千问现编吐槽和评分；没配就用桌上的短句。
+
+## 本地运行
+
+```bash
+npm install
+npm test
+npm run dev
+```
+
+打开 [http://localhost:3000/zhangyu](http://localhost:3000/zhangyu)。
+
+好友联机走房间号。线上没配 Redis 时，房间写在 Vercel 同区域缓存里，同一局里的手机都能进；想更稳就在 Marketplace 给项目装 Upstash Redis（`UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`）。本地不配时房间只活在当前进程。
+
+章鱼哥接的是[阿里云百炼](https://bailian.console.aliyun.com)。把 `DASHSCOPE_API_KEY` 写进 `.env.local`，模型默认 `qwen-turbo`。
