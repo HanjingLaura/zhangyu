@@ -53,31 +53,19 @@ body {
   height: 100%;
   flex-direction: column;
   overflow: hidden;
-  background:
-    linear-gradient(180deg, rgba(6, 48, 68, 0.04) 0%, rgba(6, 48, 68, 0.12) 48%, rgba(6, 40, 54, 0.78) 100%),
-    url("/zhangyu/sand.webp") center 28% / cover no-repeat,
-    #063044;
+  background: linear-gradient(180deg, rgba(6, 48, 68, 0.04) 0%, rgba(6, 48, 68, 0.12) 48%, rgba(6, 40, 54, 0.78) 100%);
 }
 
 .screen-sea {
-  background:
-    linear-gradient(180deg, rgba(6, 48, 68, 0.08) 0%, rgba(6, 48, 68, 0.1) 42%, rgba(6, 40, 54, 0.72) 100%),
-    url("/zhangyu/sea.webp") 78% 60% / cover no-repeat,
-    #6aa7d4;
+  background: linear-gradient(180deg, rgba(6, 48, 68, 0.08) 0%, rgba(6, 48, 68, 0.1) 42%, rgba(6, 40, 54, 0.72) 100%);
 }
 
 .screen-home {
-  background:
-    linear-gradient(180deg, rgba(6, 48, 68, 0.1) 0%, transparent 20%),
-    url("/zhangyu/sand.webp") center 42% / cover no-repeat,
-    #3aa7cc;
+  background: linear-gradient(180deg, rgba(6, 48, 68, 0.1) 0%, transparent 20%);
 }
 
 .screen-room {
-  background:
-    linear-gradient(180deg, rgba(20, 16, 10, 0.16) 0%, transparent 10%),
-    url("/zhangyu/interior.webp?v=8") center top / cover no-repeat,
-    #c6b4bc;
+  background: linear-gradient(180deg, rgba(20, 16, 10, 0.16) 0%, transparent 10%);
 }
 
 .drawer {

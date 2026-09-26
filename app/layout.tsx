@@ -33,6 +33,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="zh-CN"
       className={`${noto.variable} ${display.variable} h-full antialiased`}
     >
+      <head>
+        <link rel="preload" as="image" href="/zhangyu/sand.webp" fetchPriority="high" />
+        <link rel="preload" as="image" href="/zhangyu/sea.webp" fetchPriority="high" />
+        <link rel="preload" as="image" href="/zhangyu/house.webp?v=4" fetchPriority="high" />
+        <link rel="preload" as="image" href="/zhangyu/interior.webp?v=8" fetchPriority="high" />
+        <link rel="preload" as="image" href="/zhangyu/octopus.webp" />
+      </head>
       <body className="min-h-full">{children}</body>
     </html>
   );

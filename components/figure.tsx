@@ -22,6 +22,7 @@ function Face({
       <img
         src={src}
         alt=""
+        decoding="sync"
         className="absolute object-cover object-[center_22%]"
         style={style}
       />
@@ -57,7 +58,7 @@ export function Figure({
       >
         {src ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={src} alt="" className="h-full w-full object-cover" />
+          <img src={src} alt="" decoding="sync" className="h-full w-full object-cover" />
         ) : (
           <span className="flex h-full w-full items-center justify-center text-sm font-semibold text-ink">
             {name.slice(0, 1)}
@@ -75,7 +76,7 @@ export function Figure({
     <span className="relative inline-block" style={{ width, height }}>
       {outfit.mask ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={outfit.mask} alt="" className="hidden" />
+        <img src={outfit.mask} alt="" decoding="sync" className="pointer-events-none absolute h-px w-px opacity-0" />
       ) : null}
       <span
         className="visor-hole absolute inset-0"
@@ -93,7 +94,7 @@ export function Figure({
         <Face name={name} src={src} box={hole} />
       </span>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={outfit.src} alt="" className="relative z-[1] h-full w-full object-contain" />
+      <img src={outfit.src} alt="" decoding="sync" className="relative z-[1] h-full w-full object-contain" />
     </span>
   );
 }

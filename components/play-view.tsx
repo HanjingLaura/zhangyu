@@ -50,12 +50,14 @@ export function PlayView({
   const mine = buzz || !you || current.id === you.id;
   const host = you?.id === room.hostId;
 
-  if (finished) {
-    return <SettleView room={room} you={you} onBack={onBack} onAgain={onAgain} onReseat={onReseat} />;
-  }
-
   return (
-    <div className="screen screen-room">
+    <div className="relative h-full">
+      {finished ? <SettleView room={room} you={you} onBack={onBack} onAgain={onAgain} onReseat={onReseat} /> : null}
+      <div
+        className={finished ? "pointer-events-none absolute inset-0 opacity-0" : "screen screen-room h-full"}
+        inert={finished ? true : undefined}
+        aria-hidden={finished ? true : undefined}
+      >
       <TopBar
         title={
           <span>
@@ -155,6 +157,7 @@ export function PlayView({
           </button>
         </div>
       </form>
+      </div>
     </div>
   );
 }
