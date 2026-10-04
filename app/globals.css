@@ -9,6 +9,8 @@
   --coral: #e0603a;
   --gold: #e8d48a;
   --muted: rgba(244, 247, 242, 0.58);
+  /* Width of the app column; full viewport on phones, phone-width on desktop. */
+  --app-w: 100vw;
 }
 
 @theme inline {
@@ -41,6 +43,27 @@ body {
 body {
   font-family: var(--font-noto), "PingFang SC", "Noto Sans SC", sans-serif;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Desktop: show the app as a centered phone-width column. Phones are untouched. */
+@media (min-width: 521px) {
+  :root {
+    --app-w: 430px;
+  }
+
+  body {
+    background: #04202c;
+  }
+
+  .app-column {
+    max-width: var(--app-w);
+    margin-inline: auto;
+    box-shadow:
+      0 0 0 1px rgba(214, 236, 232, 0.06),
+      0 0 60px rgba(0, 12, 18, 0.55);
+    /* Contain any fixed-position descendants inside the column. */
+    transform: translateZ(0);
+  }
 }
 
 .font-display {
@@ -192,7 +215,7 @@ body {
     transform: translateX(0);
   }
   to {
-    transform: translateX(calc(100vw + 100%));
+    transform: translateX(calc(var(--app-w) + 100%));
   }
 }
 

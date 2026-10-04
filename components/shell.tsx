@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 export function GameCabinet({ children }: { children: ReactNode }) {
   return (
-    <div className="relative h-dvh w-full overflow-hidden bg-bg">
+    <div className="app-column relative h-dvh w-full overflow-hidden bg-bg">
       {children}
     </div>
   );
